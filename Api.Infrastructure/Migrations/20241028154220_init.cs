@@ -183,8 +183,8 @@ namespace Api.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    ArticleRequestId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    ArticleId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    InventoryRequestId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    InventoryItemId = table.Column<Guid>(type: "char(36)", nullable: false),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
                     UpdatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
@@ -197,14 +197,14 @@ namespace Api.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_InventoryRequestItem", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_InventoryRequestItem_InventoryItems_ArticleId",
-                        column: x => x.ArticleId,
+                        name: "FK_InventoryRequestItem_InventoryItems_InventoryItemId",
+                        column: x => x.InventoryItemId,
                         principalTable: "InventoryItems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_InventoryRequestItem_InventoryRequests_ArticleRequestId",
-                        column: x => x.ArticleRequestId,
+                        name: "FK_InventoryRequestItem_InventoryRequests_InventoryRequestId",
+                        column: x => x.InventoryRequestId,
                         principalTable: "InventoryRequests",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -212,14 +212,14 @@ namespace Api.Infrastructure.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InventoryRequestItem_ArticleId",
+                name: "IX_InventoryRequestItem_InventoryItemId",
                 table: "InventoryRequestItem",
-                column: "ArticleId");
+                column: "InventoryItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InventoryRequestItem_ArticleRequestId",
+                name: "IX_InventoryRequestItem_InventoryRequestId",
                 table: "InventoryRequestItem",
-                column: "ArticleRequestId");
+                column: "InventoryRequestId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InventoryRequests_CollaboratorId",

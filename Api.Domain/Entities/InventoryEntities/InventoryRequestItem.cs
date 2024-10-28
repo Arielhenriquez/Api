@@ -2,9 +2,9 @@
 
 public class InventoryRequestItem : BaseEntity
 {
-    public Guid ArticleRequestId { get; set; }
-    public InventoryRequest ArticleRequest { get; set; }
+    public Guid InventoryRequestId { get; set; }
+    public InventoryRequest InventoryRequest { get; set; }
 
-    public Guid ArticleId { get; set; }
-    public InventoryItem Article { get; set; }
+    public Guid InventoryItemId { get; set; }
+    public InventoryItem InventoryItem { get; set; }
 }

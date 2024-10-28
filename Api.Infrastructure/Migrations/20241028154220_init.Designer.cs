@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241028073841_init")]
+    [Migration("20241028154220_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -158,12 +158,6 @@ namespace Api.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("ArticleId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("ArticleRequestId")
-                        .HasColumnType("char(36)");
-
                     b.Property<string>("CreatedBy")
                         .HasColumnType("longtext");
 
@@ -176,6 +170,12 @@ namespace Api.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("DeletedDate")
                         .HasColumnType("datetime");
 
+                    b.Property<Guid>("InventoryItemId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("InventoryRequestId")
+                        .HasColumnType("char(36)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
@@ -187,9 +187,9 @@ namespace Api.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ArticleId");
+                    b.HasIndex("InventoryItemId");
 
-                    b.HasIndex("ArticleRequestId");
+                    b.HasIndex("InventoryRequestId");
 
                     b.ToTable("InventoryRequestItem");
                 });
@@ -370,21 +370,21 @@ namespace Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Api.Domain.Entities.InventoryEntities.InventoryRequestItem", b =>
                 {
-                    b.HasOne("Api.Domain.Entities.InventoryEntities.InventoryItem", "Article")
+                    b.HasOne("Api.Domain.Entities.InventoryEntities.InventoryItem", "InventoryItem")
                         .WithMany("ArticleRequestArticles")
-                        .HasForeignKey("ArticleId")
+                        .HasForeignKey("InventoryItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Api.Domain.Entities.InventoryEntities.InventoryRequest", "ArticleRequest")
+                    b.HasOne("Api.Domain.Entities.InventoryEntities.InventoryRequest", "InventoryRequest")
                         .WithMany("ArticleRequestArticles")
-                        .HasForeignKey("ArticleRequestId")
+                        .HasForeignKey("InventoryRequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Article");
+                    b.Navigation("InventoryItem");
 
-                    b.Navigation("ArticleRequest");
+                    b.Navigation("InventoryRequest");
                 });
 
             modelBuilder.Entity("Api.Domain.Entities.TransportEntities.TransportRequest", b =>
