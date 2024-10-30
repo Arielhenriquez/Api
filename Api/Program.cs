@@ -1,22 +1,22 @@
-using Api.Infrastructure.Persistence.Context;
-using Microsoft.EntityFrameworkCore;
-using System.Configuration;
-using System.Text.Json.Serialization;
+using Api;
+using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySQL(connectionString));
-builder.Services.AddTransient<IDbContext, ApplicationDbContext>();
-builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles); ;
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Services.AddHttpLogging(httpLogging =>
+{
+    httpLogging.LoggingFields = HttpLoggingFields.All;
+});
+var setup = new Startup(builder.Configuration);
+
+setup.RegisterServices(builder.Services);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+setup.SetupMiddlewares(app);
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -25,8 +25,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();

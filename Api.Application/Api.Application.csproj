@@ -7,7 +7,28 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Features\" />
+    <Folder Include="Features\Collaborators\Projections\" />
+    <Folder Include="Features\Collaborators\Services\" />
+    <Folder Include="Features\Inventory\InventoryItems\Dtos\" />
+    <Folder Include="Features\Inventory\InventoryItems\Predicates\" />
+    <Folder Include="Features\Inventory\InventoryItems\Projections\" />
+    <Folder Include="Features\Inventory\InventoryItems\Services\" />
+    <Folder Include="Features\Inventory\InventoryRequest\Dtos\" />
+    <Folder Include="Features\Inventory\InventoryRequest\Predicates\" />
+    <Folder Include="Features\Inventory\InventoryRequest\Projections\" />
+    <Folder Include="Features\Inventory\InventoryRequest\Services\" />
+    <Folder Include="Features\Transport\Drivers\Dtos\" />
+    <Folder Include="Features\Transport\Drivers\Predicates\" />
+    <Folder Include="Features\Transport\Drivers\Projections\" />
+    <Folder Include="Features\Transport\Drivers\Services\" />
+    <Folder Include="Features\Transport\TransportRequest\Dtos\" />
+    <Folder Include="Features\Transport\TransportRequest\Predicates\" />
+    <Folder Include="Features\Transport\TransportRequest\Projections\" />
+    <Folder Include="Features\Transport\TransportRequest\Services\" />
+    <Folder Include="Features\Transport\Vehicles\Dtos\" />
+    <Folder Include="Features\Transport\Vehicles\Predicates\" />
+    <Folder Include="Features\Transport\Vehicles\Projections\" />
+    <Folder Include="Features\Transport\Vehicles\Services\" />
     <Folder Include="Interfaces\" />
   </ItemGroup>
 
