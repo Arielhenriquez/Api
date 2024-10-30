@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241028154220_init")]
+    [Migration("20241030152705_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -114,10 +114,6 @@ namespace Api.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("ApprovalStatus")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<Guid>("CollaboratorId")
                         .HasColumnType("char(36)");
 
@@ -138,6 +134,9 @@ namespace Api.Infrastructure.Migrations
 
                     b.Property<DateTime>("RequestDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<int>("RequestStatus")
+                        .HasColumnType("int");
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("longtext");
@@ -270,9 +269,11 @@ namespace Api.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<string>("RequestStatus")
-                        .IsRequired()
+                    b.Property<string>("PhoneNumber")
                         .HasColumnType("longtext");
+
+                    b.Property<int>("RequestStatus")
+                        .HasColumnType("int");
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("longtext");
@@ -360,7 +361,7 @@ namespace Api.Infrastructure.Migrations
             modelBuilder.Entity("Api.Domain.Entities.InventoryEntities.InventoryRequest", b =>
                 {
                     b.HasOne("Api.Domain.Entities.InventoryEntities.Collaborator", "Collaborator")
-                        .WithMany("ArticleRequests")
+                        .WithMany("InventoryRequest")
                         .HasForeignKey("CollaboratorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -371,13 +372,13 @@ namespace Api.Infrastructure.Migrations
             modelBuilder.Entity("Api.Domain.Entities.InventoryEntities.InventoryRequestItem", b =>
                 {
                     b.HasOne("Api.Domain.Entities.InventoryEntities.InventoryItem", "InventoryItem")
-                        .WithMany("ArticleRequestArticles")
+                        .WithMany("InventoryRequestItems")
                         .HasForeignKey("InventoryItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Api.Domain.Entities.InventoryEntities.InventoryRequest", "InventoryRequest")
-                        .WithMany("ArticleRequestArticles")
+                        .WithMany("InventoryRequestItems")
                         .HasForeignKey("InventoryRequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -416,19 +417,19 @@ namespace Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Api.Domain.Entities.InventoryEntities.Collaborator", b =>
                 {
-                    b.Navigation("ArticleRequests");
+                    b.Navigation("InventoryRequest");
 
                     b.Navigation("TransportRequests");
                 });
 
             modelBuilder.Entity("Api.Domain.Entities.InventoryEntities.InventoryItem", b =>
                 {
-                    b.Navigation("ArticleRequestArticles");
+                    b.Navigation("InventoryRequestItems");
                 });
 
             modelBuilder.Entity("Api.Domain.Entities.InventoryEntities.InventoryRequest", b =>
                 {
-                    b.Navigation("ArticleRequestArticles");
+                    b.Navigation("InventoryRequestItems");
                 });
 
             modelBuilder.Entity("Api.Domain.Entities.TransportEntities.Driver", b =>

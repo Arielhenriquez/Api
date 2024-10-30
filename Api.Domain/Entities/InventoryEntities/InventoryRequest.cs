@@ -1,11 +1,13 @@
-﻿namespace Api.Domain.Entities.InventoryEntities;
+﻿using Api.Domain.Enums;
+
+namespace Api.Domain.Entities.InventoryEntities;
 
 public class InventoryRequest : BaseEntity
 {
     public Guid CollaboratorId { get; set; }
     public Collaborator Collaborator { get; set; }
     public DateTime RequestDate { get; set; }
-    public string ApprovalStatus { get; set; }
+    public RequestStatus RequestStatus { get; set; }
 
-    public ICollection<InventoryRequestItem> ArticleRequestArticles { get; set; } = [];
+    public ICollection<InventoryRequestItem> InventoryRequestItems { get; set; } = [];
 }
