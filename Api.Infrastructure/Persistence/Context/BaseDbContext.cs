@@ -1,4 +1,5 @@
 ﻿using Api.Domain.Entities;
+using Api.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Reflection;

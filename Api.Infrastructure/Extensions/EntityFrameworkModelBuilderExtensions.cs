@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
-namespace Api.Infrastructure.Persistence.Context;
+namespace Api.Infrastructure.Extensions;
 
 public static class EntityFrameworkModelBuilderExtensions
 {

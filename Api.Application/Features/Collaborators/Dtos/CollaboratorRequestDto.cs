@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Api.Application.Features.Collaborators.Dtos;
 
-namespace Api.Application.Features.Collaborators.Dtos
+public class CollaboratorRequestDto
 {
-    internal class CollaboratorRequestDto
-    {
-    }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public required string Name { get; set; }
+    public required string Supervisor { get; set; }
+    public required string Deparment { get; set; }
 }

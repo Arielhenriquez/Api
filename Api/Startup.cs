@@ -1,4 +1,7 @@
-﻿using Api.Infrastructure;
+﻿using Api.Application;
+using Api.Filters;
+using Api.Infrastructure;
+using Api.Middlewares;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 
@@ -20,7 +23,7 @@ public class Startup
 
         services.AddControllers(options =>
         {
-            // options.Filters.Add(typeof(CustomExceptionFilter));
+            options.Filters.Add<ExceptionFilters>();
         }).AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
         //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -28,7 +31,7 @@ public class Startup
 
         services.AddHttpContextAccessor();
         services.AddInfrastructure(Configuration);
-        // services.AddApplication();
+        services.AddApplication();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
@@ -72,7 +75,6 @@ public class Startup
     public void SetupMiddlewares(WebApplication app)
     {
         app.UseCors("DevPolicy");
-        //app.UseMiddleware<UnauthorizedMiddleware>();
-
+        app.UseMiddleware<UnauthorizedMiddleware>();
     }
 }

@@ -1,8 +1,7 @@
 ﻿using Api.Application.Common.BaseResponse;
-using Api.Domain.Entities.InventoryEntities;
-using Api.Infrastructure.Persistence.Context;
+using Api.Application.Common.Pagination;
+using Api.Application.Interfaces.Collaborators;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Api.Controllers;
@@ -11,41 +10,28 @@ namespace Api.Controllers;
 [ApiController]
 public class CollaboratorController : ControllerBase
 {
-    protected readonly IDbContext _context;
-    protected readonly DbSet<Collaborator> _db;
+    private readonly ICollaboratorService _collaboratorService;
 
-    public CollaboratorController(IDbContext context)
+    public CollaboratorController(ICollaboratorService collaboratorService)
     {
-        _context = context;
-        _db = context.Set<Collaborator>();
+        _collaboratorService = collaboratorService;
     }
 
     [HttpGet]
     [SwaggerOperation(
         Summary = "Gets Collaborators in the database")]
-    public async Task<IActionResult> GetCollaborators()
+    public async Task<IActionResult> GetCollaborators([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
-        var collaborators = await _db
-            .OrderByDescending(c => c.CreatedDate)
-            .ToListAsync();
-
+        var collaborators = await _collaboratorService.GetPagedCollaborators(query, cancellationToken);
         return Ok(BaseResponse.Ok(collaborators));
     }
 
     [HttpGet("search-by-name")]
     [SwaggerOperation(
-     Summary = "Get Collaborators by partial name match")]
+        Summary = "Get Collaborators by partial name match")]
     public async Task<IActionResult> GetCollaboratorByName([FromQuery] string name)
     {
-        var collaborators = await _db
-            .Where(c => EF.Functions.Like(c.Name, $"%{name}%"))
-            .ToListAsync();
-
-        if (collaborators == null || collaborators.Count == 0)
-        {
-            return NotFound(BaseResponse.NotFound($"No collaborators found with name containing '{name}'"));
-        }
-
+        var collaborators = await _collaboratorService.FindCollaboratorByName(name);
         return Ok(BaseResponse.Ok(collaborators));
     }
 }
