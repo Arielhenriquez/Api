@@ -1,10 +1,12 @@
-﻿namespace Api.Domain.Entities.TransportEntities;
+﻿using Api.Domain.Enums;
+
+namespace Api.Domain.Entities.TransportEntities;
 
 public class Vehicle : BaseEntity
 {
     public string? Type { get; set; }
     public int Capacity { get; set; }
-    public string Status { get; set; }  //Enum    
+    public VehiculeStatus Status { get; set; }
     public required string Brand { get; set; }
     public required string Model { get; set; }
     public required string LicensePlate { get; set; }
