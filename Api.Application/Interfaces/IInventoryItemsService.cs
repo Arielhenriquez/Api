@@ -1,5 +1,11 @@
-﻿namespace Api.Application.Interfaces;
+﻿using Api.Application.Common.Pagination;
+using Api.Application.Features.Collaborators.Dtos;
+using Api.Application.Features.Inventory.InventoryItems.Dtos;
 
-public interface IInventoryItemsService
+namespace Api.Application.Interfaces;
+
+public interface IInventoryItemsService : IBaseService<InventoryItemRequestDto, InventoryItemResponseDto>
 {
+    Task<Paged<InventoryItemResponseDto>> GetPagedInventoryItems(PaginationQuery paginationQuery, CancellationToken cancellationToken);
+    Task<List<InventoryItemResponseDto>> FindInventoryItemByName(string criteria);
 }

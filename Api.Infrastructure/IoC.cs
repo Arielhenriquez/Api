@@ -18,6 +18,7 @@ public static class IoC
         .AddTransient<IDbContext, ApplicationDbContext>()
         .AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>))
         .AddScoped<ICollaboratorRepository, CollaboratorRepository>()
-        .AddScoped<IEmailService, EmailService>();
+        .AddScoped<IInventoryItemRepository, InventoryItemRepository>()
+        .AddTransient<IEmailService, EmailService>();
     }
 }

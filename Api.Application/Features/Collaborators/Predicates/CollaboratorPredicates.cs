@@ -7,10 +7,10 @@ public class CollaboratorPredicates
 {
     public static Expression<Func<Collaborator, bool>> Search(string criteria)
     {
-        return (Collaborator person) =>
-            person.Name.Contains(criteria) ||
-            person.Supervisor.Contains(criteria) ||
-            person.Department.Contains(criteria) ||
+        return (Collaborator collaborator) =>
+            collaborator.Name.Contains(criteria) ||
+            collaborator.Supervisor.Contains(criteria) ||
+            collaborator.Department.Contains(criteria) ||
             string.IsNullOrWhiteSpace(criteria);
     }
 }

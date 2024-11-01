@@ -22,9 +22,14 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
     {
         return _db.AsQueryable().OrderByDescending(c => c.CreatedDate);
     }
-    public virtual async Task<TEntity> GetById(Guid id)
+
+    public virtual async Task<IEnumerable<TEntity>> GetAll()
     {
-        var entity = await Query().Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
+        return await Query().ToListAsync();
+    }
+    public virtual async Task<TEntity> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var entity = await Query().Where(x => x.Id.Equals(id)).FirstOrDefaultAsync(cancellationToken);
 
         if (entity is null) throw new NotFoundException(typeof(TEntity).Name, id);
 
@@ -47,7 +52,7 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
     public virtual async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        var _entity = await GetById(entity.Id);
+        var _entity = await GetById(entity.Id, cancellationToken);
         Type type = typeof(TEntity);
         PropertyInfo[] propertyInfo = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         foreach (var item in propertyInfo)
@@ -69,12 +74,12 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
     }
 
 
-    public virtual async Task<TEntity> Delete(Guid id)
+    public virtual async Task<TEntity> Delete(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await GetById(id);
+        var entity = await GetById(id, cancellationToken);
 
         var result = _db.Remove(entity);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return result.Entity;
     }

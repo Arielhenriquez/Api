@@ -9,6 +9,8 @@ namespace Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+
+//Todo: refactor this
 public class DriverController : ControllerBase
 {
     protected readonly IDbContext _context;

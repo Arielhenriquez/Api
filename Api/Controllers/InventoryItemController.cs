@@ -1,10 +1,9 @@
 ﻿using Api.Application.Common.BaseResponse;
-using Api.Domain.Entities.InventoryEntities;
-using Api.Infrastructure.Persistence.Context;
+using Api.Application.Common.Pagination;
+using Api.Application.Features.Inventory.InventoryItems.Dtos;
+using Api.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Text.Json.Serialization;
 
 namespace Api.Controllers;
 
@@ -12,84 +11,66 @@ namespace Api.Controllers;
 [ApiController]
 public class InventoryItemController : ControllerBase
 {
-    protected readonly IDbContext _context;
-    protected readonly DbSet<InventoryItem> _db;
+    private readonly IInventoryItemsService _inventoryItemsService;
 
-    public InventoryItemController(IDbContext context)
+    public InventoryItemController(IInventoryItemsService inventoryItemsService)
     {
-        _context = context;
-        _db = context.Set<InventoryItem>();
+        _inventoryItemsService = inventoryItemsService;
+    }
+
+    [HttpGet("paged")]
+    [SwaggerOperation(
+      Summary = "Gets Paged Inventory items in the database")]
+    public async Task<IActionResult> GetCollaborators([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
+    {
+        var collaborators = await _inventoryItemsService.GetPagedInventoryItems(query, cancellationToken);
+        return Ok(BaseResponse.Ok(collaborators));
     }
 
     [HttpGet]
     [SwaggerOperation(
-        Summary = "Gets Inventory Items in the database")]
+     Summary = "List Inventory Items in the database")]
     public async Task<IActionResult> GetInventoryItems()
     {
-        var collaborators = await _db
-            .OrderByDescending(c => c.CreatedDate)
-            .ToListAsync();
-
-        return Ok(BaseResponse.Ok(collaborators));
+        var inventoryItems = await _inventoryItemsService.GetAllAsync();
+        return Ok(BaseResponse.Ok(inventoryItems));
     }
 
     [HttpGet("search-by-name")]
     [SwaggerOperation(
-     Summary = "Get InventoryItems by partial name match")]
-    public async Task<IActionResult> GetCollaboratorByName([FromQuery] string name)
+     Summary = "Get Inventory Items by partial name match")]
+    public async Task<IActionResult> GetInventoryItemByName([FromQuery] string name)
     {
-        var collaborators = await _db
-            .Where(c => EF.Functions.Like(c.Name, $"%{name}%"))
-            .ToListAsync();
-
-        if (collaborators == null || collaborators.Count == 0)
-        {
-            return NotFound(BaseResponse.NotFound($"No collaborators found with name containing '{name}'"));
-        }
-
-        return Ok(BaseResponse.Ok(collaborators));
+        var inventoryItems = await _inventoryItemsService.FindInventoryItemByName(name);
+        return Ok(BaseResponse.Ok(inventoryItems));
     }
 
 
     [HttpPost]
     [SwaggerOperation(
        Summary = "Creates a new inventory item")]
-    public async Task<IActionResult> AddInventoryItem([FromBody] InventoryItemDto inventoryItemDto)
+    public async Task<IActionResult> AddInventoryItem([FromBody] InventoryItemRequestDto inventoryItemDto, CancellationToken cancellationToken)
     {
-        InventoryItem inventoryItem = new()
-        {
-            Name = inventoryItemDto.Name,
-            Quantity = inventoryItemDto.Quantity,
-            UnitOfMeasure = inventoryItemDto.UnitOfMeasure,
-        };
-
-        await _db.AddAsync(inventoryItem);
-        await _context.SaveChangesAsync();
-        return Ok(BaseResponse.Ok(inventoryItem));
+        var result = await _inventoryItemsService.AddAsync(inventoryItemDto, cancellationToken);
+        return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
 
-    public class InventoryItemDto
-    {
-        [JsonIgnore]
-        public Guid Id { get; set; } = Guid.NewGuid();
-        public required string Name { get; set; }
-        public required int Quantity { get; set; }
-        public string? UnitOfMeasure { get; set; }
-    }
 
+    [HttpPut("{id}")]
+    [SwaggerOperation(
+        Summary = "Updates existing Inventory item")]
+    public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] InventoryItemRequestDto request, CancellationToken cancellationToken = default)
+    {
+        await _inventoryItemsService.UpdateAsync(id, request, cancellationToken);
+        return Ok(BaseResponse.Updated(request));
+    }
 
     [HttpDelete("{id}")]
     [SwaggerOperation(
         Summary = "Deletes an inventory item")]
-
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
+    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _db.AsQueryable().Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
-
-        if (entity is null) return NotFound(BaseResponse.NotFound($"No collaborators found with id containing '{id}'"));
-
-        _db.Remove(entity);
-        await _context.SaveChangesAsync();
+        await _inventoryItemsService.DeleteAsync(id, cancellationToken);
         return NoContent();
     }
 }
