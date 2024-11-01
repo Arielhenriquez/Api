@@ -12,12 +12,10 @@ namespace Api.Controllers;
 public class CollaboratorController : ControllerBase
 {
     private readonly ICollaboratorService _collaboratorService;
-    private readonly IEmailService _emailService;
 
-    public CollaboratorController(ICollaboratorService collaboratorService, IEmailService emailService)
+    public CollaboratorController(ICollaboratorService collaboratorService)
     {
         _collaboratorService = collaboratorService;
-        _emailService = emailService;
     }
 
     [HttpGet]
@@ -25,8 +23,7 @@ public class CollaboratorController : ControllerBase
         Summary = "Gets paged Collaborators in the database")]
     public async Task<IActionResult> GetCollaborators([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
-        var collaborators = await _collaboratorService.GetPagedCollaborators(query, cancellationToken);
-        await _emailService.SendTestEmail();
+        var collaborators = await _collaboratorService.GetPagedCollaborators(query, cancellationToken); 
         return Ok(BaseResponse.Ok(collaborators));
     }
 

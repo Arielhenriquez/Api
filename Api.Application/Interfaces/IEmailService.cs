@@ -2,6 +2,6 @@
 
 public interface IEmailService
 {
-    Task SendTestEmail();
+    Task SendEmail(string toEmail, string subject, string driverName);
     Task SendRequestConfirmationEmail(string collaboratorEmail, Guid requestId);
 }

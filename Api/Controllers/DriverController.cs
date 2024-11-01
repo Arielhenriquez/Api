@@ -1,4 +1,5 @@
 ﻿using Api.Application.Common.BaseResponse;
+using Api.Application.Interfaces;
 using Api.Domain.Entities.TransportEntities;
 using Api.Infrastructure.Persistence.Context;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +16,13 @@ public class DriverController : ControllerBase
 {
     protected readonly IDbContext _context;
     protected readonly DbSet<Driver> _db;
+    private readonly IEmailService _emailService;
 
-    public DriverController(IDbContext context)
+    public DriverController(IDbContext context, IEmailService emailService)
     {
         _context = context;
         _db = context.Set<Driver>();
+        _emailService = emailService;
     }
 
     [HttpGet]
@@ -40,6 +43,7 @@ public class DriverController : ControllerBase
 
         var oli = await _db.AddAsync(driver1);
         await _context.SaveChangesAsync();
+        await _emailService.SendEmail("manoloemail@gmail.com", "Driver", driver.Name);
         return Ok(BaseResponse.Ok(driver1));
     }
 

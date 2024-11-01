@@ -23,4 +23,8 @@
     <ProjectReference Include="..\Api.Infrastructure\Api.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\EmailTemplates\CreatedDriversEmailTemplate.html" />
+  </ItemGroup>
+
 </Project>

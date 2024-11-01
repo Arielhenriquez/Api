@@ -1,48 +1,60 @@
 ﻿using Api.Application.Interfaces;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Api.Infrastructure.Providers;
 
 public class EmailService : IEmailService
 {
+    private readonly ILogger<EmailService> _logger;
+    private readonly IConfiguration _config;
+
+    public EmailService(ILogger<EmailService> logger, IConfiguration config)
+    {
+        _logger = logger;
+        _config = config;
+    }
+
     public Task SendRequestConfirmationEmail(string collaboratorEmail, Guid requestId)
     {
         throw new NotImplementedException();
     }
 
-    public async Task SendTestEmail()
+    public async Task SendEmail(string toEmail, string subject, string driverName)
     {
-        // Configura los detalles del correo electrónico
-        var subject = "Inventory Request Confirmation";
-        var body = $"Your request with ID si has been successfully created.";
+        string hola = _config["EmailSettings:Username"];
+        string hola2 = _config["EmailSettings:Password"];
+        string hola3 = _config["EmailSettings:Host"];
+        string hola4 = _config["EmailSettings:Port"];
+        var fromAddress = new MailAddress(_config["EmailSettings:From"], "Ministerio de Cultura");
+        var toAddress = new MailAddress(toEmail);
 
-        //// Envía el correo (ejemplo usando MailKit)
-        //using var smtpClient = new SmtpClient();
-        //await smtpClient.ConnectAsync("smtp.mailtrap.io", 587, SecureSocketOptions.StartTls);
-        //await smtpClient.AuthenticateAsync("MAILTRAP_USERNAME", "MAILTRAP_PASSWORD");
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "EmailTemplates", "CreatedDriversEmailTemplate.html");
+        string htmlBody = await File.ReadAllTextAsync(templatePath);
+        htmlBody = htmlBody.Replace("{{UserName}}", driverName);
 
-        //var message = new MimeMessage();
-        //message.From.Add(MailboxAddress.Parse("noreply@company.com"));
-        //message.To.Add(MailboxAddress.Parse(collaboratorEmail));
-        //message.Subject = subject;
-        //message.Body = new TextPart("plain") { Text = body };
-
-        //await smtpClient.SendAsync(message);
-        //await smtpClient.DisconnectAsync(true);
-        var client = new SmtpClient("sandbox.smtp.mailtrap.io", 2525)
+        var message = new MailMessage
         {
-            Credentials = new NetworkCredential("4a73f7c04e173c", "5ede0a8d794ca7"),
-            EnableSsl = true
+            From = fromAddress,
+            Subject = subject,
+            Body = htmlBody,
+            IsBodyHtml = true
         };
-        client.Send("from@example.com", "to@example.com", "Hello world", "testbody");
-        
+        message.To.Add(toAddress);
 
+        using var client = new SmtpClient
+        {
+            Host = _config["EmailSettings:Host"],
+            Port = int.Parse(_config["EmailSettings:Port"]),
+            EnableSsl = true,
+            DeliveryMethod = SmtpDeliveryMethod.Network,
+            UseDefaultCredentials = false,
+            Credentials = new NetworkCredential(_config["EmailSettings:Username"], _config["EmailSettings:Password"])
+        };
+
+        await client.SendMailAsync(message);
+        _logger.Log(logLevel: LogLevel.Warning, "Correo enviado");
     }
 }
