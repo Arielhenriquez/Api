@@ -19,7 +19,7 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
 
         if (inventoryItems == null || inventoryItems.Count == 0)
         {
-            throw new NotFoundException($"No collaborators found with name containing: {criteria}");
+            throw new NotFoundException($"No inventory Items found with name containing: {criteria}");
         }
 
         return inventoryItems;

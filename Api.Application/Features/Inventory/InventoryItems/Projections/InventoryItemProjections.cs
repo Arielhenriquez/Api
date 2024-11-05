@@ -4,9 +4,10 @@ using System.Linq.Expressions;
 
 namespace Api.Application.Features.Inventory.InventoryItems.Projections;
 
-public class InventoryItemProjections
+public static class InventoryItemProjections
 {
-    public static Expression<Func<InventoryItem, InventoryItemResponseDto>> Search => (InventoryItem inventoryItem) => new InventoryItemResponseDto()
+    public static Expression<Func<InventoryItem, InventoryItemResponseDto>> Search => 
+        (InventoryItem inventoryItem) => new InventoryItemResponseDto()
     {
         Id = inventoryItem.Id,
         Name = inventoryItem.Name,

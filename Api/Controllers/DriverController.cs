@@ -1,9 +1,10 @@
 ﻿using Api.Application.Common.BaseResponse;
+using Api.Application.Common.Pagination;
+using Api.Application.Features.Transport.Drivers.Dtos;
 using Api.Application.Interfaces;
+using Api.Application.Interfaces.Transport;
 using Api.Domain.Entities.TransportEntities;
-using Api.Infrastructure.Persistence.Context;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Api.Controllers;
@@ -11,47 +12,62 @@ namespace Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 
-//Todo: refactor this to use a service.
 public class DriverController : ControllerBase
 {
-    protected readonly IDbContext _context;
-    protected readonly DbSet<Driver> _db;
     private readonly IEmailService _emailService;
+    private readonly IDriverService _driverService;
 
-    public DriverController(IDbContext context, IEmailService emailService)
+    public DriverController(IEmailService emailService, IDriverService driverService)
     {
-        _context = context;
-        _db = context.Set<Driver>();
         _emailService = emailService;
+        _driverService = driverService;
     }
-
-    [HttpGet]
+    [HttpGet("paged")]
     [SwaggerOperation(
-     Summary = "Gets drivers in the database")]
-    public async Task<IActionResult> GetDrivers()
+         Summary = "Gets Paged Drivers in the database")]
+    public async Task<IActionResult> GetPagedDrivers([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
-        var oli = _db.AsQueryable();
-        return Ok(BaseResponse.Ok(oli));
+        var collaborators = await _driverService.GetPagedDrivers(query, cancellationToken);
+        return Ok(BaseResponse.Ok(collaborators));
     }
 
-    //[HttpPost]
-    //[SwaggerOperation(
-    //    Summary = "Creates a new driver")]
-    //public async Task<IActionResult> AddDriver([FromBody] DriverDto driver)
-    //{
-    //    Driver driver1 = new() { Name = driver.Name, LicenseExpiration = driver.LicenseExpiration, State = driver.State, PhoneNumber = driver.PhoneNumber };
 
-    //    var oli = await _db.AddAsync(driver1);
-    //    await _context.SaveChangesAsync();
-    //    await _emailService.SendEmail("manoloemail@gmail.com", "Driver", driver.Name);
-    //    return Ok(BaseResponse.Ok(driver1));
-    //}
-
-    public class DriverDto
+    [HttpGet("search-by-name")]
+    [SwaggerOperation(
+     Summary = "Get Drivers by partial name match")]
+    public async Task<IActionResult> GetDriversByName([FromQuery] string name)
     {
-        public required string Name { get; set; }
-        public string? State { get; set; }
-        public required DateTime LicenseExpiration { get; set; }
-        public string? PhoneNumber { get; set; }
+        var inventoryItems = await _driverService.FindDriversByName(name);
+        return Ok(BaseResponse.Ok(inventoryItems));
+    }
+
+
+    [HttpPost]
+    [SwaggerOperation(
+       Summary = "Creates a new Driver")]
+    public async Task<IActionResult> AddDriver([FromBody] DriverRequestDto driverRequestDto, CancellationToken cancellationToken)
+    {
+        var result = await _driverService.AddAsync(driverRequestDto, cancellationToken);
+        await _emailService.SendEmail("manoloemail@gmail.com", "Driver", result.Name);
+        return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
+    }
+
+
+    [HttpPut("{id}")]
+    [SwaggerOperation(
+        Summary = "Updates an existing Driver")]
+    public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] DriverRequestDto request, CancellationToken cancellationToken = default)
+    {
+        await _driverService.UpdateAsync(id, request, cancellationToken);
+        return Ok(BaseResponse.Updated(request));
+    }
+
+    [HttpDelete("{id}")]
+    [SwaggerOperation(
+        Summary = "Deletes a Driver")]
+    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        await _driverService.DeleteAsync(id, cancellationToken);
+        return NoContent();
     }
 }

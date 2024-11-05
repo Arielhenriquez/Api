@@ -33,7 +33,7 @@ public class InventoryItemRepository : IInventoryItemRepository
 
     public Task<Paged<InventoryItemResponseDto>> SearchAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return _context.Set<InventoryItem>()
+        return _db
        .AsNoTracking()
        .Where(InventoryItemsPredicates.Search(query.Search))
        .OrderByDescending(p => p.CreatedDate)

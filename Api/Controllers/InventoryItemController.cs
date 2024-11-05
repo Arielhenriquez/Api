@@ -21,7 +21,7 @@ public class InventoryItemController : ControllerBase
     [HttpGet("paged")]
     [SwaggerOperation(
       Summary = "Gets Paged Inventory items in the database")]
-    public async Task<IActionResult> GetCollaborators([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetInventoryItems([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
         var collaborators = await _inventoryItemsService.GetPagedInventoryItems(query, cancellationToken);
         return Ok(BaseResponse.Ok(collaborators));

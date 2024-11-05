@@ -1,6 +1,7 @@
 ﻿using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
 using Api.Application.Interfaces.Inventory;
+using Api.Application.Interfaces.Transport;
 using Api.Infrastructure.Persistence.Context;
 using Api.Infrastructure.Persistence.Repositories;
 using Api.Infrastructure.Providers;
@@ -20,6 +21,7 @@ public static class IoC
         .AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>))
         .AddScoped<ICollaboratorRepository, CollaboratorRepository>()
         .AddScoped<IInventoryItemRepository, InventoryItemRepository>()
+        .AddScoped<IDriverRepository, DriverRepository>()
         .AddTransient<IEmailService, EmailService>();
     }
 }

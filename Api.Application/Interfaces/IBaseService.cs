@@ -1,7 +1,4 @@
-﻿using Api.Application.Common.BaseResponse;
-using Api.Application.Common.Pagination;
-
-namespace Api.Application.Interfaces;
+﻿namespace Api.Application.Interfaces;
 
 public interface IBaseService<TRequest, TResponse> where TResponse : class
 {

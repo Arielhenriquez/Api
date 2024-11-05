@@ -1,5 +1,4 @@
 ﻿using Api.Application.Common.Pagination;
-using Api.Application.Features.Collaborators.Dtos;
 using Api.Application.Features.Inventory.InventoryItems.Dtos;
 
 namespace Api.Application.Interfaces.Inventory;
