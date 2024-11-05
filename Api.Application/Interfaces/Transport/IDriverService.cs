@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.Application.Interfaces;
+namespace Api.Application.Interfaces.Transport;
 
 public interface IDriverService
 {

@@ -6,6 +6,7 @@ using System.Net.Mail;
 
 namespace Api.Infrastructure.Providers;
 
+//Todo: Refactor this, move the replace to Create driver service and anyone who needs it
 public class EmailService : IEmailService
 {
     private readonly ILogger<EmailService> _logger;
@@ -24,13 +25,10 @@ public class EmailService : IEmailService
 
     public async Task SendEmail(string toEmail, string subject, string driverName)
     {
-        string hola = _config["EmailSettings:Username"];
-        string hola2 = _config["EmailSettings:Password"];
-        string hola3 = _config["EmailSettings:Host"];
-        string hola4 = _config["EmailSettings:Port"];
         var fromAddress = new MailAddress(_config["EmailSettings:From"], "Ministerio de Cultura");
         var toAddress = new MailAddress(toEmail);
 
+        //Todo refactor this to use it in add driver method with FileExtension.
         string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "EmailTemplates", "CreatedDriversEmailTemplate.html");
         string htmlBody = await File.ReadAllTextAsync(templatePath);
         htmlBody = htmlBody.Replace("{{UserName}}", driverName);

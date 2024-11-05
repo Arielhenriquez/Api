@@ -3,6 +3,7 @@ using Api.Application.Common.Exceptions;
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Inventory.InventoryItems.Dtos;
 using Api.Application.Interfaces;
+using Api.Application.Interfaces.Inventory;
 using Api.Domain.Entities.InventoryEntities;
 
 namespace Api.Application.Features.Inventory.InventoryItems.Services;

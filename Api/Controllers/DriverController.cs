@@ -11,7 +11,7 @@ namespace Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 
-//Todo: refactor this
+//Todo: refactor this to use a service.
 public class DriverController : ControllerBase
 {
     protected readonly IDbContext _context;
@@ -34,18 +34,18 @@ public class DriverController : ControllerBase
         return Ok(BaseResponse.Ok(oli));
     }
 
-    [HttpPost]
-    [SwaggerOperation(
-        Summary = "Creates a new driver")]
-    public async Task<IActionResult> AddDriver([FromBody] DriverDto driver)
-    {
-        Driver driver1 = new() { Name = driver.Name, LicenseExpiration = driver.LicenseExpiration, State = driver.State, PhoneNumber = driver.PhoneNumber };
+    //[HttpPost]
+    //[SwaggerOperation(
+    //    Summary = "Creates a new driver")]
+    //public async Task<IActionResult> AddDriver([FromBody] DriverDto driver)
+    //{
+    //    Driver driver1 = new() { Name = driver.Name, LicenseExpiration = driver.LicenseExpiration, State = driver.State, PhoneNumber = driver.PhoneNumber };
 
-        var oli = await _db.AddAsync(driver1);
-        await _context.SaveChangesAsync();
-        await _emailService.SendEmail("manoloemail@gmail.com", "Driver", driver.Name);
-        return Ok(BaseResponse.Ok(driver1));
-    }
+    //    var oli = await _db.AddAsync(driver1);
+    //    await _context.SaveChangesAsync();
+    //    await _emailService.SendEmail("manoloemail@gmail.com", "Driver", driver.Name);
+    //    return Ok(BaseResponse.Ok(driver1));
+    //}
 
     public class DriverDto
     {

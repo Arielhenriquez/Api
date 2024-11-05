@@ -1,7 +1,7 @@
 ﻿using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Inventory.InventoryItems.Dtos;
-using Api.Application.Interfaces;
+using Api.Application.Interfaces.Inventory;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 

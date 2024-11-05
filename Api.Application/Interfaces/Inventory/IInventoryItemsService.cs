@@ -2,7 +2,7 @@
 using Api.Application.Features.Collaborators.Dtos;
 using Api.Application.Features.Inventory.InventoryItems.Dtos;
 
-namespace Api.Application.Interfaces;
+namespace Api.Application.Interfaces.Inventory;
 
 public interface IInventoryItemsService : IBaseService<InventoryItemRequestDto, InventoryItemResponseDto>
 {

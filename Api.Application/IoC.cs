@@ -1,8 +1,9 @@
 ﻿using Api.Application.Features.Collaborators.Services;
 using Api.Application.Features.Inventory.InventoryItems.Services;
 using Api.Application.Features.Transport.Drivers.Services;
-using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
+using Api.Application.Interfaces.Inventory;
+using Api.Application.Interfaces.Transport;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Api.Application;

@@ -1,5 +1,6 @@
 ﻿using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
+using Api.Application.Interfaces.Inventory;
 using Api.Infrastructure.Persistence.Context;
 using Api.Infrastructure.Persistence.Repositories;
 using Api.Infrastructure.Providers;

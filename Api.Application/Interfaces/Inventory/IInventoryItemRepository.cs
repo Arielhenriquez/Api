@@ -1,7 +1,7 @@
 ﻿using Api.Application.Common.Pagination;
 using Api.Application.Features.Inventory.InventoryItems.Dtos;
 
-namespace Api.Application.Interfaces;
+namespace Api.Application.Interfaces.Inventory;
 
 public interface IInventoryItemRepository
 {

@@ -2,7 +2,7 @@
 using Api.Application.Features.Inventory.InventoryItems.Dtos;
 using Api.Application.Features.Inventory.InventoryItems.Predicates;
 using Api.Application.Features.Inventory.InventoryItems.Projections;
-using Api.Application.Interfaces;
+using Api.Application.Interfaces.Inventory;
 using Api.Domain.Entities.InventoryEntities;
 using Api.Infrastructure.Extensions;
 using Api.Infrastructure.Persistence.Context;
