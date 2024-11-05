@@ -3,7 +3,6 @@ using Api.Application.Common.Pagination;
 using Api.Application.Features.Transport.Drivers.Dtos;
 using Api.Application.Interfaces;
 using Api.Application.Interfaces.Transport;
-using Api.Domain.Entities.TransportEntities;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 

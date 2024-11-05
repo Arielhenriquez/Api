@@ -14,8 +14,6 @@
     <Folder Include="Features\Transport\TransportRequest\Predicates\" />
     <Folder Include="Features\Transport\TransportRequest\Projections\" />
     <Folder Include="Features\Transport\TransportRequest\Services\" />
-    <Folder Include="Features\Transport\Vehicles\Predicates\" />
-    <Folder Include="Features\Transport\Vehicles\Projections\" />
   </ItemGroup>
 
   <ItemGroup>

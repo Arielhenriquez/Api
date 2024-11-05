@@ -36,7 +36,7 @@ public class Startup
         services.AddSwaggerGen(c =>
         {
             c.EnableAnnotations();
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "SDSConnectors.Api", Version = "v1" });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "MinisterioDeCultura.Api", Version = "v1" });
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Name = "Authorization",
