@@ -25,8 +25,17 @@ namespace Api.Controllers
              Summary = "Gets Paged vehicles in the database")]
         public async Task<IActionResult> GetPagedDrivers([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
         {
-            var collaborators = await _vehicleService.GetPagedVehicles(query, cancellationToken);
-            return Ok(BaseResponse.Ok(collaborators));
+            var pagedVehicles = await _vehicleService.GetPagedVehicles(query, cancellationToken);
+            return Ok(BaseResponse.Ok(pagedVehicles));
+        }
+
+        [HttpGet("{id}")]
+        [SwaggerOperation(
+            Summary = "Get a single vehicle by id")]
+        public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
+        {
+            var vehicle = await _vehicleService.GetByIdAsync(id, cancellationToken);
+            return Ok(BaseResponse.Ok(vehicle));
         }
 
 

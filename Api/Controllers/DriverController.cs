@@ -26,8 +26,17 @@ public class DriverController : ControllerBase
          Summary = "Gets Paged Drivers in the database")]
     public async Task<IActionResult> GetPagedDrivers([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
-        var collaborators = await _driverService.GetPagedDrivers(query, cancellationToken);
-        return Ok(BaseResponse.Ok(collaborators));
+        var drivers = await _driverService.GetPagedDrivers(query, cancellationToken);
+        return Ok(BaseResponse.Ok(drivers));
+    }
+
+    [HttpGet("{id}")]
+    [SwaggerOperation(
+        Summary = "Get a single driver by id")]
+    public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var driver = await _driverService.GetByIdAsync(id, cancellationToken);
+        return Ok(BaseResponse.Ok(driver));
     }
 
 
