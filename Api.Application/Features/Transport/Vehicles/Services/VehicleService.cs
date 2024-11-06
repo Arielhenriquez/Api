@@ -54,8 +54,8 @@ public class VehicleService : BaseService<Vehicle, VehicleRequestDto, VehicleRes
 
     protected override void UpdateEntity(Vehicle entity, VehicleRequestDto dto)
     {
-        entity.Type = entity.Type;
-        entity.Capacity = entity.Capacity;
+        entity.Type = dto.Type;
+        entity.Capacity = dto.Capacity;
         entity.Status = dto.Status;
         entity.Brand = dto.Brand;
         entity.Model = dto.Model;

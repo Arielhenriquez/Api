@@ -49,8 +49,6 @@ namespace Api.Controllers
             return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
         }
 
-        //Todo Fix this :(
-
         [HttpPut("{id}")]
         [SwaggerOperation(
             Summary = "Updates an existing Vehicle")]
