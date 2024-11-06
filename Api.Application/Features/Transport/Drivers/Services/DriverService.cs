@@ -1,9 +1,11 @@
 ﻿using Api.Application.Common;
 using Api.Application.Common.Exceptions;
+using Api.Application.Common.Extensions;
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Transport.Drivers.Dtos;
 using Api.Application.Interfaces;
 using Api.Application.Interfaces.Transport;
+using Api.Domain.Constants;
 using Api.Domain.Entities.TransportEntities;
 
 namespace Api.Application.Features.Transport.Drivers.Services;
@@ -11,9 +13,22 @@ namespace Api.Application.Features.Transport.Drivers.Services;
 public class DriverService : BaseService<Driver, DriverRequestDto, DriverResponseDto>, IDriverService
 {
     private readonly IDriverRepository _driverRepository;
-    public DriverService(IBaseRepository<Driver> repository, IDriverRepository driverRepository) : base(repository)
+    private readonly IEmailService _emailService;
+    public DriverService(IBaseRepository<Driver> repository, 
+        IDriverRepository driverRepository, IEmailService emailService) : base(repository)
     {
         _driverRepository = driverRepository;
+        _emailService = emailService;
+    }
+
+    public async override Task<DriverResponseDto> AddAsync(DriverRequestDto dto, CancellationToken cancellationToken = default)
+    {
+        var response = await base.AddAsync(dto, cancellationToken);
+        string htmlFile = FileExtensions.ReadEmailTemplate(EmailConstants.CreateDriverTemplate, EmailConstants.TemplateEmailRoute);
+        htmlFile = htmlFile.Replace("{{UserName}}", dto.Name);
+        await _emailService.SendEmail("supervisorEmail@gmail.com", "Te habla lebron james", htmlFile);
+
+        return response;
     }
 
     public async Task<List<DriverResponseDto>> FindDriversByName(string criteria)

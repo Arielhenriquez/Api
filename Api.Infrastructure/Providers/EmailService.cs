@@ -6,7 +6,6 @@ using System.Net.Mail;
 
 namespace Api.Infrastructure.Providers;
 
-//Todo: Refactor this, move the replace to Create driver service and anyone who needs it
 public class EmailService : IEmailService
 {
     private readonly ILogger<EmailService> _logger;
@@ -18,31 +17,10 @@ public class EmailService : IEmailService
         _config = config;
     }
 
-    public Task SendRequestConfirmationEmail(string collaboratorEmail, Guid requestId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task SendEmail(string toEmail, string subject, string driverName)
+    public async Task SendEmail(string toEmail, string subject, string body)
     {
         var fromAddress = new MailAddress(_config["EmailSettings:From"], "Ministerio de Cultura");
-        var toAddress = new MailAddress(toEmail);
-
-        //Todo refactor this to use it in add driver method with FileExtension.
-        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "EmailTemplates", "CreatedDriversEmailTemplate.html");
-        string htmlBody = await File.ReadAllTextAsync(templatePath);
-        htmlBody = htmlBody.Replace("{{UserName}}", driverName);
-
-        var message = new MailMessage
-        {
-            From = fromAddress,
-            Subject = subject,
-            Body = htmlBody,
-            IsBodyHtml = true
-        };
-        message.To.Add(toAddress);
-
-        using var client = new SmtpClient
+        var emailClient = new SmtpClient()
         {
             Host = _config["EmailSettings:Host"],
             Port = int.Parse(_config["EmailSettings:Port"]),
@@ -51,8 +29,15 @@ public class EmailService : IEmailService
             UseDefaultCredentials = false,
             Credentials = new NetworkCredential(_config["EmailSettings:Username"], _config["EmailSettings:Password"])
         };
-
-        await client.SendMailAsync(message);
-        _logger.Log(logLevel: LogLevel.Warning, "Correo enviado");
+        var message = new MailMessage
+        {
+            From = fromAddress,
+            Subject = subject,
+            Body = body,
+            IsBodyHtml = true
+        };
+        message.To.Add(new MailAddress(toEmail));
+        await emailClient.SendMailAsync(message);
+        _logger.LogWarning($"Sending email to {toEmail} from {_config["EmailSettings:From"]} with subject {subject}.", toEmail, _config["EmailSettings:From"], subject);
     }
 }

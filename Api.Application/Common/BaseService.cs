@@ -14,33 +14,33 @@ public class BaseService<TEntity, TRequest, TResponse> : IBaseService<TRequest, 
         _repository = repository;
     }
 
-    public async Task<IEnumerable<TResponse>> GetAllAsync()
+    public virtual async Task<IEnumerable<TResponse>> GetAllAsync()
     {
         var entities = await _repository.GetAll();
         return entities.Select(MapToDto);
     }
 
-    public async Task<TResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public virtual async Task<TResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var entity = await _repository.GetById(id, cancellationToken);
         return MapToDto(entity);
     }
 
-    public async Task<TResponse> AddAsync(TRequest dto, CancellationToken cancellationToken = default)
+    public virtual async Task<TResponse> AddAsync(TRequest dto, CancellationToken cancellationToken = default)
     {
         var entity = MapToEntity(dto);
         var addedEntity = await _repository.AddAsync(entity, cancellationToken);
         return MapToDto(addedEntity);
     }
 
-    public async Task UpdateAsync(Guid id, TRequest dto, CancellationToken cancellationToken)
+    public virtual async Task UpdateAsync(Guid id, TRequest dto, CancellationToken cancellationToken)
     {
         var entity = await _repository.GetById(id, cancellationToken) ?? throw new KeyNotFoundException($"Entity with id {id} not found");
         UpdateEntity(entity, dto);
         await _repository.UpdateAsync(entity, cancellationToken);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public virtual async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         await _repository.Delete(id, cancellationToken);
     }

@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace Api.Infrastructure.Extensions;
+namespace Api.Application.Common.Extensions;
 
 public static class FileExtensions
 {

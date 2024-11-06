@@ -1,7 +1,6 @@
 ﻿using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Transport.Drivers.Dtos;
-using Api.Application.Interfaces;
 using Api.Application.Interfaces.Transport;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -13,12 +12,10 @@ namespace Api.Controllers;
 
 public class DriverController : ControllerBase
 {
-    private readonly IEmailService _emailService;
     private readonly IDriverService _driverService;
 
-    public DriverController(IEmailService emailService, IDriverService driverService)
+    public DriverController(IDriverService driverService)
     {
-        _emailService = emailService;
         _driverService = driverService;
     }
     [HttpGet("paged")]
@@ -55,8 +52,7 @@ public class DriverController : ControllerBase
        Summary = "Creates a new Driver")]
     public async Task<IActionResult> AddDriver([FromBody] DriverRequestDto driverRequestDto, CancellationToken cancellationToken)
     {
-        var result = await _driverService.AddAsync(driverRequestDto, cancellationToken);
-        await _emailService.SendEmail("manoloemail@gmail.com", "Driver", result.Name);
+        var result = await _driverService.AddAsync(driverRequestDto, cancellationToken);      
         return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
 
