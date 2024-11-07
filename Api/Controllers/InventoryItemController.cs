@@ -13,10 +13,9 @@ public class InventoryItemController : ControllerBase
 {
     private readonly IInventoryItemsService _inventoryItemsService;
 
-    public InventoryItemController(IInventoryItemsService inventoryItemsService)
-    {
-        _inventoryItemsService = inventoryItemsService;
-    }
+    public InventoryItemController(IInventoryItemsService inventoryItemsService) =>
+       _inventoryItemsService = inventoryItemsService;
+
 
     [HttpGet("paged")]
     [SwaggerOperation(

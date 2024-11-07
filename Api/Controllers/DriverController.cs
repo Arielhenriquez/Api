@@ -13,11 +13,8 @@ namespace Api.Controllers;
 public class DriverController : ControllerBase
 {
     private readonly IDriverService _driverService;
-
-    public DriverController(IDriverService driverService)
-    {
-        _driverService = driverService;
-    }
+    public DriverController(IDriverService driverService) => _driverService = driverService;
+    
     [HttpGet("paged")]
     [SwaggerOperation(
          Summary = "Gets Paged Drivers in the database")]

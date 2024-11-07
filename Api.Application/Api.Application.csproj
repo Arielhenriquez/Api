@@ -7,9 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Inventory\InventoryRequest\Dtos\" />
     <Folder Include="Features\Inventory\InventoryRequest\Predicates\" />
-    <Folder Include="Features\Inventory\InventoryRequest\Projections\" />
     <Folder Include="Features\Transport\TransportRequest\Dtos\" />
     <Folder Include="Features\Transport\TransportRequest\Predicates\" />
     <Folder Include="Features\Transport\TransportRequest\Projections\" />
@@ -17,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
   </ItemGroup>
 

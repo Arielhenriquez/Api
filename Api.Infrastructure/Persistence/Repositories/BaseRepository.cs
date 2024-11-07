@@ -17,8 +17,12 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
         _context = context;
         _db = context.Set<TEntity>();
     }
-
     public virtual IQueryable<TEntity> Query()
+    {
+        return _db.AsQueryable();
+    }
+
+    public virtual IQueryable<TEntity> ListOrderedBy()
     {
         return _db.AsQueryable().OrderByDescending(c => c.CreatedDate);
     }

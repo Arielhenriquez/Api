@@ -5,6 +5,7 @@ namespace Api.Application.Interfaces;
 public interface IBaseRepository<TEntity> where TEntity : class, IBase
 {
     IQueryable<TEntity> Query();
+    IQueryable<TEntity> ListOrderedBy();
     Task<IEnumerable<TEntity>> GetAll();
     Task<TEntity> GetById(Guid id, CancellationToken cancellationToken);
     Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default);

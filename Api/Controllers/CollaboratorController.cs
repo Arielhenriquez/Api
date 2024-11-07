@@ -1,6 +1,5 @@
 ﻿using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Pagination;
-using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -12,18 +11,16 @@ namespace Api.Controllers;
 public class CollaboratorController : ControllerBase
 {
     private readonly ICollaboratorService _collaboratorService;
-
-    public CollaboratorController(ICollaboratorService collaboratorService)
-    {
+    public CollaboratorController(ICollaboratorService collaboratorService) =>
         _collaboratorService = collaboratorService;
-    }
+
 
     [HttpGet]
     [SwaggerOperation(
         Summary = "Gets paged Collaborators in the database")]
     public async Task<IActionResult> GetCollaborators([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
-        var collaborators = await _collaboratorService.GetPagedCollaborators(query, cancellationToken); 
+        var collaborators = await _collaboratorService.GetPagedCollaborators(query, cancellationToken);
         return Ok(BaseResponse.Ok(collaborators));
     }
 
