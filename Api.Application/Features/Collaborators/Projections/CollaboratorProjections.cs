@@ -1,11 +1,10 @@
-﻿using System.Linq.Expressions;
-using System;
-using Api.Application.Features.Collaborators.Dtos;
+﻿using Api.Application.Features.Collaborators.Dtos;
 using Api.Domain.Entities.InventoryEntities;
+using System.Linq.Expressions;
 
 namespace Api.Application.Features.Collaborators.Projections;
 
-public class CollaboratorProjections
+public static class CollaboratorProjections
 {
     public static Expression<Func<Collaborator, CollaboratorResponseDto>> Search => (Collaborator collaborator) => new CollaboratorResponseDto()
     {

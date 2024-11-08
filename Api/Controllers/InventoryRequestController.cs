@@ -15,35 +15,32 @@ public class InventoryRequestController : ControllerBase
     public InventoryRequestController(IInventoryRequestService inventoryRequestService) =>
         _inventoryRequestService = inventoryRequestService;
 
-
-    [HttpGet]
+    [HttpGet("paged")]
     [SwaggerOperation(
-        Summary = "List Inventory Requests")]
-    public async Task<IActionResult> ListInventoryRequests()
+    Summary = "Get paged Inventory Requests")]
+    public async Task<IActionResult> GetPagedInventoryRequests([FromQuery] PaginationQuery paginationQuery, CancellationToken cancellationToken)
     {
-        var inventoryRequests = await _inventoryRequestService.ListInventoryRequests();
+        var inventoryRequests = await _inventoryRequestService.GetPagedInventoryRequest(paginationQuery, cancellationToken);
         return Ok(BaseResponse.Ok(inventoryRequests));
     }
 
 
     [HttpGet("{id}")]
     [SwaggerOperation(
-        Summary = "List Inventory Requests details")]
-    public async Task<IActionResult> GetInventoryRequestDetails([FromQuery] PaginationQuery paginationQuery, [FromRoute] Guid id, CancellationToken cancellationToken)
+        Summary = "Get Inventory Request details")]
+    public async Task<IActionResult> GetInventoryRequestDetails([FromRoute] Guid id, CancellationToken cancellationToken)
     {
-        var inventoryRequests = await _inventoryRequestService.GetInventoryRequestDetails(paginationQuery, id, cancellationToken);
+        var inventoryRequests = await _inventoryRequestService.GetInventoryRequestDetails(id, cancellationToken);
         return Ok(BaseResponse.Ok(inventoryRequests));
     }
-
 
     [HttpPost]
     [SwaggerOperation(
         Summary = "Creates a Inventory Request")]
     public async Task<IActionResult> AddInventoryRequest([FromBody] InventoryRequestDto inventoryRequestDto, CancellationToken cancellationToken)
     {
-        await _inventoryRequestService.AddInventoryRequest(inventoryRequestDto, cancellationToken);
-        return Ok();
-        // return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
+        var result = await _inventoryRequestService.AddInventoryRequest(inventoryRequestDto, cancellationToken);
+        return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
 
 }

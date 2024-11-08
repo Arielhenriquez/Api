@@ -23,6 +23,7 @@ public static class IoC
         .AddScoped<IInventoryItemRepository, InventoryItemRepository>()
         .AddScoped<IDriverRepository, DriverRepository>()
         .AddScoped<IVehicleRepository, VehicleRepository>()
+        .AddScoped<IInventoryRequestRepository, InventoryRequestRepository>()
         .AddTransient<IEmailService, EmailService>();
     }
 }

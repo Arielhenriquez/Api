@@ -1,8 +1,6 @@
-﻿using Api.Application.Common.Exceptions;
-using Api.Application.Common.Extensions;
+﻿using Api.Application.Common.Extensions;
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Inventory.InventoryRequest.Dtos;
-using Api.Application.Features.Inventory.InventoryRequest.Projections;
 using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
 using Api.Application.Interfaces.Inventory;
@@ -10,6 +8,7 @@ using Api.Domain.Constants;
 using Api.Domain.Entities.InventoryEntities;
 using Api.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using InventoryEntity = Api.Domain.Entities.InventoryEntities.InventoryRequest;
 
 namespace Api.Application.Features.Inventory.InventoryRequest.Services;
@@ -22,89 +21,95 @@ public class InventoryRequestService : IInventoryRequestService
     private readonly IBaseRepository<InventoryEntity> _inventoryRequestRepository;
     private readonly IBaseRepository<InventoryItem> _inventoryItemRepository;
     private readonly IBaseRepository<InventoryRequestItem> _inventoryRequestItemRepository;
+    private readonly IInventoryRequestRepository _requestRepository;
     private readonly IEmailService _emailService;
-
 
     public InventoryRequestService(ICollaboratorRepository collaboratorRepository,
         IBaseRepository<InventoryEntity> inventoryRequestRepository,
         IBaseRepository<InventoryRequestItem> inventoryRequestItemRepository,
         IBaseRepository<InventoryItem> inventoryItemRepository,
-        IEmailService emailService)
+        IEmailService emailService,
+        IInventoryRequestRepository requestRepository)
     {
         _collaboratorRepository = collaboratorRepository;
         _inventoryRequestRepository = inventoryRequestRepository;
         _inventoryRequestItemRepository = inventoryRequestItemRepository;
         _inventoryItemRepository = inventoryItemRepository;
         _emailService = emailService;
+        _requestRepository = requestRepository;
     }
 
-    public async Task AddInventoryRequest(InventoryRequestDto inventoryRequestDto, CancellationToken cancellationToken)
+    public async Task<InventoryResponseDto> AddInventoryRequest(InventoryRequestDto inventoryRequestDto, CancellationToken cancellationToken)
     {
         var collaborator = await _collaboratorRepository.GetById(inventoryRequestDto.CollaboratorId, cancellationToken);
 
         var inventoryRequestEntity = new InventoryEntity
         {
-            RequestDate = inventoryRequestDto.RequestDate,
             CollaboratorId = collaborator.Id,
+            RequestDate = DateTime.Now,
             RequestStatus = RequestStatus.Pending,
         };
         var createdInventoryRequest = await _inventoryRequestRepository.AddAsync(inventoryRequestEntity, cancellationToken);
 
-        var invalidArticles = new List<InventoryRequestItemDto>();
-
-        foreach (var itemDto in inventoryRequestDto.Articles)
+        var inventoryRequestItems = new List<InventoryRequestItem>();
+        foreach (var itemDto in inventoryRequestDto.ArticlesIds)
         {
-            try
+            var article = await _inventoryItemRepository.GetById(itemDto, cancellationToken);
+            var inventoryRequestItem = new InventoryRequestItem
             {
-                var article = await _inventoryItemRepository.GetById(itemDto.Id, cancellationToken);
-
-                var inventoryRequestItem = new InventoryRequestItem
-                {
-                    InventoryRequestId = createdInventoryRequest.Id,
-                    InventoryItemId = article.Id,
-                };
-                await _inventoryRequestItemRepository.AddAsync(inventoryRequestItem, cancellationToken);
-            }
-            catch (NotFoundException)
-            {
-                invalidArticles.Add(itemDto);
-            }
+                InventoryRequestId = createdInventoryRequest.Id,
+                InventoryItemId = article.Id
+            };
+            inventoryRequestItems.Add(inventoryRequestItem);
         }
-        if (invalidArticles.Count != 0)
+        await _inventoryRequestItemRepository.AddRange(inventoryRequestItems, cancellationToken);
+
+        var inventoryRequestWithCollaborator = await _inventoryRequestRepository.Query()
+            .Include(ir => ir.Collaborator) 
+            .Include(ir => ir.InventoryRequestItems)
+            .ThenInclude(iri => iri.InventoryItem)
+            .FirstOrDefaultAsync(ir => ir.Id == createdInventoryRequest.Id, cancellationToken);
+
+        await SendRequestEmail(createdInventoryRequest);
+        return inventoryRequestWithCollaborator;
+    }
+
+    private async Task SendRequestEmail(InventoryResponseDto inventoryResponseDto)
+    {
+        string htmlFile = FileExtensions.ReadEmailTemplate(EmailConstants.FormRequestTemplate, EmailConstants.TemplateEmailRoute);
+        htmlFile = htmlFile.Replace("{{Name}}", inventoryResponseDto.Collaborator.Name);
+
+        var articulosHtmlBuilder = new StringBuilder();
+        foreach (var item in inventoryResponseDto.InventoryRequestItems)
         {
-            throw new NotFoundException($"Los siguientes artículos no existen en el inventario: {string.Join(", ", invalidArticles.Select(a => a.Name))}");
+             articulosHtmlBuilder.Append("<tr>")
+                                 .Append($"<td style='border: 1px solid #ddd; padding: 8px;'>{item.Name}</td>")
+                                 .Append($"<td style='border: 1px solid #ddd; padding: 8px;'>{item.Quantity}</td>")
+                                 .Append($"<td style='border: 1px solid #ddd; padding: 8px;'>{item.UnitOfMeasure}</td>")
+                                 .Append("</tr>");
         }
 
-        await SendRequestEmail();
+        htmlFile = htmlFile.Replace("{{Articles}}", articulosHtmlBuilder.ToString());
+        await _emailService.SendEmail("supervisorEmail@gmail.com", "Solicitud de Almacén y Suministro", htmlFile);
     }
 
-    //Todo: Modificar plantilla y adecuar detalles de solicitud si es posible
-    private async Task SendRequestEmail()
+    public async Task<Paged<InventorySummaryDto>> GetPagedInventoryRequest(PaginationQuery paginationQuery, CancellationToken cancellationToken)
     {
-        string htmlFile = FileExtensions.ReadEmailTemplate(EmailConstants.CreateDriverTemplate, EmailConstants.TemplateEmailRoute);
-        //htmlFile = htmlFile.Replace("{{UserName}}", inventoryRequestDto.);
-        await _emailService.SendEmail("supervisorEmail@gmail.com", "Te habla lebron james", htmlFile);
+        var result = await _requestRepository.SearchAsync(paginationQuery, cancellationToken);
+        foreach (var item in result.Items)
+        {
+            item.RequestStatusDescription = item.RequestStatus.DisplayName();
+        }
+        return result;
     }
 
-    //TODO add dto 
-    public async Task<IEnumerable<InventoryEntity>> ListInventoryRequests()
+    public async Task<IEnumerable<InventorySummaryDto>> GetInventoryRequestDetails(Guid id, CancellationToken cancellationToken)
     {
-        return await _inventoryRequestRepository.GetAll();
-    }
-
-    public async Task<List<InventoryResponseDto>> GetInventoryRequestDetails(PaginationQuery paginationQuery, Guid id, CancellationToken cancellationToken)
-    {
-        var query = _inventoryRequestRepository.Query()
-         .Include(ir => ir.Collaborator) // Include Collaborator for the InventoryRequest
-         .Include(ir => ir.InventoryRequestItems) // Include the collection of InventoryRequestItems
-         .ThenInclude(iri => iri.InventoryItem)
-         .Where(x => x.Id == id); // Then include each related InventoryItem in InventoryRequestItems
-
-        // Apply the projection using your projection method
-        var result = await query
-            .Select(InventoryRequestProjections.Summary)
-            .ToListAsync(cancellationToken);
-
+        var result = await _requestRepository.GetSummary(id, cancellationToken);
+        foreach (var item in result)
+        {
+            item.RequestStatusDescription = item.RequestStatus.DisplayName();
+        }
         return result;
     }
 }
