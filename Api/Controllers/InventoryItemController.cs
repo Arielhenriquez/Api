@@ -45,6 +45,14 @@ public class InventoryItemController : ControllerBase
     }
 
 
+    [HttpGet("{id}")]
+    [SwaggerOperation(
+        Summary = "Get a single inventory by id")]
+    public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _inventoryItemsService.GetByIdAsync(id, cancellationToken);
+        return Ok(BaseResponse.Ok(result));
+    }
     [HttpPost]
     [SwaggerOperation(
        Summary = "Creates a new inventory item")]
