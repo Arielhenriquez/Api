@@ -9,4 +9,5 @@ public class InventoryItemRequestDto
     public required string Name { get; set; }
     public required int Quantity { get; set; }
     public string? UnitOfMeasure { get; set; }
+    public decimal? Value { get; set; }
 }

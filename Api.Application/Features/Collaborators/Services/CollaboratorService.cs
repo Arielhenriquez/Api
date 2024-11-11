@@ -22,6 +22,11 @@ public class CollaboratorService : ICollaboratorService
     {
         var collaborators = await _collaboratorRepository.GetByName(criteria);
 
+        if (string.IsNullOrWhiteSpace(criteria))
+        {
+            return [];
+        }
+
         if (collaborators == null || collaborators.Count == 0)
         {
             throw new NotFoundException($"No collaborators found with name containing: {criteria}");

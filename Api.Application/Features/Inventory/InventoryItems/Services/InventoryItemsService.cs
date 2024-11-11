@@ -55,6 +55,7 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
             Name = dto.Name,
             Quantity = dto.Quantity,
             UnitOfMeasure = dto.UnitOfMeasure,
+            Value= dto.Value
         };
     }
 
@@ -63,5 +64,6 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
         entity.Name = dto.Name;
         entity.Quantity = dto.Quantity;
         entity.UnitOfMeasure = dto.UnitOfMeasure;
+        entity.Value = dto.Value;
     }
 }

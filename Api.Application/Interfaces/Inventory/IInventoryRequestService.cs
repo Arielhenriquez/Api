@@ -5,7 +5,7 @@ namespace Api.Application.Interfaces.Inventory;
 
 public interface IInventoryRequestService
 {
-    //Todo: Endpoint y editar solicitud
+    //Todo: Endpoint editar solicitud
     Task<Paged<InventorySummaryDto>> GetPagedInventoryRequest(PaginationQuery paginationQuery, CancellationToken cancellationToken);
     Task<IEnumerable<InventorySummaryDto>> GetInventoryRequestDetails(Guid id, CancellationToken cancellationToken);
     Task<InventoryResponseDto> AddInventoryRequest(InventoryRequestDto inventoryRequestDto, CancellationToken cancellationToken);

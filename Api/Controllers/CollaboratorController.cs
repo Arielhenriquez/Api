@@ -27,7 +27,7 @@ public class CollaboratorController : ControllerBase
     [HttpGet("search-by-name")]
     [SwaggerOperation(
         Summary = "Get Collaborators by name")]
-    public async Task<IActionResult> GetCollaboratorByName([FromQuery] string name)
+    public async Task<IActionResult> GetCollaboratorByName([FromQuery] string? name)
     {
         var collaborators = await _collaboratorService.FindCollaboratorByName(name);
         return Ok(BaseResponse.Ok(collaborators));
