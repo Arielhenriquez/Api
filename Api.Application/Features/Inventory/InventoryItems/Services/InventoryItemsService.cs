@@ -17,6 +17,11 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
     {
         var inventoryItems = await _inventoryItemRepository.GetByName(criteria);
 
+        if (string.IsNullOrWhiteSpace(criteria))
+        {
+            return [];
+        }
+
         if (inventoryItems == null || inventoryItems.Count == 0)
         {
             throw new NotFoundException($"No inventory Items found with name containing: {criteria}");

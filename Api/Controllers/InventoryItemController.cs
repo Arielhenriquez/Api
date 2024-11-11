@@ -38,7 +38,7 @@ public class InventoryItemController : ControllerBase
     [HttpGet("search-by-name")]
     [SwaggerOperation(
      Summary = "Get Inventory Items by partial name match")]
-    public async Task<IActionResult> GetInventoryItemByName([FromQuery] string name)
+    public async Task<IActionResult> GetInventoryItemByName([FromQuery] string? name)
     {
         var inventoryItems = await _inventoryItemsService.FindInventoryItemByName(name);
         return Ok(BaseResponse.Ok(inventoryItems));
