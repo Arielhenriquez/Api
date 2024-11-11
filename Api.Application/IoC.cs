@@ -2,6 +2,7 @@
 using Api.Application.Features.Inventory.InventoryItems.Services;
 using Api.Application.Features.Inventory.InventoryRequest.Services;
 using Api.Application.Features.Transport.Drivers.Services;
+using Api.Application.Features.Transport.TransportRequest.Services;
 using Api.Application.Features.Transport.Vehicles.Services;
 using Api.Application.Interfaces.Collaborators;
 using Api.Application.Interfaces.Inventory;
@@ -19,6 +20,7 @@ public static class IoC
            .AddScoped<IInventoryItemsService, InventoryItemsService>()
            .AddScoped<IDriverService, DriverService>()
            .AddScoped<IVehicleService, VehicleService>()
-           .AddScoped<IInventoryRequestService, InventoryRequestService>();
+           .AddScoped<IInventoryRequestService, InventoryRequestService>()
+           .AddScoped<ITransportService, TransportService>();
     }
 }

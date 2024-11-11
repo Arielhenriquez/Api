@@ -36,7 +36,7 @@ public class InventoryRequestController : ControllerBase
 
     [HttpPost]
     [SwaggerOperation(
-        Summary = "Creates a Inventory Request")]
+        Summary = "Creates an Inventory Request")]
     public async Task<IActionResult> AddInventoryRequest([FromBody] InventoryRequestDto inventoryRequestDto, CancellationToken cancellationToken)
     {
         var result = await _inventoryRequestService.AddInventoryRequest(inventoryRequestDto, cancellationToken);

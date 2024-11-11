@@ -7,10 +7,10 @@ namespace Api.Application.Features.Inventory.InventoryRequest.Dtos;
 public class InventorySummaryDto
 {
     public Guid Id { get; set; }
-    public CollaboratorResponseDto Collaborator { get; set; }
+    public required CollaboratorResponseDto Collaborator { get; set; }
     public DateTime RequestDate { get; set; }
     public RequestStatus RequestStatus { get; set; }
-    public string RequestStatusDescription { get; set; } = "Pending";
+    public string? RequestStatusDescription { get; set; }
 
     public IEnumerable<InventoryItemResponseDto> InventoryRequestItems { get; set; } = [];
 }

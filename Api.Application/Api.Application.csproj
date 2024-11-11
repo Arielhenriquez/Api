@@ -8,10 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Inventory\InventoryRequest\Predicates\" />
-    <Folder Include="Features\Transport\TransportRequest\Dtos\" />
-    <Folder Include="Features\Transport\TransportRequest\Predicates\" />
-    <Folder Include="Features\Transport\TransportRequest\Projections\" />
-    <Folder Include="Features\Transport\TransportRequest\Services\" />
   </ItemGroup>
 
   <ItemGroup>
