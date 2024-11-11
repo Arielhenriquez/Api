@@ -70,26 +70,26 @@ public class InventoryRequestService : IInventoryRequestService
             .ThenInclude(iri => iri.InventoryItem)
             .FirstOrDefaultAsync(ir => ir.Id == createdInventoryRequest.Id, cancellationToken);
 
-        await SendRequestEmail(createdInventoryRequest);
+        await SendInventoryRequestEmail(createdInventoryRequest);
         return inventoryRequestWithCollaborator;
     }
 
-    private async Task SendRequestEmail(InventoryResponseDto inventoryResponseDto)
+    private async Task SendInventoryRequestEmail(InventoryResponseDto inventoryResponseDto)
     {
-        string htmlFile = FileExtensions.ReadEmailTemplate(EmailConstants.FormRequestTemplate, EmailConstants.TemplateEmailRoute);
+        string htmlFile = FileExtensions.ReadEmailTemplate(EmailConstants.InventoryRequestTemplate, EmailConstants.TemplateEmailRoute);
         htmlFile = htmlFile.Replace("{{Name}}", inventoryResponseDto.Collaborator.Name);
 
-        var articulosHtmlBuilder = new StringBuilder();
+        var articlesHtmlBuilder = new StringBuilder();
         foreach (var item in inventoryResponseDto.InventoryRequestItems)
         {
-             articulosHtmlBuilder.Append("<tr>")
+            articlesHtmlBuilder.Append("<tr>")
                                  .Append($"<td style='border: 1px solid #ddd; padding: 8px;'>{item.Name}</td>")
                                  .Append($"<td style='border: 1px solid #ddd; padding: 8px;'>{item.Quantity}</td>")
                                  .Append($"<td style='border: 1px solid #ddd; padding: 8px;'>{item.UnitOfMeasure}</td>")
                                  .Append("</tr>");
         }
 
-        htmlFile = htmlFile.Replace("{{Articles}}", articulosHtmlBuilder.ToString());
+        htmlFile = htmlFile.Replace("{{Articles}}", articlesHtmlBuilder.ToString());
         await _emailService.SendEmail("supervisorEmail@gmail.com", "Solicitud de Almacén y Suministro", htmlFile);
     }
 

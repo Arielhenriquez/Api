@@ -1,6 +1,4 @@
-﻿using Api.Domain.Enums;
-
-namespace Api.Application.Features.Inventory.InventoryRequest.Dtos;
+﻿namespace Api.Application.Features.Inventory.InventoryRequest.Dtos;
 
 public class InventoryRequestDto
 {

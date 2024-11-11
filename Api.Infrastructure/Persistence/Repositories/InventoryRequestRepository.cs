@@ -23,18 +23,6 @@ public class InventoryRequestRepository : IInventoryRequestRepository
 
     public  Task<Paged<InventorySummaryDto>> SearchAsync(PaginationQuery paginationQuery, CancellationToken cancellationToken = default)
     {
-        //var query = _db
-        //.AsNoTracking()
-        //.Include(ir => ir.Collaborator)
-        //.Include(ir => ir.InventoryRequestItems)
-        //.ThenInclude(iri => iri.InventoryItem)
-        //.Where(x => x.Id == id);
-
-
-        //return await query
-        //    .Select(InventoryRequestProjections.Summary)
-        //    .Paginate(paginationQuery.PageSize, paginationQuery.PageNumber, cancellationToken);
-
         return _db
         .AsNoTracking()
         .Where(InventoryRequestPredicates.Search(paginationQuery.Search))

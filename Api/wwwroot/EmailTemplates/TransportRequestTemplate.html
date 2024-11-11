@@ -14,23 +14,32 @@
         </tr>
         <tr>
             <td style="padding: 20px;">
-                <h2 style="color: #003366;">Se ha creado la solicitud, correctamente</h2>
+                <h2 style="color: #003366;">Se ha creado la solicitud de transporte correctamente</h2>
                 <p style="color: #333333; line-height: 1.6;">
-                    El colaborador {{Name}} ha creado una solicitud con el siguiente detalle de artículos:
+                    El colaborador {{Name}} ha creado una solicitud de transporte con el siguiente detalle:
                 </p>
 
-                <!-- Lista de artículos -->
                 <table width="100%" style="border-collapse: collapse; margin-top: 20px;">
-                    <thead>
-                        <tr>
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Artículo</th>
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Cantidad</th>
-                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Unidad de Medida</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{Articles}} <!-- Aquí se inyectarán los artículos -->
-                    </tbody>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: left;"><strong>Punto de Partida:</strong></td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{DeparturePoint}}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: left;"><strong>Destino:</strong></td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{Destination}}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: left;"><strong>Fecha y Hora de Salida:</strong></td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{DepartureDateTime}}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: left;"><strong>Número de Personas:</strong></td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{NumberOfPeople}}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: left;"><strong>Teléfono de Contacto:</strong></td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{PhoneNumber}}</td>
+                    </tr>
                 </table>
 
                 <p style="color: #333333; line-height: 1.6; margin-top: 20px;">
