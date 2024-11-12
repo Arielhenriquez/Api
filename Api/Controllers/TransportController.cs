@@ -42,4 +42,13 @@ public class TransportRequestController : ControllerBase
         var result = await _transportService.AddTransportRequest(transportRequestDto, cancellationToken);
         return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
+
+    [HttpPatch("{id}")]
+    [SwaggerOperation(
+        Summary = "Assigns a driver and vehicle to an existing transport request")]
+    public async Task<IActionResult> AssignDriverAndVehicle([FromRoute] Guid id, [FromBody] AssignDriverVehicleDto assignDriverVehicleDto, CancellationToken cancellationToken)
+    {
+        await _transportService.AssignDriverAndVehicle(id, assignDriverVehicleDto, cancellationToken);
+        return NoContent();
+    }
 }

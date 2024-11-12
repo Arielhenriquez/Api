@@ -14,7 +14,7 @@ public class DriverService : BaseService<Driver, DriverRequestDto, DriverRespons
 {
     private readonly IDriverRepository _driverRepository;
     private readonly IEmailService _emailService;
-    public DriverService(IBaseRepository<Driver> repository, 
+    public DriverService(IBaseRepository<Driver> repository,
         IDriverRepository driverRepository, IEmailService emailService) : base(repository)
     {
         _driverRepository = driverRepository;
@@ -35,9 +35,14 @@ public class DriverService : BaseService<Driver, DriverRequestDto, DriverRespons
     {
         var drivers = await _driverRepository.GetByName(criteria);
 
+        if (string.IsNullOrEmpty(criteria))
+        {
+            return [];
+        }
+
         if (drivers == null || drivers.Count == 0)
         {
-            throw new NotFoundException($"No inventory Items found with name containing: {criteria}");
+            throw new NotFoundException($"No drivers found with name containing: {criteria}");
         }
 
         return drivers;

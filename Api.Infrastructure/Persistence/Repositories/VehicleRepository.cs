@@ -20,15 +20,14 @@ public class VehicleRepository : IVehicleRepository
         _context = context;
         _db = _context.Set<Vehicle>();
     }
-    //Todo: con gpt validar que es mejor e Like directo o el predicate.
     //public Task<List<VehicleResponseDto>> GetByName(string name, CancellationToken cancellationToken = default)
     //{
-    //    var drivers = _db
+    //    var vehicles = _db
     //            .Where(c => EF.Functions.Like(c.Name, $"%{name}%"))
-    //            .Select(DriverProjections.Search)
+    //            .Select(VechicleProjections.Search)
     //            .ToListAsync(cancellationToken);
 
-    //    return drivers;
+    //    return vehicles;
     //}
 
     public Task<Paged<VehicleResponseDto>> SearchAsync(PaginationQuery query, CancellationToken cancellationToken = default)

@@ -1,30 +1,35 @@
-﻿using Api.Application.Common.Extensions;
+﻿using Api.Application.Common.Exceptions;
+using Api.Application.Common.Extensions;
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Transport.TransportRequest.Dtos;
 using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
 using Api.Application.Interfaces.Transport;
 using Api.Domain.Constants;
+using Api.Domain.Entities.TransportEntities;
 using Api.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using TransportEntity = Api.Domain.Entities.TransportEntities.TransportRequest;
 
 namespace Api.Application.Features.Transport.TransportRequest.Services;
 
-//Todo: Edit request pregunta jj Y ASIGNAR chofer y vehiculo a request
 public class TransportService : ITransportService
 {
     private readonly ICollaboratorRepository _collaboratorRepository;
     private readonly IEmailService _emailService;
     private readonly IBaseRepository<TransportEntity> _transportRepository;
     private readonly ITransportRequestRepository _transportRequestRepository;
+    private readonly IBaseRepository<Driver> _driverRepository;
+    private readonly IBaseRepository<Vehicle> _vehicleRepository;
 
-    public TransportService(ICollaboratorRepository collaboratorRepository, IEmailService emailService, IBaseRepository<TransportEntity> transportRepository, ITransportRequestRepository transportRequestRepository)
+    public TransportService(ICollaboratorRepository collaboratorRepository, IEmailService emailService, IBaseRepository<TransportEntity> transportRepository, ITransportRequestRepository transportRequestRepository, IBaseRepository<Driver> driverRepository, IBaseRepository<Vehicle> vehicleRepository)
     {
         _collaboratorRepository = collaboratorRepository;
         _emailService = emailService;
         _transportRepository = transportRepository;
         _transportRequestRepository = transportRequestRepository;
+        _driverRepository = driverRepository;
+        _vehicleRepository = vehicleRepository;
     }
 
     public async Task<Paged<TransportSummaryDto>> GetPagedTransportRequests(PaginationQuery paginationQuery, CancellationToken cancellationToken)
@@ -88,6 +93,41 @@ public class TransportService : ITransportService
                                    .Replace("{{NumberOfPeople}}", transportResponseDto.NumberOfPeople.ToString())
                                    .Replace("{{PhoneNumber}}", transportResponseDto.PhoneNumber ?? "N/A");
 
-        await _emailService.SendEmail("supervisorEmail@gmail.com", "Nueva Solicitud de Transporte", htmlTemplate);
+        await _emailService.SendEmail("departamento@gmail.com", "Nueva Solicitud de Transporte", htmlTemplate);
+    }
+
+
+    private async Task SendAssignedTransportRequestEmail(TransportEntity transportRequest, Driver driver, Vehicle vehicle)
+    {
+        string htmlTemplate = FileExtensions.ReadEmailTemplate(EmailConstants.AssignedTransportRequestTemplate, EmailConstants.TemplateEmailRoute);
+
+        htmlTemplate = htmlTemplate.Replace("{{Name}}", transportRequest.Collaborator.Name)
+                                   .Replace("{{DeparturePoint}}", transportRequest.DeparturePoint)
+                                   .Replace("{{Destination}}", transportRequest.Destination)
+                                   .Replace("{{DepartureDateTime}}", transportRequest.DepartureDateTime.ToString("dd/MM/yyyy HH:mm"))
+                                   .Replace("{{DriverName}}", driver.Name)
+                                   .Replace("{{VehicleModel}}", vehicle.Model)
+                                   .Replace("{{VehicleLicensePlate}}", vehicle.LicensePlate);
+
+        await _emailService.SendEmail("departamento@gmail.com", "Asignación de Conductor y Vehículo a Solicitud de Transporte", htmlTemplate);
+    }
+
+
+    public async Task AssignDriverAndVehicle(Guid transportRequestId, AssignDriverVehicleDto driverVehicleDto, CancellationToken cancellationToken)
+    {
+        var transportRequest = await _transportRepository.Query()
+        .Include(tr => tr.Collaborator)
+        .FirstOrDefaultAsync(tr => tr.Id == transportRequestId, cancellationToken)
+        ?? throw new NotFoundException($"Transport request with ID {transportRequestId} not found.");
+
+        var driver = await _driverRepository.GetById(driverVehicleDto.DriverId, cancellationToken);
+        var vehicle = await _vehicleRepository.GetById(driverVehicleDto.VehicleId, cancellationToken);
+
+        transportRequest.VehicleId = driverVehicleDto.VehicleId;
+        transportRequest.DriverId = driverVehicleDto.DriverId;
+
+        var updatedTransportRequest = await _transportRepository.UpdateAsync(transportRequest, cancellationToken);
+
+        await SendAssignedTransportRequestEmail(updatedTransportRequest, driver, vehicle);
     }
 }

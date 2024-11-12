@@ -23,7 +23,10 @@ public class CollaboratorRepository : ICollaboratorRepository
 
     public Task<CollaboratorResponseDto> GetById(Guid id, CancellationToken cancellationToken = default)
     {
-        return _context.Set<Collaborator>().AsNoTracking().Select(CollaboratorProjections.Search).FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        return _context.Set<Collaborator>()
+            .AsNoTracking()
+            .Select(CollaboratorProjections.Search)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
     public async Task<List<CollaboratorResponseDto>> GetByName(string name, CancellationToken cancellationToken = default)

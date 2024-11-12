@@ -37,7 +37,7 @@ public class DriverController : ControllerBase
     [HttpGet("search-by-name")]
     [SwaggerOperation(
      Summary = "Get Drivers by partial name match")]
-    public async Task<IActionResult> GetDriversByName([FromQuery] string name)
+    public async Task<IActionResult> GetDriversByName([FromQuery] string? name)
     {
         var inventoryItems = await _driverService.FindDriversByName(name);
         return Ok(BaseResponse.Ok(inventoryItems));

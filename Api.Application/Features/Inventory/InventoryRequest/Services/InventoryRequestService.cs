@@ -15,8 +15,6 @@ namespace Api.Application.Features.Inventory.InventoryRequest.Services;
 
 public class InventoryRequestService : IInventoryRequestService
 {
-    /*Todo: Endpoint para que un Supervisor pueda aprobar o rechazar solicitud  */
-
     private readonly ICollaboratorRepository _collaboratorRepository;
     private readonly IBaseRepository<InventoryEntity> _inventoryRequestRepository;
     private readonly IBaseRepository<InventoryItem> _inventoryItemRepository;

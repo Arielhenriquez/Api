@@ -20,7 +20,6 @@ public class DriverRepository : IDriverRepository
         _context = context;
         _db = _context.Set<Driver>();
     }
-    //Todo: con gpt validar que es mejor e Like directo o el predicate.
     public Task<List<DriverResponseDto>> GetByName(string name, CancellationToken cancellationToken = default)
     {
         var drivers = _db
