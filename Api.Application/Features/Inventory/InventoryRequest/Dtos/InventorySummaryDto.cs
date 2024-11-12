@@ -8,7 +8,7 @@ public class InventorySummaryDto
 {
     public Guid Id { get; set; }
     public required CollaboratorResponseDto Collaborator { get; set; }
-    public DateTime RequestDate { get; set; }
+    public DateTimeOffset CreatedDate { get; set; }
     public RequestStatus RequestStatus { get; set; }
     public string? RequestStatusDescription { get; set; }
 

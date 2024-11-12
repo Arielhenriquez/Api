@@ -1,4 +1,5 @@
-﻿using Api.Domain.Entities.InventoryEntities;
+﻿using Api.Domain.Entities;
+using Api.Domain.Enums;
 
 namespace Api.Application.Features.Collaborators.Dtos;
 
@@ -8,6 +9,7 @@ public class CollaboratorResponseDto
     public required string Name { get; set; }
     public required string Supervisor { get; set; }
     public required string Deparment { get; set; }
+    public UserRoles Roles { get; set; } = UserRoles.Applicant;
 
     public static implicit operator CollaboratorResponseDto(Collaborator collaborator)
     {
@@ -18,7 +20,8 @@ public class CollaboratorResponseDto
                 Id = collaborator.Id,
                 Name = collaborator.Name,
                 Deparment = collaborator.Department,
-                Supervisor = collaborator.Supervisor
+                Supervisor = collaborator.Supervisor,
+                Roles = UserRoles.Applicant
             };
     }
 }

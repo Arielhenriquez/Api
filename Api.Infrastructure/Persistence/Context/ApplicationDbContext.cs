@@ -1,4 +1,5 @@
-﻿using Api.Domain.Entities.InventoryEntities;
+﻿using Api.Domain.Entities;
+using Api.Domain.Entities.InventoryEntities;
 using Api.Domain.Entities.TransportEntities;
 using Microsoft.EntityFrameworkCore;
 

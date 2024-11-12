@@ -15,7 +15,7 @@ public class TransportResponseDto
     public RequestStatus RequestStatus { get; set; }
     public string? RequestStatusDescription { get; set; }
     public string? PhoneNumber { get; set; }
-    public DateTime RequestDate { get; set; }
+    public DateTimeOffset CreatedDate { get; set; }
 
     public static implicit operator TransportResponseDto(TransportEntity transportEntity)
     {
@@ -29,7 +29,7 @@ public class TransportResponseDto
             DepartureDateTime = transportEntity.DepartureDateTime,
             RequestStatus = transportEntity.RequestStatus,
             PhoneNumber = transportEntity.PhoneNumber,
-            RequestDate = transportEntity.RequestDate,
+            CreatedDate = transportEntity.CreatedDate,
         };
     }
 }

@@ -3,7 +3,7 @@ using Api.Application.Features.Collaborators.Dtos;
 using Api.Application.Features.Collaborators.Predicates;
 using Api.Application.Features.Collaborators.Projections;
 using Api.Application.Interfaces.Collaborators;
-using Api.Domain.Entities.InventoryEntities;
+using Api.Domain.Entities;
 using Api.Infrastructure.Extensions;
 using Api.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +33,7 @@ public class CollaboratorRepository : ICollaboratorRepository
             .Select(CollaboratorProjections.Search)
             .ToListAsync(cancellationToken);
 
-        return collaborators;   
+        return collaborators;
     }
 
     public Task<Paged<CollaboratorResponseDto>> SearchAsync(PaginationQuery query, CancellationToken cancellationToken = default)

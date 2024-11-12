@@ -2,7 +2,7 @@
 
 namespace Api.Domain.Enums;
 
-public enum VehiculeStatus
+public enum VehicleStatus
 {
     [Description("Disponible")]
     Available,

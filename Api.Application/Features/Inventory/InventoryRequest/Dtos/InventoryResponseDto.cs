@@ -9,7 +9,7 @@ public class InventoryResponseDto
 {
     public Guid Id { get; set; }
     public required CollaboratorResponseDto Collaborator { get; set; }
-    public DateTime RequestDate { get; set; }
+    public DateTimeOffset CreatedDate { get; set; }
     public RequestStatus RequestStatus { get; set; }
     public IEnumerable<InventoryItemResponseDto> InventoryRequestItems { get; set; } = [];
 
@@ -19,7 +19,7 @@ public class InventoryResponseDto
         {
             Id = inventory.Id,
             Collaborator = inventory.Collaborator != null ? (CollaboratorResponseDto)inventory.Collaborator : null,
-            RequestDate = inventory.RequestDate,
+            CreatedDate = inventory.CreatedDate,
             RequestStatus = inventory.RequestStatus,
             InventoryRequestItems = inventory.InventoryRequestItems
                 .Select(iri => new InventoryItemResponseDto

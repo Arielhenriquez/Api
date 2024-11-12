@@ -11,7 +11,7 @@ public static class InventoryRequestProjections
     {
         Id = inventoryRequest.Id,
         Collaborator = inventoryRequest.Collaborator,
-        RequestDate = inventoryRequest.RequestDate,
+        CreatedDate = inventoryRequest.CreatedDate,
         RequestStatus = inventoryRequest.RequestStatus,
         InventoryRequestItems = inventoryRequest.InventoryRequestItems.Select(inventoryItem => new InventoryItemResponseDto
         {

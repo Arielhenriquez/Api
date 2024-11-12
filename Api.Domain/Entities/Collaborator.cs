@@ -1,6 +1,8 @@
-﻿using Api.Domain.Entities.TransportEntities;
+﻿using Api.Domain.Entities.InventoryEntities;
+using Api.Domain.Entities.TransportEntities;
+using Api.Domain.Enums;
 
-namespace Api.Domain.Entities.InventoryEntities;
+namespace Api.Domain.Entities;
 
 public class Collaborator : BaseEntity
 {
@@ -9,4 +11,5 @@ public class Collaborator : BaseEntity
     public required string Department { get; set; }
     public ICollection<InventoryRequest> InventoryRequest { get; set; } = [];
     public ICollection<TransportRequest> TransportRequests { get; set; } = [];
+    public UserRoles Roles { get; set; } = UserRoles.Applicant;
 }

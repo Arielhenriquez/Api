@@ -46,7 +46,7 @@ public class InventoryRequestService : IInventoryRequestService
         var inventoryRequestEntity = new InventoryEntity
         {
             CollaboratorId = collaborator.Id,
-            RequestDate = DateTime.Now,
+            CreatedDate = DateTime.Now,
             RequestStatus = RequestStatus.Pending,
         };
         var createdInventoryRequest = await _inventoryRequestRepository.AddAsync(inventoryRequestEntity, cancellationToken);

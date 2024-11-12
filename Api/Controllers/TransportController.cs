@@ -1,4 +1,5 @@
 ﻿using Api.Application.Common.BaseResponse;
+using Api.Application.Common.Pagination;
 using Api.Application.Features.Transport.TransportRequest.Dtos;
 using Api.Application.Interfaces.Transport;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,25 @@ public class TransportRequestController : ControllerBase
     private readonly ITransportService _transportService;
 
     public TransportRequestController(ITransportService transportService) => _transportService = transportService;
+
+    [HttpGet("paged")]
+    [SwaggerOperation(
+        Summary = "Get paged Transport Requests")]
+    public async Task<IActionResult> GetPagedTransportRequests([FromQuery] PaginationQuery paginationQuery, CancellationToken cancellationToken)
+    {
+        var inventoryRequests = await _transportService.GetPagedTransportRequests(paginationQuery, cancellationToken);
+        return Ok(BaseResponse.Ok(inventoryRequests));
+    }
+
+
+    [HttpGet("{id}")]
+    [SwaggerOperation(
+        Summary = "Get Transport Request details")]
+    public async Task<IActionResult> GetTransportRequestDetails([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var inventoryRequests = await _transportService.GetTransportRequestDetails(id, cancellationToken);
+        return Ok(BaseResponse.Ok(inventoryRequests));
+    }
 
     [HttpPost]
     [SwaggerOperation(

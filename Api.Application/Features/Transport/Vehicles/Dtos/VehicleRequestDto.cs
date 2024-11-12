@@ -9,7 +9,7 @@ public class VehicleRequestDto
     public Guid Id { get; set; }
     public string? Type { get; set; }
     public int Capacity { get; set; }
-    public VehiculeStatus Status { get; set; }
+    public VehicleStatus Status { get; set; }
     public required string Brand { get; set; }
     public required string Model { get; set; }
     public required string LicensePlate { get; set; }

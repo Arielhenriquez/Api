@@ -1,4 +1,4 @@
-﻿using Api.Domain.Entities.InventoryEntities;
+﻿using Api.Domain.Entities;
 using System.Linq.Expressions;
 
 namespace Api.Application.Features.Collaborators.Predicates;
