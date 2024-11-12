@@ -1,6 +1,7 @@
 ﻿using Api.Domain.Entities;
 using Api.Domain.Entities.InventoryEntities;
 using Api.Domain.Entities.TransportEntities;
+using Api.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Infrastructure.Persistence.Context;
@@ -15,4 +16,11 @@ public class ApplicationDbContext(DbContextOptions options) : BaseDbContext(opti
     public DbSet<Vehicle> Vehicles { get; set; }
     public DbSet<TransportRequest> TransportRequests { get; set; }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Collaborator>()
+        .Property(c => c.Roles)
+        .HasDefaultValue(UserRoles.Applicant);
+    }
 }

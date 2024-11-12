@@ -1,4 +1,6 @@
-﻿namespace Api.Application.Features.Collaborators.Dtos;
+﻿using Api.Domain.Enums;
+
+namespace Api.Application.Features.Collaborators.Dtos;
 
 public class CollaboratorRequestDto
 {
@@ -6,4 +8,5 @@ public class CollaboratorRequestDto
     public required string Name { get; set; }
     public required string Supervisor { get; set; }
     public required string Deparment { get; set; }
+    public UserRoles Role { get; set; } = UserRoles.Applicant;
 }

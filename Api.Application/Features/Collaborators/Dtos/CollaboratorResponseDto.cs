@@ -9,7 +9,7 @@ public class CollaboratorResponseDto
     public required string Name { get; set; }
     public required string Supervisor { get; set; }
     public required string Deparment { get; set; }
-    public UserRoles Roles { get; set; } = UserRoles.Applicant;
+    public UserRoles Roles { get; set; }
 
     public static implicit operator CollaboratorResponseDto(Collaborator collaborator)
     {
@@ -21,7 +21,7 @@ public class CollaboratorResponseDto
                 Name = collaborator.Name,
                 Deparment = collaborator.Department,
                 Supervisor = collaborator.Supervisor,
-                Roles = UserRoles.Applicant
+                Roles = collaborator.Roles
             };
     }
 }

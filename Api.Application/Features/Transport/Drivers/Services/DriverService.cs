@@ -43,9 +43,14 @@ public class DriverService : BaseService<Driver, DriverRequestDto, DriverRespons
         return drivers;
     }
 
-    public Task<Paged<DriverResponseDto>> GetPagedDrivers(PaginationQuery paginationQuery, CancellationToken cancellationToken)
+    public async Task<Paged<DriverResponseDto>> GetPagedDrivers(PaginationQuery paginationQuery, CancellationToken cancellationToken)
     {
-        return _driverRepository.SearchAsync(paginationQuery, cancellationToken);
+        var result = await _driverRepository.SearchAsync(paginationQuery, cancellationToken);
+        foreach (var item in result.Items)
+        {
+            item.DriveStatusDescription = item.Status.DisplayName();
+        }
+        return result;
     }
 
 

@@ -9,6 +9,7 @@ public class VehicleResponseDto
     public string? Type { get; set; }
     public int Capacity { get; set; }
     public VehicleStatus Status { get; set; }
+    public string? VehicleStatusDescription { get; set; }
     public required string Brand { get; set; }
     public required string Model { get; set; }
     public required string LicensePlate { get; set; }

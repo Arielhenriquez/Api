@@ -30,9 +30,14 @@ public class VehicleService : BaseService<Vehicle, VehicleRequestDto, VehicleRes
         return response; 
     }
 
-    public Task<Paged<VehicleResponseDto>> GetPagedVehicles(PaginationQuery paginationQuery, CancellationToken cancellationToken)
+    public async Task<Paged<VehicleResponseDto>> GetPagedVehicles(PaginationQuery paginationQuery, CancellationToken cancellationToken)
     {
-        return _vehicleRepository.SearchAsync(paginationQuery, cancellationToken);
+        var result = await _vehicleRepository.SearchAsync(paginationQuery, cancellationToken);
+        foreach (var item in result.Items)
+        {
+            item.VehicleStatusDescription = item.Status.DisplayName();
+        }
+        return result;
     }
 
     protected override VehicleResponseDto MapToDto(Vehicle entity)

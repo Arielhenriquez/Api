@@ -12,5 +12,6 @@ public static class CollaboratorProjections
         Name = collaborator.Name,
         Supervisor = collaborator.Supervisor,
         Deparment = collaborator.Department,
+        Roles = collaborator.Roles,
     };
 }
