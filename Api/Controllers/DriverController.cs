@@ -1,6 +1,7 @@
 ﻿using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Transport.Drivers.Dtos;
+using Api.Application.Features.Transport.Vehicles.Services;
 using Api.Application.Interfaces.Transport;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -21,6 +22,15 @@ public class DriverController : ControllerBase
     public async Task<IActionResult> GetPagedDrivers([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
     {
         var drivers = await _driverService.GetPagedDrivers(query, cancellationToken);
+        return Ok(BaseResponse.Ok(drivers));
+    }
+
+    [HttpGet]
+    [SwaggerOperation(
+Summary = "List vehicles in the database")]
+    public async Task<IActionResult> GetInventoryItems()
+    {
+        var drivers = await _driverService.GetAllAsync();
         return Ok(BaseResponse.Ok(drivers));
     }
 
