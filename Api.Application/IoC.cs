@@ -7,7 +7,10 @@ using Api.Application.Features.Transport.Vehicles.Services;
 using Api.Application.Interfaces.Collaborators;
 using Api.Application.Interfaces.Inventory;
 using Api.Application.Interfaces.Transport;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Api.Application;
 
@@ -16,6 +19,8 @@ public static class IoC
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         return services
+           .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
+           .AddFluentValidationAutoValidation()
            .AddScoped<ICollaboratorService, CollaboratorService>()
            .AddScoped<IInventoryItemsService, InventoryItemsService>()
            .AddScoped<IDriverService, DriverService>()
