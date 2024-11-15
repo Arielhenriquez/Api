@@ -1,4 +1,5 @@
-﻿using Api.Domain.Entities;
+﻿using Api.Application.Common.Extensions;
+using Api.Domain.Entities;
 using Api.Domain.Enums;
 using System.Linq.Expressions;
 
@@ -8,11 +9,16 @@ public static class CollaboratorPredicates
 {
     public static Expression<Func<Collaborator, bool>> Search(string criteria)
     {
-        if (Enum.TryParse<UserRoles>(criteria, ignoreCase: true, out var parsedRole))
+        var matchingEnum = Enum.GetValues(typeof(UserRoles))
+            .Cast<Enum>()
+            .FirstOrDefault(e => e.DisplayName().Equals(criteria, StringComparison.OrdinalIgnoreCase));
+
+        if (matchingEnum != null)
         {
-            return collaborator =>
-                collaborator.Roles == parsedRole ||
-                string.IsNullOrWhiteSpace(criteria);
+            var parsedStatus = (UserRoles)matchingEnum;
+
+            return transportEntity =>
+                transportEntity.Roles == parsedStatus;
         }
         else
         {

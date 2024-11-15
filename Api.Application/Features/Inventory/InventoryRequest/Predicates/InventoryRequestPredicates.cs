@@ -1,4 +1,5 @@
-﻿using Api.Domain.Enums;
+﻿using Api.Application.Common.Extensions;
+using Api.Domain.Enums;
 using System.Linq.Expressions;
 using InventoryEntity = Api.Domain.Entities.InventoryEntities.InventoryRequest;
 
@@ -8,10 +9,16 @@ public static class InventoryRequestPredicates
 {
     public static Expression<Func<InventoryEntity, bool>> Search(string criteria)
     {
-        if (Enum.TryParse<RequestStatus>(criteria, ignoreCase: true, out var parsedStatus))
+        var matchingEnum = Enum.GetValues(typeof(RequestStatus))
+         .Cast<Enum>()
+         .FirstOrDefault(e => e.DisplayName().Equals(criteria, StringComparison.OrdinalIgnoreCase));
+
+        if (matchingEnum != null)
         {
-            return inventoryEntity =>
-                inventoryEntity.RequestStatus == parsedStatus;
+            var parsedStatus = (RequestStatus)matchingEnum;
+
+            return transportEntity =>
+                transportEntity.RequestStatus == parsedStatus;
         }
 
         return inventoryEntity => string.IsNullOrWhiteSpace(criteria);

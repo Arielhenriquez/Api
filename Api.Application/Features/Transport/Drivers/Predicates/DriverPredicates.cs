@@ -1,4 +1,5 @@
-﻿using Api.Domain.Entities.TransportEntities;
+﻿using Api.Application.Common.Extensions;
+using Api.Domain.Entities.TransportEntities;
 using Api.Domain.Enums;
 using System.Linq.Expressions;
 
@@ -8,11 +9,16 @@ public static class DriverPredicates
 {
     public static Expression<Func<Driver, bool>> Search(string criteria)
     {
-        if (Enum.TryParse<DriverStatus>(criteria, ignoreCase: true, out var parsedStatus))
+        var matchingEnum = Enum.GetValues(typeof(RequestStatus))
+           .Cast<Enum>()
+           .FirstOrDefault(e => e.DisplayName().Equals(criteria, StringComparison.OrdinalIgnoreCase));
+
+        if (matchingEnum != null)
         {
+            var parsedStatus = (DriverStatus)matchingEnum;
+
             return transportEntity =>
-                transportEntity.Status == parsedStatus ||
-                string.IsNullOrWhiteSpace(criteria);
+                transportEntity.Status == parsedStatus;
         }
         else
         {

@@ -1,4 +1,5 @@
-﻿using Api.Domain.Enums;
+﻿using Api.Application.Common.Extensions;
+using Api.Domain.Enums;
 using System.Linq.Expressions;
 using TransportEntity = Api.Domain.Entities.TransportEntities.TransportRequest;
 
@@ -8,11 +9,16 @@ public static class TransportRequestPredicates
 {
     public static Expression<Func<TransportEntity, bool>> Search(string criteria)
     {
-        if (Enum.TryParse<RequestStatus>(criteria, ignoreCase: true, out var parsedStatus))
+        var matchingEnum = Enum.GetValues(typeof(RequestStatus))
+            .Cast<Enum>()
+            .FirstOrDefault(e => e.DisplayName().Equals(criteria, StringComparison.OrdinalIgnoreCase));
+
+        if (matchingEnum != null)
         {
+            var parsedStatus = (RequestStatus)matchingEnum;
+
             return transportEntity =>
-                transportEntity.RequestStatus == parsedStatus ||
-                string.IsNullOrWhiteSpace(criteria);
+                transportEntity.RequestStatus == parsedStatus;
         }
         else
         {
