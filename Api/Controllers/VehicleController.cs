@@ -25,6 +25,14 @@ public class VehicleController : ControllerBase
         var pagedVehicles = await _vehicleService.GetPagedVehicles(query, cancellationToken);
         return Ok(BaseResponse.Ok(pagedVehicles));
     }
+    [HttpGet]
+    [SwaggerOperation(
+  Summary = "List vehicles in the database")]
+    public async Task<IActionResult> GetInventoryItems()
+    {
+        var vehicle = await _vehicleService.GetAllAsync();
+        return Ok(BaseResponse.Ok(vehicle));
+    }
 
     [HttpGet("{id}")]
     [SwaggerOperation(
