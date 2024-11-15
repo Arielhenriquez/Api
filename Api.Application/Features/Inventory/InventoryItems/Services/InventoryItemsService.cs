@@ -35,6 +35,13 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
         return _inventoryItemRepository.SearchAsync(paginationQuery, cancellationToken);
     }
 
+    public async Task UpdateArticleQuantity(Guid id, UpdateArticleQuantityDto updateArticle, CancellationToken cancellationToken)
+    {
+        var article = await repository.GetById(id, cancellationToken);
+        article.Quantity = updateArticle.Quantity;
+        await repository.UpdateAsync(article, cancellationToken);
+    }
+
     protected override InventoryItemResponseDto MapToDto(InventoryItem entity)
     {
         return new InventoryItemResponseDto
@@ -55,7 +62,7 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
             Name = dto.Name,
             Quantity = dto.Quantity,
             UnitOfMeasure = dto.UnitOfMeasure,
-            Value= dto.Value
+            Value = dto.Value
         };
     }
 

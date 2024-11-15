@@ -72,6 +72,15 @@ public class InventoryItemController : ControllerBase
         return Ok(BaseResponse.Updated(request));
     }
 
+    [HttpPatch("{id}")]
+    [SwaggerOperation(
+    Summary = "Update the quantity of an inventory item")]
+    public async Task<IActionResult> Patch([FromRoute] Guid id, [FromBody] UpdateArticleQuantityDto request, CancellationToken cancellationToken = default)
+    {
+        await _inventoryItemsService.UpdateArticleQuantity(id, request, cancellationToken);
+        return Ok(BaseResponse.Updated(request));
+    }
+
     [HttpDelete("{id}")]
     [SwaggerOperation(
         Summary = "Deletes an inventory item")]

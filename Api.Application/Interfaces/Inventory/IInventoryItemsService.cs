@@ -7,4 +7,5 @@ public interface IInventoryItemsService : IBaseService<InventoryItemRequestDto, 
 {
     Task<Paged<InventoryItemResponseDto>> GetPagedInventoryItems(PaginationQuery paginationQuery, CancellationToken cancellationToken);
     Task<List<InventoryItemResponseDto>> FindInventoryItemByName(string criteria);
+    Task UpdateArticleQuantity(Guid id, UpdateArticleQuantityDto updateArticle, CancellationToken cancellationToken);
 }
