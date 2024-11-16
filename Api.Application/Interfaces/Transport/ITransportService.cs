@@ -9,4 +9,5 @@ public interface ITransportService
     Task<IEnumerable<TransportSummaryDto>> GetTransportRequestDetails(Guid id, CancellationToken cancellationToken);
     Task<TransportResponseDto> AddTransportRequest(TransportRequestDto transportRequestDto, CancellationToken cancellationToken);
     Task AssignDriverAndVehicle(Guid transportRequestId, AssignDriverVehicleDto driverVehicleDto, CancellationToken cancellationToken);
+    Task<string> UpdateExpiredTransportRequestsStatus(CancellationToken cancellationToken = default);
 }

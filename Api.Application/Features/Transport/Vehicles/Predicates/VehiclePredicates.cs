@@ -11,7 +11,7 @@ public static class VehiclePredicates
     {
         var matchingEnum = Enum.GetValues(typeof(VehicleStatus))
             .Cast<Enum>()
-            .FirstOrDefault(e => e.DisplayName().Equals(criteria, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(e => e.DisplayName().Contains(criteria, StringComparison.OrdinalIgnoreCase));
 
         if (matchingEnum != null)
         {

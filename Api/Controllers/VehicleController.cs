@@ -27,8 +27,8 @@ public class VehicleController : ControllerBase
     }
     [HttpGet]
     [SwaggerOperation(
-  Summary = "List vehicles in the database")]
-    public async Task<IActionResult> GetInventoryItems()
+        Summary = "List vehicles in the database")]
+    public async Task<IActionResult> ListVehicles()
     {
         var vehicle = await _vehicleService.GetAllAsync();
         return Ok(BaseResponse.Ok(vehicle));

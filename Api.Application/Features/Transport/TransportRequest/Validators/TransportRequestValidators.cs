@@ -19,8 +19,9 @@ public class TransportRequestValidators : AbstractValidator<TransportRequestDto>
         RuleFor(x => x.PhoneNumber)
             .NotNull()
             .NotEmpty()
-            .Matches(@"^(809|829|849)\d{7}(\d{4})?$")
-            .WithMessage("El número de teléfono debe iniciar con 809, 829 o 849, tener 10 dígitos, y opcionalmente una extensión de 4 dígitos.");
+            .Length(12, 22)
+            .Matches(@"^(809|829|849)-\d{3}-\d{4}( Ext:\d{4})?$")
+            .WithMessage("El número de teléfono debe iniciar con 809, 829 o 849, tener el formato 809-123-4567, y opcionalmente una extensión en el formato 'Ext: 7000'.");
     }
 }
 

@@ -8,5 +8,5 @@ public interface IInventoryRequestService
     Task<Paged<InventorySummaryDto>> GetPagedInventoryRequest(PaginationQuery paginationQuery, CancellationToken cancellationToken);
     Task<IEnumerable<InventorySummaryDto>> GetInventoryRequestDetails(Guid id, CancellationToken cancellationToken);
     Task<InventoryResponseDto> AddInventoryRequest(InventoryRequestDto inventoryRequestDto, CancellationToken cancellationToken);
-    //Task<InventoryResponseDto> UpdateInventoryRequest();
+    //Task<InventoryResponseDto> UpdateInventoryRequest(); //AdminArea Endpoint
 }

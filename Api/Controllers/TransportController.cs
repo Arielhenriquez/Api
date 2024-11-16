@@ -2,6 +2,7 @@
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Transport.TransportRequest.Dtos;
 using Api.Application.Interfaces.Transport;
+using Api.Domain.Entities.InventoryEntities;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -37,7 +38,7 @@ public class TransportRequestController : ControllerBase
     [HttpPost]
     [SwaggerOperation(
        Summary = "Creates a Transport Request")]
-    public async Task<IActionResult> AddInventoryRequest([FromBody] TransportRequestDto transportRequestDto, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddTransportRequest([FromBody] TransportRequestDto transportRequestDto, CancellationToken cancellationToken)
     {
         var result = await _transportService.AddTransportRequest(transportRequestDto, cancellationToken);
         return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
@@ -51,4 +52,12 @@ public class TransportRequestController : ControllerBase
         await _transportService.AssignDriverAndVehicle(id, assignDriverVehicleDto, cancellationToken);
         return NoContent();
     }
+
+    [HttpPost("update-expired")]
+    public async Task<IActionResult> UpdateExpiredRequestsStatuses(CancellationToken cancellationToken)
+    {
+        var result = await _transportService.UpdateExpiredTransportRequestsStatus(cancellationToken);
+        return Ok(BaseResponse.Ok(result));
+    }
+
 }

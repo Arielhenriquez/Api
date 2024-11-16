@@ -16,9 +16,11 @@ public class DriverValidators : AbstractValidator<DriverRequestDto>
             .WithMessage("La fecha de vencimiento debe ser hoy o una fecha futura.");
 
         RuleFor(x => x.PhoneNumber)
-            .NotNull()
-            .NotEmpty()
-            .Matches(@"^(809|829|849)\d{7}(\d{4})?$")
-            .WithMessage("El número de teléfono debe iniciar con 809, 829 o 849, tener 10 dígitos, y opcionalmente una extensión de 4 dígitos.");
+        .NotNull()
+        .NotEmpty()
+        .Length(12, 22)
+        .Matches(@"^(809|829|849)-\d{3}-\d{4}( Ext:\s?\d{4})?$")
+        .WithMessage("El número de teléfono debe iniciar con 809, 829 o 849, tener el formato 809-123-4567, y opcionalmente una extensión en el formato 'Ext: 7000'.");
+
     }
 }

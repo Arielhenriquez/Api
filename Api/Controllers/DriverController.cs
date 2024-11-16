@@ -27,8 +27,8 @@ public class DriverController : ControllerBase
 
     [HttpGet]
     [SwaggerOperation(
-Summary = "List vehicles in the database")]
-    public async Task<IActionResult> GetInventoryItems()
+        Summary = "List Drivers in the database")]
+    public async Task<IActionResult> ListDrivers()
     {
         var drivers = await _driverService.GetAllAsync();
         return Ok(BaseResponse.Ok(drivers));

@@ -11,7 +11,7 @@ public static class CollaboratorPredicates
     {
         var matchingEnum = Enum.GetValues(typeof(UserRoles))
             .Cast<Enum>()
-            .FirstOrDefault(e => e.DisplayName().Equals(criteria, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(e => e.DisplayName().Contains(criteria, StringComparison.OrdinalIgnoreCase));
 
         if (matchingEnum != null)
         {
