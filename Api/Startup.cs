@@ -2,6 +2,8 @@
 using Api.Filters;
 using Api.Infrastructure;
 using Api.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 
@@ -26,8 +28,8 @@ public class Startup
             options.Filters.Add<ExceptionFilters>();
         }).AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-        //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        //        .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+               .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
         services.AddHttpContextAccessor();
         services.AddInfrastructure(Configuration);

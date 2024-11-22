@@ -2,10 +2,12 @@
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Inventory.InventoryRequest.Dtos;
 using Api.Application.Interfaces.Inventory;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Api.Controllers;
+
 
 [Route("api/[controller]")]
 [ApiController]

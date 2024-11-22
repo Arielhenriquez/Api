@@ -1,6 +1,7 @@
 ﻿using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Pagination;
 using Api.Application.Interfaces.Collaborators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -14,7 +15,7 @@ public class CollaboratorController : ControllerBase
     public CollaboratorController(ICollaboratorService collaboratorService) =>
         _collaboratorService = collaboratorService;
 
-
+    [Authorize]
     [HttpGet]
     [SwaggerOperation(
         Summary = "Gets paged Collaborators in the database")]
