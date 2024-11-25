@@ -9,6 +9,7 @@ public static class CollaboratorProjections
     public static Expression<Func<Collaborator, CollaboratorResponseDto>> Search => (Collaborator collaborator) => new CollaboratorResponseDto()
     {
         Id = collaborator.Id,
+        UserOid = collaborator.UserOid,
         Name = collaborator.Name,
         Supervisor = collaborator.Supervisor,
         Deparment = collaborator.Department,

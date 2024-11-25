@@ -26,7 +26,7 @@ public class DriverService : BaseService<Driver, DriverRequestDto, DriverRespons
         var response = await base.AddAsync(dto, cancellationToken);
         string htmlFile = FileExtensions.ReadEmailTemplate(EmailConstants.CreateDriverTemplate, EmailConstants.TemplateEmailRoute);
         htmlFile = htmlFile.Replace("{{UserName}}", dto.Name);
-        await _emailService.SendEmail("supervisorEmail@gmail.com", "Te habla lebron james", htmlFile);
+      //  await _emailService.SendEmail("supervisorEmail@gmail.com", "Te habla lebron james", htmlFile);
 
         return response;
     }
@@ -46,6 +46,17 @@ public class DriverService : BaseService<Driver, DriverRequestDto, DriverRespons
         }
 
         return drivers;
+    }
+
+    public async Task<IEnumerable<DriverSummaryDto>> GetDriversRequests(Guid id, CancellationToken cancellationToken = default)
+    {
+        var result = await _driverRepository.GetSummary(id, cancellationToken);
+        //foreach (var item in result)
+        //{
+        //    item.RequestStatusDescription = item.RequestStatus.DisplayName();
+        //}
+        return result;
+
     }
 
     public async Task<Paged<DriverResponseDto>> GetPagedDrivers(PaginationQuery paginationQuery, CancellationToken cancellationToken)

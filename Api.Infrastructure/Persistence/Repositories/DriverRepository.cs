@@ -7,6 +7,7 @@ using Api.Domain.Entities.TransportEntities;
 using Api.Infrastructure.Extensions;
 using Api.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
+using MySql.EntityFrameworkCore.Extensions;
 
 namespace Api.Infrastructure.Persistence.Repositories;
 
@@ -19,6 +20,19 @@ public class DriverRepository : IDriverRepository
     {
         _context = context;
         _db = _context.Set<Driver>();
+    }
+
+    public async Task<IEnumerable<DriverSummaryDto>> GetSummary(Guid id, CancellationToken cancellationToken = default)
+    {
+        var query = _db
+        .AsNoTracking()
+        .Include(ir => ir.TransportRequests)
+        .Where(x => x.Id == id)
+        .OrderByDescending(x => x.CreatedDate);
+
+        return await query
+            .Select(DriverProjections.Summary)
+            .ToListAsync(cancellationToken);
     }
     public Task<List<DriverResponseDto>> GetByName(string name, CancellationToken cancellationToken = default)
     {
@@ -33,7 +47,7 @@ public class DriverRepository : IDriverRepository
     public Task<Paged<DriverResponseDto>> SearchAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
         return _db
-                .AsNoTracking()
+        .AsNoTracking()
                 .Where(DriverPredicates.Search(query.Search))
                 .OrderByDescending(p => p.CreatedDate)
                 .Select(DriverProjections.Search)

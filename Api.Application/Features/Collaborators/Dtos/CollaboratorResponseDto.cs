@@ -6,6 +6,7 @@ namespace Api.Application.Features.Collaborators.Dtos;
 public class CollaboratorResponseDto
 {
     public Guid Id { get; set; }
+    public required string UserOid { get; set; }
     public required string Name { get; set; }
     public required string Supervisor { get; set; }
     public required string Deparment { get; set; }
@@ -18,6 +19,7 @@ public class CollaboratorResponseDto
             new CollaboratorResponseDto
             {
                 Id = collaborator.Id,
+                UserOid = collaborator.UserOid,
                 Name = collaborator.Name,
                 Deparment = collaborator.Department,
                 Supervisor = collaborator.Supervisor,

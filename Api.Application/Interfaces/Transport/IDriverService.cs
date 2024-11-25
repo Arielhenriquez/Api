@@ -7,4 +7,5 @@ public interface IDriverService : IBaseService<DriverRequestDto, DriverResponseD
 {
     Task<Paged<DriverResponseDto>> GetPagedDrivers(PaginationQuery paginationQuery, CancellationToken cancellationToken);
     Task<List<DriverResponseDto>> FindDriversByName(string criteria);
+    Task<IEnumerable<DriverSummaryDto>> GetDriversRequests(Guid id, CancellationToken cancellationToken = default);
 }

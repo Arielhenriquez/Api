@@ -25,7 +25,7 @@ public class VehicleService : BaseService<Vehicle, VehicleRequestDto, VehicleRes
         var response = await base.AddAsync(dto, cancellationToken);
         string htmlFile = FileExtensions.ReadEmailTemplate(EmailConstants.CreateDriverTemplate, EmailConstants.TemplateEmailRoute);
         htmlFile = htmlFile.Replace("{{UserName}}", dto.Model);
-        await _emailService.SendEmail("supervisorEmail@gmail.com", "Te habla lebron james", htmlFile);
+       // await _emailService.SendEmail("supervisorEmail@gmail.com", "Te habla lebron james", htmlFile);
 
         return response; 
     }

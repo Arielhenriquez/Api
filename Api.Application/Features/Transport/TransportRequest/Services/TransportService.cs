@@ -62,7 +62,7 @@ public class TransportService : ITransportService
         .Include(ir => ir.Collaborator)
         .FirstOrDefaultAsync(ir => ir.Id == createdInventoryRequest.Id, cancellationToken);
 
-        await SendTransportRequestEmail(createdInventoryRequest);
+       // await SendTransportRequestEmail(createdInventoryRequest);
 
         return inventoryRequestWithCollaborator;
     }
@@ -141,7 +141,7 @@ public class TransportService : ITransportService
 
         var updatedTransportRequest = await _transportRepository.UpdateAsync(transportRequest, cancellationToken);
 
-        await SendAssignedTransportRequestEmail(updatedTransportRequest, driver, vehicle);
+        //await SendAssignedTransportRequestEmail(updatedTransportRequest, driver, vehicle);
     }
 
     public async Task<string> UpdateExpiredTransportRequestsStatus(CancellationToken cancellationToken = default)

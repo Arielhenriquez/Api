@@ -1,7 +1,6 @@
 ﻿using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Transport.Drivers.Dtos;
-using Api.Application.Features.Transport.Vehicles.Services;
 using Api.Application.Interfaces.Transport;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -15,7 +14,7 @@ public class DriverController : ControllerBase
 {
     private readonly IDriverService _driverService;
     public DriverController(IDriverService driverService) => _driverService = driverService;
-    
+
     [HttpGet("paged")]
     [SwaggerOperation(
          Summary = "Gets Paged Drivers in the database")]
@@ -31,6 +30,15 @@ public class DriverController : ControllerBase
     public async Task<IActionResult> ListDrivers()
     {
         var drivers = await _driverService.GetAllAsync();
+        return Ok(BaseResponse.Ok(drivers));
+    }
+
+    [HttpGet("{id}/transport-requests")]
+    [SwaggerOperation(
+    Summary = "Get Drivers transport requests in the database")]
+    public async Task<IActionResult> GetDriversRequests([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var drivers = await _driverService.GetDriversRequests(id, cancellationToken);
         return Ok(BaseResponse.Ok(drivers));
     }
 
@@ -59,7 +67,7 @@ public class DriverController : ControllerBase
        Summary = "Creates a new Driver")]
     public async Task<IActionResult> AddDriver([FromBody] DriverRequestDto driverRequestDto, CancellationToken cancellationToken)
     {
-        var result = await _driverService.AddAsync(driverRequestDto, cancellationToken);      
+        var result = await _driverService.AddAsync(driverRequestDto, cancellationToken);
         return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
 
