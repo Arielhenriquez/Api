@@ -8,5 +8,6 @@ public class Driver : BaseEntity
     public DriverStatus Status { get; set; }
     public required DateTime LicenseExpiration { get; set; }
     public string? PhoneNumber { get; set; }
-    public TransportRequest? TransportRequest { get; set; }
+    public ICollection<TransportRequest> TransportRequests { get; set; } = [];
+
 }

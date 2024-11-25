@@ -12,5 +12,5 @@ public class Vehicle : BaseEntity
     public required string LicensePlate { get; set; }
     public required DateTime InsuranceValidity { get; set; }
     public required string InsuranceType { get; set; }
-    public TransportRequest? TransportRequest { get; set; }
+    public ICollection<TransportRequest> TransportRequests { get; set; } = [];
 }

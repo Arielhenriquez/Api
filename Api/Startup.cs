@@ -1,4 +1,5 @@
 ﻿using Api.Application;
+using Api.Domain.Settings;
 using Api.Filters;
 using Api.Infrastructure;
 using Api.Middlewares;
@@ -20,8 +21,7 @@ public class Startup
 
     public void RegisterServices(IServiceCollection services)
     {
-        // services.Configure<AzureAdClientSettings>(Configuration.GetSection("AzureAdClientSettings"));
-
+        services.Configure<GraphSettings>(Configuration.GetSection("AzureAd"));
 
         services.AddControllers(options =>
         {
@@ -74,9 +74,11 @@ public class Startup
                 });
         });
     }
+    //Todo: validate Unauthorized error messages
     public void SetupMiddlewares(WebApplication app)
     {
         app.UseCors("DevPolicy");
-        app.UseMiddleware<UnauthorizedMiddleware>();
+        //app.UseMiddleware<UnauthorizedMiddleware>();
+        //app.UseMiddleware<ForbiddenMiddleware>();
     }
 }

@@ -6,6 +6,7 @@ namespace Api.Domain.Entities;
 
 public class Collaborator : BaseEntity
 {
+    public required string UserOid { get; set; }
     public required string Name { get; set; }
     public required string Supervisor { get; set; }
     public required string Department { get; set; }

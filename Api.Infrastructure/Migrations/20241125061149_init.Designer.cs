@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241105170647_AddFieldsToTransportTables")]
-    partial class AddFieldsToTransportTables
+    [Migration("20241125061149_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -22,7 +22,7 @@ namespace Api.Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("Api.Domain.Entities.InventoryEntities.Collaborator", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Collaborator", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -51,6 +51,11 @@ namespace Api.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int>("Roles")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("Supervisor")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -60,6 +65,10 @@ namespace Api.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset?>("UpdatedDate")
                         .HasColumnType("datetime");
+
+                    b.Property<string>("UserOid")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -117,8 +126,14 @@ namespace Api.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<DateTime?>("ApprovedDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<Guid>("CollaboratorId")
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("longtext");
@@ -135,8 +150,8 @@ namespace Api.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<DateTime>("RequestDate")
-                        .HasColumnType("datetime(6)");
+                    b.Property<int?>("PendingApprovalBy")
+                        .HasColumnType("int");
 
                     b.Property<int>("RequestStatus")
                         .HasColumnType("int");
@@ -247,8 +262,14 @@ namespace Api.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<DateTime?>("ApprovedDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<Guid>("CollaboratorId")
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("longtext");
@@ -273,7 +294,7 @@ namespace Api.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("DriverId")
+                    b.Property<Guid?>("DriverId")
                         .HasColumnType("char(36)");
 
                     b.Property<bool>("IsDeleted")
@@ -282,11 +303,11 @@ namespace Api.Infrastructure.Migrations
                     b.Property<int>("NumberOfPeople")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PendingApprovalBy")
+                        .HasColumnType("int");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("longtext");
-
-                    b.Property<DateTime>("RequestDate")
-                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("RequestStatus")
                         .HasColumnType("int");
@@ -297,18 +318,16 @@ namespace Api.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("UpdatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<Guid>("VehicleId")
+                    b.Property<Guid?>("VehicleId")
                         .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CollaboratorId");
 
-                    b.HasIndex("DriverId")
-                        .IsUnique();
+                    b.HasIndex("DriverId");
 
-                    b.HasIndex("VehicleId")
-                        .IsUnique();
+                    b.HasIndex("VehicleId");
 
                     b.ToTable("TransportRequests");
                 });
@@ -375,7 +394,7 @@ namespace Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Api.Domain.Entities.InventoryEntities.InventoryRequest", b =>
                 {
-                    b.HasOne("Api.Domain.Entities.InventoryEntities.Collaborator", "Collaborator")
+                    b.HasOne("Api.Domain.Entities.Collaborator", "Collaborator")
                         .WithMany("InventoryRequest")
                         .HasForeignKey("CollaboratorId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -405,23 +424,19 @@ namespace Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Api.Domain.Entities.TransportEntities.TransportRequest", b =>
                 {
-                    b.HasOne("Api.Domain.Entities.InventoryEntities.Collaborator", "Collaborator")
+                    b.HasOne("Api.Domain.Entities.Collaborator", "Collaborator")
                         .WithMany("TransportRequests")
                         .HasForeignKey("CollaboratorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Api.Domain.Entities.TransportEntities.Driver", "Driver")
-                        .WithOne("TransportRequest")
-                        .HasForeignKey("Api.Domain.Entities.TransportEntities.TransportRequest", "DriverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("TransportRequests")
+                        .HasForeignKey("DriverId");
 
                     b.HasOne("Api.Domain.Entities.TransportEntities.Vehicle", "Vehicle")
-                        .WithOne("TransportRequest")
-                        .HasForeignKey("Api.Domain.Entities.TransportEntities.TransportRequest", "VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("TransportRequests")
+                        .HasForeignKey("VehicleId");
 
                     b.Navigation("Collaborator");
 
@@ -430,7 +445,7 @@ namespace Api.Infrastructure.Migrations
                     b.Navigation("Vehicle");
                 });
 
-            modelBuilder.Entity("Api.Domain.Entities.InventoryEntities.Collaborator", b =>
+            modelBuilder.Entity("Api.Domain.Entities.Collaborator", b =>
                 {
                     b.Navigation("InventoryRequest");
 
@@ -449,12 +464,12 @@ namespace Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Api.Domain.Entities.TransportEntities.Driver", b =>
                 {
-                    b.Navigation("TransportRequest");
+                    b.Navigation("TransportRequests");
                 });
 
             modelBuilder.Entity("Api.Domain.Entities.TransportEntities.Vehicle", b =>
                 {
-                    b.Navigation("TransportRequest");
+                    b.Navigation("TransportRequests");
                 });
 #pragma warning restore 612, 618
         }

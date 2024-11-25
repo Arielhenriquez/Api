@@ -19,9 +19,11 @@ namespace Api.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    UserOid = table.Column<string>(type: "longtext", nullable: false),
                     Name = table.Column<string>(type: "longtext", nullable: false),
                     Supervisor = table.Column<string>(type: "longtext", nullable: false),
                     Department = table.Column<string>(type: "longtext", nullable: false),
+                    Roles = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
                     UpdatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
@@ -42,7 +44,7 @@ namespace Api.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
                     Name = table.Column<string>(type: "longtext", nullable: false),
-                    State = table.Column<string>(type: "longtext", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     LicenseExpiration = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "longtext", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
@@ -67,6 +69,7 @@ namespace Api.Infrastructure.Migrations
                     Name = table.Column<string>(type: "longtext", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     UnitOfMeasure = table.Column<string>(type: "longtext", nullable: true),
+                    Value = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
                     UpdatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
@@ -88,7 +91,7 @@ namespace Api.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
                     Type = table.Column<string>(type: "longtext", nullable: true),
                     Capacity = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     Brand = table.Column<string>(type: "longtext", nullable: false),
                     Model = table.Column<string>(type: "longtext", nullable: false),
                     LicensePlate = table.Column<string>(type: "longtext", nullable: false),
@@ -113,16 +116,18 @@ namespace Api.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    CollaboratorId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    RequestDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    RequestStatus = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
                     UpdatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: true),
                     DeletedBy = table.Column<string>(type: "longtext", nullable: true),
                     UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    DeletedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true)
+                    DeletedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
+                    CollaboratorId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    RequestStatus = table.Column<int>(type: "int", nullable: false),
+                    ApprovedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    PendingApprovalBy = table.Column<int>(type: "int", nullable: true),
+                    Comment = table.Column<string>(type: "longtext", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -141,19 +146,25 @@ namespace Api.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    CollaboratorId = table.Column<Guid>(type: "char(36)", nullable: false),
                     Destination = table.Column<string>(type: "longtext", nullable: false),
-                    RequestStatus = table.Column<int>(type: "int", nullable: false),
+                    DeparturePoint = table.Column<string>(type: "longtext", nullable: false),
+                    NumberOfPeople = table.Column<int>(type: "int", nullable: false),
+                    DepartureDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "longtext", nullable: true),
-                    VehicleId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    DriverId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    VehicleId = table.Column<Guid>(type: "char(36)", nullable: true),
+                    DriverId = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
                     UpdatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: true),
                     DeletedBy = table.Column<string>(type: "longtext", nullable: true),
                     UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    DeletedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true)
+                    DeletedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
+                    CollaboratorId = table.Column<Guid>(type: "char(36)", nullable: false),
+                    RequestStatus = table.Column<int>(type: "int", nullable: false),
+                    ApprovedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    PendingApprovalBy = table.Column<int>(type: "int", nullable: true),
+                    Comment = table.Column<string>(type: "longtext", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -168,14 +179,12 @@ namespace Api.Infrastructure.Migrations
                         name: "FK_TransportRequests_Drivers_DriverId",
                         column: x => x.DriverId,
                         principalTable: "Drivers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_TransportRequests_Vehicles_VehicleId",
                         column: x => x.VehicleId,
                         principalTable: "Vehicles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -235,14 +244,12 @@ namespace Api.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_TransportRequests_DriverId",
                 table: "TransportRequests",
-                column: "DriverId",
-                unique: true);
+                column: "DriverId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TransportRequests_VehicleId",
                 table: "TransportRequests",
-                column: "VehicleId",
-                unique: true);
+                column: "VehicleId");
         }
 
         /// <inheritdoc />

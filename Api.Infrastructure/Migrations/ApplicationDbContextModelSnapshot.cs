@@ -63,6 +63,10 @@ namespace Api.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("UpdatedDate")
                         .HasColumnType("datetime");
 
+                    b.Property<string>("UserOid")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.HasKey("Id");
 
                     b.ToTable("Collaborators");
@@ -318,11 +322,9 @@ namespace Api.Infrastructure.Migrations
 
                     b.HasIndex("CollaboratorId");
 
-                    b.HasIndex("DriverId")
-                        .IsUnique();
+                    b.HasIndex("DriverId");
 
-                    b.HasIndex("VehicleId")
-                        .IsUnique();
+                    b.HasIndex("VehicleId");
 
                     b.ToTable("TransportRequests");
                 });
@@ -426,12 +428,12 @@ namespace Api.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Api.Domain.Entities.TransportEntities.Driver", "Driver")
-                        .WithOne("TransportRequest")
-                        .HasForeignKey("Api.Domain.Entities.TransportEntities.TransportRequest", "DriverId");
+                        .WithMany("TransportRequests")
+                        .HasForeignKey("DriverId");
 
                     b.HasOne("Api.Domain.Entities.TransportEntities.Vehicle", "Vehicle")
-                        .WithOne("TransportRequest")
-                        .HasForeignKey("Api.Domain.Entities.TransportEntities.TransportRequest", "VehicleId");
+                        .WithMany("TransportRequests")
+                        .HasForeignKey("VehicleId");
 
                     b.Navigation("Collaborator");
 
@@ -459,12 +461,12 @@ namespace Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Api.Domain.Entities.TransportEntities.Driver", b =>
                 {
-                    b.Navigation("TransportRequest");
+                    b.Navigation("TransportRequests");
                 });
 
             modelBuilder.Entity("Api.Domain.Entities.TransportEntities.Vehicle", b =>
                 {
-                    b.Navigation("TransportRequest");
+                    b.Navigation("TransportRequests");
                 });
 #pragma warning restore 612, 618
         }

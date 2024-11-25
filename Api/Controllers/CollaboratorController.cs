@@ -15,7 +15,7 @@ public class CollaboratorController : ControllerBase
     public CollaboratorController(ICollaboratorService collaboratorService) =>
         _collaboratorService = collaboratorService;
 
-    [Authorize]
+    //[Authorize]
     [HttpGet]
     [SwaggerOperation(
         Summary = "Gets paged Collaborators in the database")]
@@ -23,6 +23,13 @@ public class CollaboratorController : ControllerBase
     {
         var collaborators = await _collaboratorService.GetPagedCollaborators(query, cancellationToken);
         return Ok(BaseResponse.Ok(collaborators));
+    }
+
+    [Authorize]
+    [HttpGet("test")]
+    public async Task<IActionResult> Test()
+    {
+        return Ok("login");
     }
 
     [HttpGet("search-by-name")]

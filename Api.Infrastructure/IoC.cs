@@ -25,6 +25,7 @@ public static class IoC
         .AddScoped<IVehicleRepository, VehicleRepository>()
         .AddScoped<IInventoryRequestRepository, InventoryRequestRepository>()
         .AddScoped<ITransportRequestRepository, TransportRequestRepository>()
-        .AddTransient<IEmailService, EmailService>();
+        .AddTransient<IEmailService, EmailService>()
+        .AddTransient<IGraphProvider, GraphProvider>();
     }
 }
