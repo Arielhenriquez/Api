@@ -55,9 +55,9 @@ public class CollaboratorService : ICollaboratorService
         return await _graphProvider.GetUserManager(userOid);
     }
 
-    public async Task<List<RolesResponseDto>> GetAllRoles()
+    public async Task<List<RolesResponseDto>> GetAllRoles(CancellationToken cancellationToken)
     {
-        var appRoles = await _graphProvider.GetAppRoles();
+        var appRoles = await _graphProvider.GetAppRoles(cancellationToken);
 
         var rolesDto = appRoles
             .Select(role => (RolesResponseDto)role)
@@ -66,33 +66,104 @@ public class CollaboratorService : ICollaboratorService
         return rolesDto ?? [];
     }
 
-    //Todo add service principal from settings
-    public async Task<List<AppRoleDto?>> GetAppRoles(string userId)
+    public async Task<List<RoleAssignmentDto>> GetUserRoleAssignments(string userId, bool isAssigned, CancellationToken cancellationToken)
     {
-        var servicePrincipalId = Guid.Parse("96b41073-8601-4827-be54-d52994080767");
+        var assignedRoles = await _graphProvider.GetAssignedRolesAsync(userId, cancellationToken);
+        var allRoles = await _graphProvider.GetAppRoles(cancellationToken);
 
-        var assignedRoles = await _graphProvider.GetAppRolesAssignedToUser(userId, servicePrincipalId);
+        List<RoleAssignmentDto> result;
 
-        return assignedRoles;
+        if (isAssigned)
+        {
+            result = assignedRoles
+                .Select(assignment =>
+                {
+                    var appRole = allRoles.FirstOrDefault(role => role.Id == assignment.AppRoleId);
+                    return appRole == null ? null : (RoleAssignmentDto)(appRole, assignment);
+                })
+                .Where(dto => dto != null)
+                .ToList();
+        }
+        else
+        {
+            var unassignedRoles = allRoles
+                .Where(appRole => !assignedRoles.Any(assignment => assignment.AppRoleId == appRole.Id))
+                .ToList();
+
+            result = unassignedRoles
+                .Select(appRole => new RoleAssignmentDto
+                {
+                    RoleId = appRole.Id,
+                    RoleName = appRole.DisplayName ?? string.Empty,
+                    RoleDescription = appRole.Description ?? string.Empty
+                })
+                .ToList();
+        }
+
+        return result;
     }
 
-    //Add Response Dto
-    public async Task<AppRoleAssignment> AddPermissionToUser(AssignRoleToUserDto command, CancellationToken cancellationToken)
+    public async Task<List<RoleAssignmentResultDto>> AddRolesToUser(AssignRolesToUserDto assignRoleToUserDto, CancellationToken cancellationToken)
     {
-        return await _graphProvider.AddPermissionToUser(command, cancellationToken);
+        var results = new List<RoleAssignmentResultDto>();
+
+        foreach (var roleId in assignRoleToUserDto.RoleIds)
+        {
+            var roleAssignmentExists = await _graphProvider.CheckRoleAssignmentExists(assignRoleToUserDto.UserId, roleId, cancellationToken);
+
+            if (roleAssignmentExists)
+            {
+                results.Add(new RoleAssignmentResultDto
+                {
+                    RoleId = Guid.Parse(roleId),
+                    UserId = Guid.Parse(assignRoleToUserDto.UserId),
+                    Message = "Role is already assigned."
+                });
+                continue;
+            }
+            try
+            {
+                var roleAssignment = await _graphProvider.AddPermissionsToUser(assignRoleToUserDto.UserId, roleId, cancellationToken);
+
+                results.Add(new RoleAssignmentResultDto
+                {
+                    RoleId = Guid.Parse(roleId),
+                    UserId = Guid.Parse(assignRoleToUserDto.UserId),
+                    Message = "Role assigned successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                results.Add(new RoleAssignmentResultDto
+                {
+                    RoleId = Guid.Parse(roleId),
+                    UserId = Guid.Parse(assignRoleToUserDto.UserId),
+                    Message = $"Failed to assign role: {ex.Message}"
+                });
+            }
+        }
+
+        return results;
     }
 
-    //Add Response Dto
-    public async Task<AppRoleAssignment> DeleteRoleUser(DeleteRoleFromUserDto assignRoleToUserDto, CancellationToken cancellationToken)
-    {
-        return await _graphProvider.DeletePermission(assignRoleToUserDto, cancellationToken);
-    }
 
-    //Todo add service principal from settings, add response dto
-    public async Task<AppRoleAssignmentCollectionResponse> GetAppRolesAssignments(string userId)
+    public async Task DeleteRolesFromUser(DeleteRoleFromUserDto deleteRoleFromUserDto, CancellationToken cancellationToken)
     {
-        var servicePrincipalId = Guid.Parse("96b41073-8601-4827-be54-d52994080767");
+        var tasks = new List<Task>();
 
-        return await _graphProvider.GetAppRolesAssignments(userId, servicePrincipalId);
+        foreach (var roleAssignmentId in deleteRoleFromUserDto.AppRoleAssignmentIds)
+        {
+            var roleAssignmentExists = await _graphProvider.CheckRoleAssignmentExists(deleteRoleFromUserDto.UserId, roleAssignmentId, cancellationToken, true);
+
+            if (!roleAssignmentExists)
+            {
+                continue;
+            }
+
+            var task = _graphProvider.DeletePermissionsFromUser(deleteRoleFromUserDto.UserId, roleAssignmentId, cancellationToken);
+
+            tasks.Add(task);
+        }
+        await Task.WhenAll(tasks);
     }
 }

@@ -1,6 +1,7 @@
-﻿using Api.Application.Common.BaseResponse;
+﻿using System.Data;
+using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Pagination;
-using Api.Application.Features.Collaborators.Dtos;
+using Api.Application.Features.Collaborators.Dtos.GraphDtos;
 using Api.Application.Interfaces.Collaborators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -60,49 +61,41 @@ public class CollaboratorController : ControllerBase
         return Ok(BaseResponse.Ok(userManager));
     }
 
-    [HttpGet("roles/{userOid}")]
-    [SwaggerOperation(
-    Summary = "Gets Graph User Roles")]
-    public async Task<IActionResult> GetAppRole([FromRoute] string userOid)
-    {
-        var userManager = await _collaboratorService.GetAppRoles(userOid);
-        return Ok(BaseResponse.Ok(userManager));
-    }
-
     [HttpGet("roles")]
     [SwaggerOperation(
         Summary = "Gets All Graph User Roles")]
-    public async Task<IActionResult> GetAllRoles()
+    public async Task<IActionResult> GetAllRoles(CancellationToken cancellationToken)
     {
-        var roles = await _collaboratorService.GetAllRoles();
+        var roles = await _collaboratorService.GetAllRoles(cancellationToken);
         return Ok(BaseResponse.Ok(roles));
     }
 
-    [HttpGet("roles-assignment/{userOid}")]
+    //Todo: Add validation of userOid
     [SwaggerOperation(
-        Summary = "Gets Graph User Roles assignments")]
-    public async Task<IActionResult> GetAppRolesAssignments([FromRoute] string userOid)
+        Summary = "Gets user roles (assigned or unassigned) based on the isAssigned flag.")]
+    [HttpGet("role-assignments/{userOid}")]
+    public async Task<IActionResult> GetUserRoles(string userOid, [FromQuery] bool isAssigned, CancellationToken cancellationToken) 
     {
-        var userManager = await _collaboratorService.GetAppRolesAssignments(userOid);
-        return Ok(BaseResponse.Ok(userManager));
+        var rolesAssignments = await _collaboratorService.GetUserRoleAssignments(userOid, isAssigned, cancellationToken);
+        return Ok(BaseResponse.Ok(rolesAssignments));
     }
 
-    [HttpPost]
+    [HttpPost("roles")]
     [SwaggerOperation(
         Summary = "Add Roles to Users")]
-    public async Task<IActionResult> AddRoleToUser([FromBody] AssignRoleToUserDto assignRoleToUserDto, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddRolesToUser([FromBody] AssignRolesToUserDto assignRoleToUserDto, CancellationToken cancellationToken)
     {
-        var userManager = await _collaboratorService.AddPermissionToUser(assignRoleToUserDto, cancellationToken);
-        return Ok(BaseResponse.Ok(userManager));
+        var addedRoles = await _collaboratorService.AddRolesToUser(assignRoleToUserDto, cancellationToken);
+        return Ok(BaseResponse.Ok(addedRoles));
     }
 
-    [HttpDelete]
+    [HttpDelete("roles")]
     [SwaggerOperation(
-        Summary = "Delete Roles user")]
-    public async Task<IActionResult> DeleteRoleToUser([FromBody] DeleteRoleFromUserDto assignRoleToUserDto, CancellationToken cancellationToken)
+        Summary = "Delete Roles from user")]
+    public async Task<IActionResult> DeleteRolesFromUser([FromBody] DeleteRoleFromUserDto assignRoleToUserDto, CancellationToken cancellationToken)
     {
-        var userManager = await _collaboratorService.DeleteRoleUser(assignRoleToUserDto, cancellationToken);
-        return Ok(BaseResponse.Ok(userManager));
+        await _collaboratorService.DeleteRolesFromUser(assignRoleToUserDto, cancellationToken);
+        return NoContent();
     }
 }
 

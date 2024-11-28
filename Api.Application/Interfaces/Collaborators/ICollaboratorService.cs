@@ -10,11 +10,10 @@ public interface ICollaboratorService
     Task<Paged<CollaboratorResponseDto>> GetPagedCollaborators(PaginationQuery paginationQuery, CancellationToken cancellationToken);
     Task<CollaboratorResponseDto> GetCollaboratorById(Guid id);
     Task<List<CollaboratorResponseDto>> FindCollaboratorByName(string criteria);
-    Task<List<RolesResponseDto>> GetAllRoles();
-    Task<List<AppRoleDto?>> GetAppRoles(string userId);
     Task<GraphUserDto> GetGraphUsers(string userOid);
-    Task<AppRoleAssignmentCollectionResponse> GetAppRolesAssignments(string userId);
     Task<DirectoryObject> GetUserManager(string userOid);
-    Task<AppRoleAssignment> AddPermissionToUser(AssignRoleToUserDto command, CancellationToken cancellationToken);
-    Task<AppRoleAssignment> DeleteRoleUser(DeleteRoleFromUserDto assignRoleToUserDto, CancellationToken cancellationToken);
+    Task<List<RolesResponseDto>> GetAllRoles(CancellationToken cancellationToken);
+    Task<List<RoleAssignmentDto>> GetUserRoleAssignments(string userOid, bool isAssigned, CancellationToken cancellationToken);
+    Task<List<RoleAssignmentResultDto>> AddRolesToUser(AssignRolesToUserDto assignRoleToUserDto, CancellationToken cancellationToken);
+    Task DeleteRolesFromUser(DeleteRoleFromUserDto deleteRoleFromUserDto, CancellationToken cancellationToken);
 }

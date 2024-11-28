@@ -16,7 +16,7 @@ public class RolesResponseDto
             {
                 Id = role.Id.ToString(),
                 Name = role.DisplayName,
-                Description = role.Description,
+                Description = role.Description
             };
     }
 }

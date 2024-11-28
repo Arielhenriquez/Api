@@ -1,5 +1,4 @@
-﻿using Api.Application.Features.Collaborators.Dtos;
-using Api.Application.Features.Collaborators.Dtos.GraphDtos;
+﻿using Api.Application.Features.Collaborators.Dtos.GraphDtos;
 using Microsoft.Graph.Models;
 
 namespace Api.Application.Interfaces;
@@ -10,10 +9,9 @@ public interface IGraphProvider
     Task<DirectoryObject> GetUserManager(string userOid);
     Task<GraphUserDto> FindUserWithManagerAsync(string userOid);
     Task<User> UserPrincipalExists(string userPrincipalName);
-    //Task<IEnumerable<AppRole>> GetAppRoles(string userId);
-    Task<List<AppRole>> GetAppRoles();
-    Task<List<AppRoleDto>> GetAppRolesAssignedToUser(string userId, Guid servicePrincipalId);
-    Task<AppRoleAssignmentCollectionResponse> GetAppRolesAssignments(string userId, Guid servicePrincipalId);
-    Task<AppRoleAssignment> AddPermissionToUser(AssignRoleToUserDto assignRoleToUserDto, CancellationToken cancellationToken);
-    Task<AppRoleAssignment> DeletePermission(DeleteRoleFromUserDto command, CancellationToken cancellationToken);
+    Task<List<AppRole>> GetAppRoles(CancellationToken cancellationToken);
+    Task<List<AppRoleAssignment>> GetAssignedRolesAsync(string userId, CancellationToken cancellationToken);
+    Task<bool> CheckRoleAssignmentExists(string userId, string roleIdOrAssignmentId, CancellationToken cancellationToken, bool validateByAssignmentId = false);
+    Task<AppRoleAssignment> AddPermissionsToUser(string userId, string roleId, CancellationToken cancellationToken);
+    Task DeletePermissionsFromUser(string userId, string roleAssignmentId, CancellationToken cancellationToken);
 }

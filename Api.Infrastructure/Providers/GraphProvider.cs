@@ -1,5 +1,4 @@
-﻿using Api.Application.Features.Collaborators.Dtos;
-using Api.Application.Features.Collaborators.Dtos.GraphDtos;
+﻿using Api.Application.Features.Collaborators.Dtos.GraphDtos;
 using Api.Application.Interfaces;
 using Api.Domain.Settings;
 using Azure.Identity;
@@ -130,94 +129,82 @@ public class GraphProvider : IGraphProvider
         return user?.Value?.FirstOrDefault()!;
     }
 
-    public async Task<List<AppRole>> GetAppRoles()
+    public async Task<List<AppRole>> GetAppRoles(CancellationToken cancellationToken)
     {
         var spId = Guid.Parse(_servicePrincipalId);
 
         var result = await _graphServiceClient.ServicePrincipals[_servicePrincipalId].AppRoleAssignments.GetAsync();
         var servicePrincipal = await _graphServiceClient.ServicePrincipals[spId.ToString()]
-            .GetAsync();
+            .GetAsync(cancellationToken: cancellationToken);
 
         return servicePrincipal?.AppRoles ?? [];
     }
-    public async Task<AppRoleAssignmentCollectionResponse> GetAppRolesAssignments(string userId, Guid servicePrincipalId)
+
+    public async Task<List<AppRoleAssignment>> GetAssignedRolesAsync(string userId, CancellationToken cancellationToken)
     {
-        return await _graphServiceClient.Users[userId]
-           .AppRoleAssignments
-           .GetAsync(requestConfiguration =>
-           {
-               requestConfiguration.QueryParameters.Filter = $"resourceId eq {servicePrincipalId}";
-           });
-    }
-    //Todo: Remove unused code.. move mapping to projection or services
-    public async Task<List<AppRoleDto>> GetAppRolesAssignedToUser(string userId, Guid servicePrincipalId)
-    {
-        // Fetch AppRoleAssignments for the user, filtered by the Service Principal ID
+        var spId = Guid.Parse(_servicePrincipalId);
+
         var appRoleAssignmentsResponse = await _graphServiceClient.Users[userId]
             .AppRoleAssignments
             .GetAsync(requestConfiguration =>
             {
-                requestConfiguration.QueryParameters.Filter = $"resourceId eq {servicePrincipalId}";
-            });
+                requestConfiguration.QueryParameters.Filter = $"resourceId eq {spId}";
+            }, cancellationToken);
 
-        // Extract AppRoleAssignments from the response
-        var appRoleAssignments = appRoleAssignmentsResponse?.Value;
-        if (appRoleAssignments == null || appRoleAssignments.Count == 0)
-        {
-            return new List<AppRoleDto>(); // Return an empty list if no roles are assigned
-        }
-
-        // Fetch the Service Principal for the application to get all available AppRoles
-        var servicePrincipal = await _graphServiceClient.ServicePrincipals[servicePrincipalId.ToString()]
-            .GetAsync();
-
-        var appRoles = servicePrincipal.AppRoles;
-
-        // Map the assigned AppRoles to their corresponding definitions in the Service Principal
-        var assignedAppRoles = appRoles
-            .Where(appRole => appRoleAssignments.Any(assignment => assignment.AppRoleId == appRole.Id))
-            .Select(appRole => new AppRoleDto
-            {
-                Id = appRole.Id,
-                DisplayName = appRole.DisplayName,
-                Description = appRole.Description,
-                Value = appRole.Value
-            })
-            .ToList();
-
-        return assignedAppRoles;
+        return appRoleAssignmentsResponse?.Value ?? [];
     }
-    public async Task<AppRoleAssignment> AddPermissionToUser(AssignRoleToUserDto command, CancellationToken cancellationToken)
-    {
 
+    public async Task<bool> CheckRoleAssignmentExists(
+        string userId,
+        string roleIdOrAssignmentId,
+        CancellationToken cancellationToken,
+        bool validateByAssignmentId = false)
+    {
+        try
+        {
+            if (validateByAssignmentId)
+            {
+                await _graphServiceClient.Users[userId]
+                    .AppRoleAssignments[roleIdOrAssignmentId]
+                    .GetAsync(cancellationToken: cancellationToken);
+
+                return true;
+            }
+            else
+            {
+                var appRoleAssignments = await _graphServiceClient.Users[userId]
+                    .AppRoleAssignments
+                    .GetAsync(cancellationToken: cancellationToken);
+
+                return appRoleAssignments?.Value?.Any(assignment => assignment.AppRoleId.ToString() == roleIdOrAssignmentId) ?? false;
+            }
+        }
+        catch (ServiceException ex)
+        {
+            return false;
+        }
+    }
+
+
+    public async Task<AppRoleAssignment> AddPermissionsToUser(string userId, string roleId, CancellationToken cancellationToken)
+    {
         var roleAssignment = new AppRoleAssignment
         {
             Id = Guid.NewGuid().ToString(),
-            PrincipalId = Guid.Parse(command.UserId),
+            PrincipalId = Guid.Parse(userId),
             ResourceId = Guid.Parse(_servicePrincipalId),
-            AppRoleId = Guid.Parse(command.RoleId),
-            PrincipalDisplayName = command.UserId,
-            ResourceDisplayName = _servicePrincipalId
+            AppRoleId = Guid.Parse(roleId),
         };
 
-        return await _graphServiceClient.Users[command.UserId]
+        return await _graphServiceClient.Users[userId]
                      .AppRoleAssignments
-                     .PostAsync(roleAssignment);
+                     .PostAsync(roleAssignment, cancellationToken: cancellationToken);
     }
 
-    public async Task<AppRoleAssignment> DeletePermission(DeleteRoleFromUserDto command, CancellationToken cancellationToken)
+    public async Task DeletePermissionsFromUser(string userId, string roleAssignmentId, CancellationToken cancellationToken)
     {
-        await _graphServiceClient.Users[command.UserId]
-                     .AppRoleAssignments[command.AppRoleAssignmentId]
-                     .DeleteAsync();
-
-        return new AppRoleAssignment()
-        {
-            PrincipalId = Guid.Parse(command.UserId),
-            PrincipalDisplayName = command.UserId,
-            ResourceId = Guid.Empty,
-            AppRoleId = Guid.Empty,
-            ResourceDisplayName = string.Empty
-        };
+        await _graphServiceClient.Users[userId]
+                     .AppRoleAssignments[roleAssignmentId]
+                     .DeleteAsync(cancellationToken: cancellationToken);
     }
 }
