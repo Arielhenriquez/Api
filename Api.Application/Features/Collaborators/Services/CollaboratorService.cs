@@ -1,6 +1,7 @@
 ﻿using Api.Application.Common.Exceptions;
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Collaborators.Dtos;
+using Api.Application.Features.Collaborators.Dtos.GraphDtos;
 using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
 using Microsoft.Graph.Models;
@@ -54,10 +55,15 @@ public class CollaboratorService : ICollaboratorService
         return await _graphProvider.GetUserManager(userOid);
     }
 
-    //AddResponseDto
-    public async Task<ServicePrincipal> GetAppRole(string userId)
+    public async Task<List<RolesResponseDto>> GetAllRoles()
     {
-        return await _graphProvider.GetAppRoles(userId);
+        var appRoles = await _graphProvider.GetAppRoles();
+
+        var rolesDto = appRoles
+            .Select(role => (RolesResponseDto)role)
+            .ToList();
+
+        return rolesDto ?? [];
     }
 
     //Todo add service principal from settings

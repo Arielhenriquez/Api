@@ -1,5 +1,6 @@
 ﻿using Api.Application.Common.Pagination;
 using Api.Application.Features.Collaborators.Dtos;
+using Api.Application.Features.Collaborators.Dtos.GraphDtos;
 using Microsoft.Graph.Models;
 
 namespace Api.Application.Interfaces.Collaborators;
@@ -9,7 +10,7 @@ public interface ICollaboratorService
     Task<Paged<CollaboratorResponseDto>> GetPagedCollaborators(PaginationQuery paginationQuery, CancellationToken cancellationToken);
     Task<CollaboratorResponseDto> GetCollaboratorById(Guid id);
     Task<List<CollaboratorResponseDto>> FindCollaboratorByName(string criteria);
-    Task<ServicePrincipal> GetAppRole(string userId);
+    Task<List<RolesResponseDto>> GetAllRoles();
     Task<List<AppRoleDto?>> GetAppRoles(string userId);
     Task<GraphUserDto> GetGraphUsers(string userOid);
     Task<AppRoleAssignmentCollectionResponse> GetAppRolesAssignments(string userId);

@@ -1,4 +1,4 @@
-﻿namespace Api.Application.Features.Collaborators.Dtos;
+﻿namespace Api.Application.Features.Collaborators.Dtos.GraphDtos;
 
 public class GraphUserDto
 {

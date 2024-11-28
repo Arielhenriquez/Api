@@ -69,13 +69,13 @@ public class CollaboratorController : ControllerBase
         return Ok(BaseResponse.Ok(userManager));
     }
 
-    [HttpGet("role/{userOid}")]
+    [HttpGet("roles")]
     [SwaggerOperation(
         Summary = "Gets All Graph User Roles")]
-    public async Task<IActionResult> GetAppRoles([FromRoute] string userOid)
+    public async Task<IActionResult> GetAllRoles()
     {
-        var userManager = await _collaboratorService.GetAppRole(userOid);
-        return Ok(BaseResponse.Ok(userManager));
+        var roles = await _collaboratorService.GetAllRoles();
+        return Ok(BaseResponse.Ok(roles));
     }
 
     [HttpGet("roles-assignment/{userOid}")]

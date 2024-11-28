@@ -1,4 +1,5 @@
 ﻿using Api.Application.Features.Collaborators.Dtos;
+using Api.Application.Features.Collaborators.Dtos.GraphDtos;
 using Api.Application.Interfaces;
 using Api.Domain.Settings;
 using Azure.Identity;
@@ -129,38 +130,15 @@ public class GraphProvider : IGraphProvider
         return user?.Value?.FirstOrDefault()!;
     }
 
-    //Todo Remove unusued Code
-    public async Task<ServicePrincipal> GetAppRoles(string userId)
+    public async Task<List<AppRole>> GetAppRoles()
     {
         var spId = Guid.Parse(_servicePrincipalId);
 
-        // Get App Role Assignments for the user
-        //var assignmentsResponse = await _graphServiceClient.Users[userId]
-        //    .AppRoleAssignments
-        //    .GetAsync(requestConfiguration =>
-        //    {
-        //        requestConfiguration.QueryParameters.Filter = $"resourceId contains '{spId}'";
-        //    });
-
         var result = await _graphServiceClient.ServicePrincipals[_servicePrincipalId].AppRoleAssignments.GetAsync();
-
-        // Extract the actual list of AppRoleAssignment from the response
-        //var assignments = assignmentsResponse?.Value;
-
-        //if (assignments == null || assignments.Count == 0)
-        //{
-        //    return [];
-        //}
-
-        // Fetch the Service Principal for the Application
         var servicePrincipal = await _graphServiceClient.ServicePrincipals[spId.ToString()]
             .GetAsync();
 
-        // Match assigned App Role IDs with available App Roles in the Service Principal
-        //var userAppRoles = servicePrincipal.AppRoles
-        //    .Where(appRole => assignments.Any(assignment => assignment.AppRoleId == appRole.Id));
-
-        return servicePrincipal;
+        return servicePrincipal?.AppRoles ?? [];
     }
     public async Task<AppRoleAssignmentCollectionResponse> GetAppRolesAssignments(string userId, Guid servicePrincipalId)
     {
