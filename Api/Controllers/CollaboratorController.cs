@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Api.Application.Common.BaseResponse;
+﻿using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Collaborators.Dtos.GraphDtos;
 using Api.Application.Interfaces.Collaborators;
@@ -74,7 +73,7 @@ public class CollaboratorController : ControllerBase
     [SwaggerOperation(
         Summary = "Gets user roles (assigned or unassigned) based on the isAssigned flag.")]
     [HttpGet("role-assignments/{userOid}")]
-    public async Task<IActionResult> GetUserRoles(string userOid, [FromQuery] bool isAssigned, CancellationToken cancellationToken) 
+    public async Task<IActionResult> GetUserRoles(string userOid, [FromQuery] bool isAssigned, CancellationToken cancellationToken)
     {
         var rolesAssignments = await _collaboratorService.GetUserRoleAssignments(userOid, isAssigned, cancellationToken);
         return Ok(BaseResponse.Ok(rolesAssignments));

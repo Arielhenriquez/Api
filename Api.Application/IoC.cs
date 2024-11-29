@@ -1,4 +1,5 @@
-﻿using Api.Application.Features.Collaborators.Services;
+﻿using System.Reflection;
+using Api.Application.Features.Collaborators.Services;
 using Api.Application.Features.Inventory.InventoryItems.Services;
 using Api.Application.Features.Inventory.InventoryRequest.Services;
 using Api.Application.Features.Transport.Drivers.Services;
@@ -10,7 +11,6 @@ using Api.Application.Interfaces.Transport;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace Api.Application;
 
@@ -26,6 +26,7 @@ public static class IoC
            .AddScoped<IDriverService, DriverService>()
            .AddScoped<IVehicleService, VehicleService>()
            .AddScoped<IInventoryRequestService, InventoryRequestService>()
-           .AddScoped<ITransportService, TransportService>();
+           .AddScoped<ITransportService, TransportService>()
+           .AddScoped<IGraphUserService, GraphUserService>();
     }
 }
