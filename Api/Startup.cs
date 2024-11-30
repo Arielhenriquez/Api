@@ -1,4 +1,5 @@
-﻿using Api.Application;
+﻿using System.Text.Json.Serialization;
+using Api.Application;
 using Api.Domain.Settings;
 using Api.Filters;
 using Api.Infrastructure;
@@ -6,7 +7,6 @@ using Api.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
-using System.Text.Json.Serialization;
 
 namespace Api;
 
@@ -29,7 +29,22 @@ public class Startup
         }).AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-               .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+      .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+
+        services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+        {
+            options.Events = new JwtBearerEvents
+            {
+                OnChallenge = async context =>
+                {
+                    context.HandleResponse();
+                    await UnauthorizedHelper.HandleUnauthorizedResponse(
+                        context,
+                        "Your token is invalid or expired. Please log in again."
+                    );
+                }
+            };
+        });
 
         services.AddHttpContextAccessor();
         services.AddInfrastructure(Configuration);
@@ -74,11 +89,9 @@ public class Startup
                 });
         });
     }
-    //Todo: validate Unauthorized error messages
     public void SetupMiddlewares(WebApplication app)
     {
         app.UseCors("DevPolicy");
-        //app.UseMiddleware<UnauthorizedMiddleware>();
         //app.UseMiddleware<ForbiddenMiddleware>();
     }
 }

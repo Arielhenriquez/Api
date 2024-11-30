@@ -1,5 +1,4 @@
-﻿using Api.Application.Features.Collaborators.Dtos.GraphDtos;
-using Microsoft.Graph.Models;
+﻿using Microsoft.Graph.Models;
 
 namespace Api.Application.Interfaces;
 
@@ -7,7 +6,6 @@ public interface IGraphProvider
 {
     Task<User> FindUserAsync(string userOidOrUserPrincipalName);
     Task<DirectoryObject> GetUserManager(string userOid);
-    Task<GraphUserDto> FindUserWithManagerAsync(string userOid);
     Task<User> UserPrincipalExists(string userPrincipalName);
     Task<List<AppRole>> GetAppRoles(CancellationToken cancellationToken);
     Task<List<AppRoleAssignment>> GetAssignedRolesAsync(string userId, CancellationToken cancellationToken);

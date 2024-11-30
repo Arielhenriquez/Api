@@ -27,6 +27,6 @@ public static class IoC
            .AddScoped<IVehicleService, VehicleService>()
            .AddScoped<IInventoryRequestService, InventoryRequestService>()
            .AddScoped<ITransportService, TransportService>()
-           .AddScoped<IGraphUserService, GraphUserService>();
+           .AddTransient<IGraphUserService, GraphUserService>();
     }
 }

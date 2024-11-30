@@ -42,24 +42,6 @@ public class CollaboratorController : ControllerBase
         return Ok(BaseResponse.Ok(collaborators));
     }
 
-    [HttpGet("{userOid}")]
-    [SwaggerOperation(
-    Summary = "Gets Graph User by userOid")]
-    public async Task<IActionResult> GetGraphUsers([FromRoute] string userOid)
-    {
-        var graphUser = await _collaboratorService.GetGraphUsers(userOid);
-        return Ok(BaseResponse.Ok(graphUser));
-    }
-
-    [HttpGet("user-manager/{userOid}")]
-    [SwaggerOperation(
-        Summary = "Gets Graph User by manager")]
-    public async Task<IActionResult> GetUserManager([FromRoute] string userOid)
-    {
-        var userManager = await _collaboratorService.GetUserManager(userOid);
-        return Ok(BaseResponse.Ok(userManager));
-    }
-
     [HttpGet("roles")]
     [SwaggerOperation(
         Summary = "Gets All Graph User Roles")]

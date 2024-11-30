@@ -1,5 +1,4 @@
-﻿using Api.Application.Features.Collaborators.Dtos.GraphDtos;
-using Api.Application.Interfaces;
+﻿using Api.Application.Interfaces;
 using Api.Domain.Settings;
 using Azure.Identity;
 using Microsoft.Extensions.Options;
@@ -52,68 +51,6 @@ public class GraphProvider : IGraphProvider
     {
         return await _graphServiceClient.Users[userOid].Manager.GetAsync();
     }
-    //Move to Service maybe graph service..
-    public async Task<GraphUserDto> FindUserWithManagerAsync(string userOid)
-    {
-        // Fetch user details
-        var user = await _graphServiceClient.Users[userOid]
-            .GetAsync(requestConfiguration =>
-            {
-                requestConfiguration.QueryParameters.Select =
-                [
-                "id",
-                "displayName",
-                "mail",
-                "givenName",
-                "surname",
-                "userPrincipalName",
-                "department"
-                ];
-            });
-
-        // Fetch the manager details separately
-        var manager = await GetManagerDetailsAsync(userOid);
-
-        // Map to GraphUserDto
-        return new GraphUserDto
-        {
-            Id = user.Id,
-            DisplayName = user.DisplayName,
-            UserPrincipalName = user.UserPrincipalName,
-            Mail = user.Mail,
-            GivenName = user.GivenName,
-            SurName = user.Surname,
-            Department = user.Department,
-            ManagerDto = manager
-        };
-    }
-    //Move to Service maybe graph service..
-    private async Task<ManagerDto?> GetManagerDetailsAsync(string userOid)
-    {
-        try
-        {
-            var manager = await _graphServiceClient.Users[userOid].Manager.GetAsync();
-            if (manager is User managerUser)
-            {
-                return new ManagerDto
-                {
-                    Id = managerUser.Id,
-                    DisplayName = managerUser.DisplayName,
-                    UserPrincipalName = managerUser.UserPrincipalName,
-                    Mail = managerUser.Mail
-                };
-            }
-        }
-        catch (Exception ex)
-        {
-            // Handle cases where the manager does not exist
-            Console.WriteLine($"Manager not found: {ex.Message}");
-        }
-
-        return null;
-    }
-
-
 
     /// <summary>
     /// Checks if a user exists by user principal name.

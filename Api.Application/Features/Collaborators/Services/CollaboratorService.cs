@@ -44,17 +44,6 @@ public class CollaboratorService : ICollaboratorService
     {
         return await _collaboratorRepository.GetById(id);
     }
-
-    public async Task<GraphUserDto> GetGraphUsers(string userOid)
-    {
-        return await _graphProvider.FindUserWithManagerAsync(userOid);
-    }
-
-    public async Task<DirectoryObject> GetUserManager(string userOid)
-    {
-        return await _graphProvider.GetUserManager(userOid);
-    }
-
     public async Task<List<RolesResponseDto>> GetAllRoles(CancellationToken cancellationToken)
     {
         var appRoles = await _graphProvider.GetAppRoles(cancellationToken);
