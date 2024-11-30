@@ -11,7 +11,8 @@ Settings:
     },
     "ConnectionStrings": {
         //"DefaultConnection": "Server=localhost;Port=3306;Database=culturaDb_local2;User=myuser;Password=mypassword;SslMode=None;AllowPublicKeyRetrieval=true;",
-        "DefaultConnection": "Server=localhost;Port=3306;Database=culturaDb_local2;User=myuser;Password=mypassword;"
+        "DefaultConnection":"Server=localhost;Port=3306;Database=culturaDb_local;User=myuser;Password=mypassword;SslMode=None;AllowPublicKeyRetrieval=true;",
+
     },
 
     "EmailSettings": {
