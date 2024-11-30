@@ -38,3 +38,8 @@ Settings:
 
 
 BD local docker: docker run --name mysql-db -e MYSQL_ROOT_PASSWORD=rootpassword -e MYSQL_DATABASE=culturaDb_local -e MYSQL_USER=myuser -e MYSQL_PASSWORD=mypassword -p 3306:3306 -d mysql:latest
+
+
+Connection string: jdbc:mysql://localhost:3306/culturaDb_local?allowPublicKeyRetrieval=true&useSSL=false
+
+Luego correr update database
