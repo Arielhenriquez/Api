@@ -77,6 +77,39 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
         return entities;
     }
 
+    public virtual async Task PatchAsync(Guid id, Dictionary<string, object> updates, CancellationToken cancellationToken = default)
+    {
+        var entity = await GetById(id, cancellationToken);
+
+        Type type = typeof(TEntity);
+        foreach (var update in updates)
+        {
+            var property = type.GetProperty(update.Key);
+            if (property != null && property.CanWrite)
+            {
+                var value = update.Value;
+
+                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    if (value == null || property.PropertyType.GetGenericArguments()[0].IsEnum)
+                    {
+                        value = value != null ? Enum.Parse(property.PropertyType.GetGenericArguments()[0], value.ToString()) : null;
+                    }
+                }
+                else if (property.PropertyType.IsEnum) // Si no es nullable pero es un enum
+                {
+                    value = Enum.Parse(property.PropertyType, value.ToString());
+                }
+
+                property.SetValue(entity, value);
+            }
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+
+
 
     public virtual async Task<TEntity> Delete(Guid id, CancellationToken cancellationToken)
     {

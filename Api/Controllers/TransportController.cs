@@ -1,5 +1,6 @@
 ﻿using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Pagination;
+using Api.Application.Features.Inventory.InventoryItems.Dtos;
 using Api.Application.Features.Transport.TransportRequest.Dtos;
 using Api.Application.Interfaces.Transport;
 using Api.Domain.Entities.InventoryEntities;
@@ -54,10 +55,27 @@ public class TransportRequestController : ControllerBase
     }
 
     [HttpPost("update-expired")]
+    [SwaggerOperation(
+    Summary = "Updates the status of expired transport requests",
+    Description = "Automatically updates the status of pending transport requests based on their departure date. " +
+                  "Requests without an assigned driver or vehicle are rejected, while those with both are marked as completed."
+    )]
     public async Task<IActionResult> UpdateExpiredRequestsStatuses(CancellationToken cancellationToken)
     {
         var result = await _transportService.UpdateExpiredTransportRequestsStatus(cancellationToken);
         return Ok(BaseResponse.Ok(result));
     }
 
+    [HttpPatch("approve")]
+    [SwaggerOperation(
+    Summary = "Approve or reject a transport request",
+    Description = "Allows supervisors or administrators to approve or reject a transport request. " +
+                  "Only requests in a 'Pending' status can be processed. " +
+                  "Supervisors or Sudo roles are required to perform this action."
+    )]
+    public async Task<IActionResult> ApproveOrRejectRequest([FromBody] ApprovalDto approvalDto, CancellationToken cancellationToken) 
+    {
+        var result = await _transportService.ApproveTransportRequest(approvalDto, cancellationToken);
+        return Ok(BaseResponse.Ok(result));
+    }
 }

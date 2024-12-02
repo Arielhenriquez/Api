@@ -10,9 +10,9 @@ public interface IBaseRepository<TEntity> where TEntity : class, IBase
     Task<TEntity> GetById(Guid id, CancellationToken cancellationToken);
     Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
     Task<ICollection<TEntity>> AddRange(ICollection<TEntity> entities, CancellationToken cancellationToken = default);
-
     Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
     Task<ICollection<TEntity>> UpdateRange(ICollection<TEntity> entities, CancellationToken cancellationToken = default);
+    Task PatchAsync(Guid id, Dictionary<string, object> updates, CancellationToken cancellationToken = default);
     Task<TEntity> Delete(Guid id, CancellationToken cancellationToken);
     Task RemoveRange(ICollection<TEntity> entities, CancellationToken cancellationToken = default);
 }

@@ -11,7 +11,7 @@ public static class TransportRequestPredicates
     {
         var matchingEnum = Enum.GetValues(typeof(RequestStatus))
             .Cast<Enum>()
-            .FirstOrDefault(e => e.DisplayName().Contains(criteria, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefault(e => e.DisplayName().Equals(criteria, StringComparison.OrdinalIgnoreCase));
 
         if (matchingEnum != null)
         {

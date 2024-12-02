@@ -1,11 +1,13 @@
 ﻿using Api.Application.Common.Exceptions;
 using Api.Application.Common.Extensions;
 using Api.Application.Common.Pagination;
+using Api.Application.Features.Inventory.InventoryItems.Dtos;
 using Api.Application.Features.Transport.TransportRequest.Dtos;
 using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
 using Api.Application.Interfaces.Transport;
 using Api.Domain.Constants;
+using Api.Domain.Entities;
 using Api.Domain.Entities.TransportEntities;
 using Api.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -15,14 +17,16 @@ namespace Api.Application.Features.Transport.TransportRequest.Services;
 
 public class TransportService : ITransportService
 {
+    //Todo: Unificar collaborator repository con el base.
     private readonly ICollaboratorRepository _collaboratorRepository;
+    private readonly IBaseRepository<Collaborator> _collaboratorRepository2;
     private readonly IEmailService _emailService;
     private readonly IBaseRepository<TransportEntity> _transportRepository;
     private readonly ITransportRequestRepository _transportRequestRepository;
     private readonly IBaseRepository<Driver> _driverRepository;
     private readonly IBaseRepository<Vehicle> _vehicleRepository;
 
-    public TransportService(ICollaboratorRepository collaboratorRepository, IEmailService emailService, IBaseRepository<TransportEntity> transportRepository, ITransportRequestRepository transportRequestRepository, IBaseRepository<Driver> driverRepository, IBaseRepository<Vehicle> vehicleRepository)
+    public TransportService(ICollaboratorRepository collaboratorRepository, IEmailService emailService, IBaseRepository<TransportEntity> transportRepository, ITransportRequestRepository transportRequestRepository, IBaseRepository<Driver> driverRepository, IBaseRepository<Vehicle> vehicleRepository, IBaseRepository<Collaborator> collaboratorRepository2)
     {
         _collaboratorRepository = collaboratorRepository;
         _emailService = emailService;
@@ -30,6 +34,7 @@ public class TransportService : ITransportService
         _transportRequestRepository = transportRequestRepository;
         _driverRepository = driverRepository;
         _vehicleRepository = vehicleRepository;
+        _collaboratorRepository2 = collaboratorRepository2;
     }
 
     public async Task<Paged<TransportSummaryDto>> GetPagedTransportRequests(PaginationQuery paginationQuery, CancellationToken cancellationToken)
@@ -62,7 +67,7 @@ public class TransportService : ITransportService
         .Include(ir => ir.Collaborator)
         .FirstOrDefaultAsync(ir => ir.Id == createdInventoryRequest.Id, cancellationToken);
 
-       // await SendTransportRequestEmail(createdInventoryRequest);
+        // await SendTransportRequestEmail(createdInventoryRequest);
 
         return inventoryRequestWithCollaborator;
     }
@@ -154,7 +159,7 @@ public class TransportService : ITransportService
             .ToListAsync(cancellationToken);
 
         if (overdueRequests.Count == 0) return "No hay solicitudes con fecha de salida vencidas";
-        
+
         foreach (var request in overdueRequests)
         {
             if (request.VehicleId == null || request.DriverId == null)
@@ -211,5 +216,56 @@ public class TransportService : ITransportService
 
         // Enviar el correo de notificación
         await SendRejectionEmail(request.Collaborator.Name, requestId, comment);
+    }
+
+    public async Task<string> ApproveTransportRequest(ApprovalDto approvalDto, CancellationToken cancellationToken)
+    {
+        var request = await _transportRepository.GetById(approvalDto.RequestId, cancellationToken);
+
+        if (request.RequestStatus != RequestStatus.Pending)
+            throw new BadRequestException($"Transport request is already {request.RequestStatus}.");
+
+        //var collaboratorRoles = await _collaboratorRepository2.
+        //    Query()
+        //    .Where(x => x.Id == approvalDto.CollaboratorId)
+        //    .Select(x => x.Roles)
+        //    .FirstOrDefaultAsync(cancellationToken);
+
+        //var userRoles = collaboratorRoles!
+        //   .Select(EnumExtensions.MapDbRoleToEnum)
+        //   .Where(role => role != null)
+        //   .Cast<UserRoles>()
+        //   .ToList();
+
+        //var requiredRoles = new[] { UserRoles.Supervisor, UserRoles.Sudo };
+        ////todo Maybe jj poner ese exception con un 403 cuando se agregue rol de azure que se agregue a la BD tambien jj
+        //if (!userRoles.Any(role => requiredRoles.Contains(role)))
+        //    throw new UnauthorizedAccessException("You do not have the required role to perform this action.");
+
+
+        // Construye los campos que necesitas actualizar
+        var updates = new Dictionary<string, object>
+        {
+            { nameof(request.RequestStatus), approvalDto.IsApproved ? RequestStatus.Approved : RequestStatus.Rejected },
+            { nameof(request.PendingApprovalBy), approvalDto.IsApproved ? PendingApprovalBy.None : null },
+            { nameof(request.Comment), approvalDto.Comment }
+        };
+
+        // Aplica el `PATCH` a los campos relevantes
+        await _transportRepository.PatchAsync(request.Id, updates, cancellationToken);
+
+        string action = approvalDto.IsApproved ? "approved" : "rejected";
+        if (approvalDto.IsApproved)
+        {
+            action = "approved";
+            //await _emailService.SendEmail("supervisor@example.com", "Notificación de Solicitud aprobada", htmlTemplate);
+        }
+        else
+        {
+            action = "rejected";
+            await SendRejectionEmail(request.Collaborator.Name, approvalDto.RequestId, approvalDto.Comment);
+        }
+
+        return $"Su solicitud fue {action} con comentarios {approvalDto.Comment}";
     }
 }

@@ -2,7 +2,7 @@
 using Api.Domain.Entities;
 
 namespace Api.Application.Features.Collaborators.Predicates;
-
+//Todo: probar filtro enum lista de roles
 public static class CollaboratorPredicates
 {
     public static Expression<Func<Collaborator, bool>> Search(string criteria)

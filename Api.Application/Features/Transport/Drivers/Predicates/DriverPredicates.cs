@@ -4,14 +4,13 @@ using Api.Domain.Enums;
 using System.Linq.Expressions;
 
 namespace Api.Application.Features.Transport.Drivers.Predicates;
-//Todo: Fix enum filter.. if enum is 0 1 or null filter everything anyway
 public static class DriverPredicates
 {
     public static Expression<Func<Driver, bool>> Search(string criteria)
     {
         var matchingEnum = Enum.GetValues(typeof(DriverStatus))
            .Cast<Enum>()
-           .FirstOrDefault(e => e.DisplayName().Contains(criteria, StringComparison.OrdinalIgnoreCase));
+           .FirstOrDefault(e => e.DisplayName().Equals(criteria, StringComparison.OrdinalIgnoreCase));
 
         if (matchingEnum != null)
         {

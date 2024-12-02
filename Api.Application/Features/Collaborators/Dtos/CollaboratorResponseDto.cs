@@ -36,7 +36,7 @@ public class CollaboratorResponseDto
             Supervisor = collaborator.Supervisor,
             Department = collaborator.Department,
             Roles = appRoles,
-            RolesDescriptions = appRoles.Select(role => role.DisplayName()).ToList() // Usa el helper para descripciones
+            RolesDescriptions = appRoles.Select(role => role.DisplayName()).ToList()
         };
     }
 }

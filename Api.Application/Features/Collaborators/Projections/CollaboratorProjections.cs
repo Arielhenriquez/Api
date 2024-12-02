@@ -23,7 +23,7 @@ public static class CollaboratorProjections
     public static CollaboratorResponseDto ToResponseDto(Collaborator collaborator)
     {
         var azureRoles = collaborator.Roles
-            .Select(MapDbRoleToEnum)
+            .Select(EnumExtensions.MapDbRoleToEnum)
             .Where(role => role != null)
             .Cast<UserRoles>()
             .ToList();
@@ -37,20 +37,6 @@ public static class CollaboratorProjections
             Department = collaborator.Department,
             Roles = azureRoles,
             RolesDescriptions = azureRoles.Select(role => role.DisplayName()).ToList()
-        };
-    }
-
-    private static UserRoles? MapDbRoleToEnum(string dbRole)
-    {
-        return dbRole switch
-        {
-            "Solicitante.ReadWrite" => UserRoles.Supervisor,
-            "Supervisor.Approval" => UserRoles.Applicant,
-            "Admin.Approval" => UserRoles.Administrative,
-            "AdminDeArea.ReadWrite" => UserRoles.AreaAdministrator,
-            "Sudo.All" => UserRoles.Sudo,
-            "Chofer.Read" => UserRoles.Driver,
-            _ => null
         };
     }
 }

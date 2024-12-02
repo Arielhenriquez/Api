@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Reflection;
+using Api.Domain.Enums;
 
 namespace Api.Application.Common.Extensions;
 
@@ -25,5 +26,18 @@ public static class EnumExtensions
         });
 
         return displayName;
+    }
+    public static UserRoles? MapDbRoleToEnum(string dbRole)
+    {
+        return dbRole switch
+        {
+            "Solicitante.ReadWrite" => UserRoles.Supervisor,
+            "Supervisor.Approval" => UserRoles.Applicant,
+            "Admin.Approval" => UserRoles.Administrative,
+            "AdminDeArea.ReadWrite" => UserRoles.AreaAdministrator,
+            "Sudo.All" => UserRoles.Sudo,
+            "Chofer.Read" => UserRoles.Driver,
+            _ => null
+        };
     }
 }

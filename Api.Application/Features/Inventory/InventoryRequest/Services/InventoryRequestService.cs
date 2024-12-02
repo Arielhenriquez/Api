@@ -1,5 +1,7 @@
-﻿using Api.Application.Common.Extensions;
+﻿using Api.Application.Common.BaseResponse;
+using Api.Application.Common.Extensions;
 using Api.Application.Common.Pagination;
+using Api.Application.Features.Inventory.InventoryItems.Dtos;
 using Api.Application.Features.Inventory.InventoryRequest.Dtos;
 using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
@@ -109,5 +111,78 @@ public class InventoryRequestService : IInventoryRequestService
             item.RequestStatusDescription = item.RequestStatus.DisplayName();
         }
         return result;
+    }
+
+    public async Task<string> ApproveInventoryRequest(ApprovalDto approvalDto, CancellationToken cancellationToken)
+    {
+        //var request = await _inventoryRepository.GetById(id, cancellationToken);
+        //if (request == null)
+        //    return NotFound(BaseResponse.NotFound($"Inventory request with ID {id} not found."));
+
+        //// Verificar si ya está completada o rechazada
+        //if (request.RequestStatus == RequestStatus.Completed || request.RequestStatus == RequestStatus.Rejected)
+        //    return BadRequest(BaseResponse.BadRequest($"Inventory request is already {request.RequestStatus}."));
+
+        //// Obtener rol del usuario actual
+        //var userRole = GetUserRoleFromToken();
+
+        //// Validar flujo de aprobación
+        //var requiredRole = request.PendingApprovalBy?.ToString();
+        //if (requiredRole != userRole)
+        //    return Forbid(BaseResponse.Unauthorized($"Approval by {requiredRole} is required before your approval."));
+
+        //if (!approvalDto.IsApproved)
+        //{
+        //    // Manejar el rechazo
+        //    request.RequestStatus = RequestStatus.Rejected;
+        //    request.PendingApprovalBy = null;
+        //    request.Comment = approvalDto.Comment;
+
+        //    await _inventoryRepository.UpdateAsync(request, cancellationToken);
+
+        //    // Notificar al colaborador
+        //    await _notificationService.NotifyAsync(
+        //        new NotificationDto
+        //        {
+        //            Recipient = request.Collaborator.Email,
+        //            Subject = "Inventory Request Rejected",
+        //            Message = $"Your inventory request has been rejected by {userRole}."
+        //        });
+
+        //    return Ok(BaseResponse.Ok($"Inventory request {id} has been rejected."));
+        //}
+
+        //// Manejar la aprobación
+        //request.ApprovedBy.Add(userRole);
+        //request.Comment = approvalDto.Comment;
+
+        //// Avanzar al siguiente nivel de aprobación
+        //switch (userRole)
+        //{
+        //    case "Supervisor":
+        //        request.PendingApprovalBy = PendingApprovalBy.Admin;
+        //        break;
+        //    case "Admin":
+        //        request.PendingApprovalBy = PendingApprovalBy.AreaAdministrator;
+        //        break;
+        //    case "AreaAdministrator":
+        //        request.PendingApprovalBy = null; // Completa el flujo
+        //        request.RequestStatus = RequestStatus.Approved; // Marca como completada
+        //        break;
+        //}
+
+        //await _inventoryRepository.UpdateAsync(request, cancellationToken);
+
+        //// Notificar al colaborador
+        //await _notificationService.NotifyAsync(
+        //    new NotificationDto
+        //    {
+        //        Recipient = request.Collaborator.Email,
+        //        Subject = "Inventory Request Approved",
+        //        Message = $"Your inventory request has been approved by {userRole}."
+        //    });
+
+        //return Ok(BaseResponse.Ok($"Inventory request {id} has been approved."));
+        return "";
     }
 }

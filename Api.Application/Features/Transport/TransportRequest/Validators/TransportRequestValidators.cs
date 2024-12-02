@@ -9,7 +9,7 @@ public class TransportRequestValidators : AbstractValidator<TransportRequestDto>
     {
         RuleFor(x => x.DeparturePoint).NotNull().NotEmpty();
         RuleFor(x => x.Destination).NotNull().NotEmpty();
-        RuleFor(x => x.NumberOfPeople).NotNull().NotEmpty();
+        RuleFor(x => x.NumberOfPeople).NotNull();
         RuleFor(x => x.DepartureDateTime)
                    .NotNull()
                    .NotEmpty()

@@ -4,6 +4,8 @@ namespace Api.Domain.Enums;
 
 public enum PendingApprovalBy
 {
+    [Description("")]
+    None = 0,
     [Description("Supervisor")]
     Supervisor,
 

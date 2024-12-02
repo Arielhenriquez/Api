@@ -1,4 +1,5 @@
 ﻿using Api.Application.Common.Pagination;
+using Api.Application.Features.Inventory.InventoryItems.Dtos;
 using Api.Application.Features.Inventory.InventoryRequest.Dtos;
 
 namespace Api.Application.Interfaces.Inventory;
@@ -9,4 +10,5 @@ public interface IInventoryRequestService
     Task<IEnumerable<InventorySummaryDto>> GetInventoryRequestDetails(Guid id, CancellationToken cancellationToken);
     Task<InventoryResponseDto> AddInventoryRequest(InventoryRequestDto inventoryRequestDto, CancellationToken cancellationToken);
     //Task<InventoryResponseDto> UpdateInventoryRequest(); //AdminArea Endpoint
+    Task<string> ApproveInventoryRequest(ApprovalDto approvalDto, CancellationToken cancellationToken);
 }
