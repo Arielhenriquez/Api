@@ -16,7 +16,7 @@ public class EmailService : IEmailService
         _logger = logger;
         _config = config;
     }
-
+    //Todo: add settings with Ioption
     public async Task SendEmail(string toEmail, string subject, string body)
     {
         var fromAddress = new MailAddress(_config["EmailSettings:From"], "Ministerio de Cultura");

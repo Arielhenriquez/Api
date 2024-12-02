@@ -116,7 +116,7 @@ public class GraphProvider : IGraphProvider
                 return appRoleAssignments?.Value?.Any(assignment => assignment.AppRoleId.ToString() == roleIdOrAssignmentId) ?? false;
             }
         }
-        catch (ServiceException ex)
+        catch (ServiceException)
         {
             return false;
         }

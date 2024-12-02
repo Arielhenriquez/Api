@@ -1,13 +1,12 @@
-﻿using Api.Domain.Entities;
-using Api.Domain.Enums;
+﻿using System.Reflection;
+using System.Security.Claims;
+using Api.Domain.Entities;
 using Api.Infrastructure.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System.Reflection;
 
 namespace Api.Infrastructure.Persistence.Context;
-
-
 public interface IDbContext
 {
     DbSet<TEntity> Set<TEntity>() where TEntity : class;
@@ -17,13 +16,15 @@ public interface IDbContext
 }
 public abstract class BaseDbContext : DbContext, IDbContext
 {
-    protected BaseDbContext(DbContextOptions options) : base(options)
+    protected readonly IHttpContextAccessor _context;
+    protected BaseDbContext(DbContextOptions options, IHttpContextAccessor context) : base(options)
     {
+        _context = context;
     }
 
     private void SetAuditEntities()
     {
-        string email = "Anonymous";
+        string email = _context?.HttpContext?.User?.FindFirst(ClaimTypes.Email)?.Value ?? "Anonymous";
 
         foreach (var entry in ChangeTracker.Entries<IBase>())
         {

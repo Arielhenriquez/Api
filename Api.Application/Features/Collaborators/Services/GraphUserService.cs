@@ -28,7 +28,7 @@ public class GraphUserService : IGraphUserService
         if (_accessor.HttpContext == null) return userDto;
 
         var user = _accessor.HttpContext.User;
-        if (!user.Identity.IsAuthenticated)
+        if (!user.Identity!.IsAuthenticated)
         {
             throw new ArgumentException("El usuario no está autenticado");
         }
@@ -36,10 +36,10 @@ public class GraphUserService : IGraphUserService
 
         var adUser = new LoggedUser()
         {
-            Oid = user.Claims
+            Oid = claims
                 .FirstOrDefault(x => x.Type == TokenClaimsConstants.UserOid)?.Value!,
-            Name = user.Claims.FirstOrDefault(x => x.Type == TokenClaimsConstants.UserName)?.Value,
-            Email = user.Claims.FirstOrDefault(x => x.Type == TokenClaimsConstants.Email)?.Value!,
+            Name = claims.FirstOrDefault(x => x.Type == TokenClaimsConstants.UserName)?.Value,
+            Email = claims.FirstOrDefault(x => x.Type == TokenClaimsConstants.Email)?.Value!,
             Roles = user.FindAll(ClaimTypes.Role)
                    .Select(claim => claim.Value)
                    .ToList(),
@@ -55,9 +55,9 @@ public class GraphUserService : IGraphUserService
 
         return new GraphUserDto
         {
-            Id = user.Id,
-            Name = user.DisplayName,
-            Email = user.Mail,
+            Id = user.Id!,
+            Name = user.DisplayName!,
+            Email = user.UserPrincipalName!,
             FirstName = user.GivenName,
             LastName = user.Surname,
             Department = user.Department,
@@ -90,32 +90,40 @@ public class GraphUserService : IGraphUserService
 
     public async Task<Collaborator> SyncUserFromGraph(string userOid, CancellationToken cancellationToken)
     {
+        var userClaims = _accessor?.HttpContext?.User;
+
+        var azureRoles = userClaims!.FindAll(ClaimTypes.Role)
+                   .Select(claim => claim.Value)
+                   .ToList() ?? [];
+
         var graphUser = await FindUserWithManagerAsync(userOid);
 
         Guid userOidGuid = Guid.Parse(userOid);
-        var collaborator = await _collaboratorRepository.
-            Query()
+        var collaborator = await _collaboratorRepository
+            .Query()
             .FirstOrDefaultAsync(x => x.UserOid == userOid, cancellationToken);
 
-        //Todo: Agregar roles del token O mostrar texto del role(description)
         if (collaborator == null)
         {
             collaborator = new Collaborator
             {
                 Name = graphUser.Name,
-                Department = graphUser.Department,
-                Supervisor = graphUser.Manager?.Email,
-                UserOid = userOid
+                Email = graphUser.Email,
+                Department = graphUser.Department!,
+                Supervisor = graphUser.Manager?.Email!,
+                UserOid = userOid,
+                Roles = azureRoles
             };
 
             await _collaboratorRepository.AddAsync(collaborator, cancellationToken);
         }
         else
         {
-            // Actualiza datos si ya existe Acota probablemente... para que no llame la bd jj
             collaborator.Name = graphUser.Name;
-            collaborator.Department = graphUser.Department;
-            collaborator.Supervisor = graphUser.Manager?.Email;
+            collaborator.Email = graphUser.Email;
+            collaborator.Department = graphUser.Department!;
+            collaborator.Supervisor = graphUser.Manager?.Email!;
+            collaborator.Roles = azureRoles;
 
             await _collaboratorRepository.UpdateAsync(collaborator, cancellationToken);
         }

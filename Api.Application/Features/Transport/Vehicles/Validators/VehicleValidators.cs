@@ -12,6 +12,6 @@ public class VehicleValidators : AbstractValidator<VehicleRequestDto>
         RuleFor(x => x.LicensePlate).NotNull().NotEmpty();
         RuleFor(x => x.InsuranceValidity).NotNull().NotEmpty();
         RuleFor(x => x.InsuranceType).NotNull().NotEmpty();
-        RuleFor(x => x.Status).NotNull().NotEmpty().IsInEnum();
+        RuleFor(x => x.Status).IsInEnum();
     }
 }

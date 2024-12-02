@@ -16,7 +16,7 @@ public class CollaboratorController : ControllerBase
     public CollaboratorController(ICollaboratorService collaboratorService) =>
         _collaboratorService = collaboratorService;
 
-    //[Authorize]
+    //[Authorize(Roles = "Sudo.All, Admin.Approval")]
     [HttpGet]
     [SwaggerOperation(
         Summary = "Gets paged Collaborators in the database")]
@@ -33,12 +33,12 @@ public class CollaboratorController : ControllerBase
         return Ok("login");
     }
 
-    [HttpGet("search-by-name")]
+    [HttpGet("search-by-email")]
     [SwaggerOperation(
-        Summary = "Get Collaborators by name")]
-    public async Task<IActionResult> GetCollaboratorByName([FromQuery] string? name)
+        Summary = "Get Collaborators by email")]
+    public async Task<IActionResult> GetCollaboratorByEmail([FromQuery] string? name)
     {
-        var collaborators = await _collaboratorService.FindCollaboratorByName(name);
+        var collaborators = await _collaboratorService.FindCollaboratorByEmail(name);
         return Ok(BaseResponse.Ok(collaborators));
     }
 

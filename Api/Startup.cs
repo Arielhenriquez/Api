@@ -9,8 +9,6 @@ using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 
 namespace Api;
-
-
 public class Startup
 {
     public Startup(ConfigurationManager configuration)
@@ -92,6 +90,6 @@ public class Startup
     public void SetupMiddlewares(WebApplication app)
     {
         app.UseCors("DevPolicy");
-        //app.UseMiddleware<ForbiddenMiddleware>();
+        app.UseMiddleware<ForbiddenMiddleware>();
     }
 }

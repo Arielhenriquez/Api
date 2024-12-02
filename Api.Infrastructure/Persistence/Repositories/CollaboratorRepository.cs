@@ -9,7 +9,6 @@ using Api.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Infrastructure.Persistence.Repositories;
-
 public class CollaboratorRepository : ICollaboratorRepository
 {
     protected readonly IDbContext _context;
@@ -21,32 +20,34 @@ public class CollaboratorRepository : ICollaboratorRepository
         _db = context.Set<Collaborator>();
     }
 
-    public Task<CollaboratorResponseDto> GetById(Guid id, CancellationToken cancellationToken = default)
+    public async Task<CollaboratorResponseDto> GetById(Guid id, CancellationToken cancellationToken = default)
     {
-        return _context.Set<Collaborator>()
+        var collaborator = await _context.Set<Collaborator>()
             .AsNoTracking()
-            .Select(CollaboratorProjections.Search)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
+        return collaborator != null ? CollaboratorProjections.ToResponseDto(collaborator) : null;
     }
 
-    public async Task<List<CollaboratorResponseDto>> GetByName(string name, CancellationToken cancellationToken = default)
+    public async Task<List<CollaboratorResponseDto>> GetByEmail(string email, CancellationToken cancellationToken = default)
     {
         var collaborators = await _db
-            .Where(c => EF.Functions.Like(c.Name, $"%{name}%"))
-            .Select(CollaboratorProjections.Search)
+            .Where(c => EF.Functions.Like(c.Email, $"%{email}%"))
             .ToListAsync(cancellationToken);
 
-        return collaborators;
+        return collaborators.Select(CollaboratorProjections.ToResponseDto).ToList();
     }
 
-    public Task<Paged<CollaboratorResponseDto>> SearchAsync(PaginationQuery query, CancellationToken cancellationToken = default)
+    public async Task<Paged<CollaboratorResponseDto>> SearchAsync(PaginationQuery query, CancellationToken cancellationToken = default)
     {
-        return _context.Set<Collaborator>()
-        .AsNoTracking()
-        .Where(CollaboratorPredicates.Search(query.Search))
-        .OrderByDescending(p => p.CreatedDate)
-        .Select(CollaboratorProjections.Search)
-        .Paginate(query.PageSize, query.PageNumber, cancellationToken);
+        var collaborators = await _context.Set<Collaborator>()
+            .AsNoTracking()
+            .Where(CollaboratorPredicates.Search(query.Search))
+            .OrderByDescending(p => p.CreatedDate)
+            .ToListAsync(cancellationToken);
+
+        var processedResults = collaborators.Select(CollaboratorProjections.ToResponseDto).ToList();
+
+        return processedResults.Paginate(query.PageNumber, query.PageSize);
     }
 }
-

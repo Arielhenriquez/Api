@@ -4,7 +4,6 @@ using Api.Application.Features.Collaborators.Dtos;
 using Api.Application.Features.Collaborators.Dtos.GraphDtos;
 using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
-using Microsoft.Graph.Models;
 
 namespace Api.Application.Features.Collaborators.Services;
 
@@ -23,9 +22,9 @@ public class CollaboratorService : ICollaboratorService
         return _collaboratorRepository.SearchAsync(paginationQuery, cancellationToken);
     }
 
-    public async Task<List<CollaboratorResponseDto>> FindCollaboratorByName(string criteria)
+    public async Task<List<CollaboratorResponseDto>> FindCollaboratorByEmail(string criteria)
     {
-        var collaborators = await _collaboratorRepository.GetByName(criteria);
+        var collaborators = await _collaboratorRepository.GetByEmail(criteria);
 
         if (string.IsNullOrWhiteSpace(criteria))
         {
