@@ -1,4 +1,6 @@
-﻿using Api.Application.Common.BaseResponse;
+﻿using System.Text;
+using Api.Application.Common.BaseResponse;
+using Api.Application.Common.Exceptions;
 using Api.Application.Common.Extensions;
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Inventory.InventoryItems.Dtos;
@@ -7,10 +9,10 @@ using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
 using Api.Application.Interfaces.Inventory;
 using Api.Domain.Constants;
+using Api.Domain.Entities;
 using Api.Domain.Entities.InventoryEntities;
 using Api.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
 using InventoryEntity = Api.Domain.Entities.InventoryEntities.InventoryRequest;
 
 namespace Api.Application.Features.Inventory.InventoryRequest.Services;
@@ -18,6 +20,7 @@ namespace Api.Application.Features.Inventory.InventoryRequest.Services;
 public class InventoryRequestService : IInventoryRequestService
 {
     private readonly ICollaboratorRepository _collaboratorRepository;
+    private readonly IBaseRepository<Collaborator> _collaboratorRepository2;
     private readonly IBaseRepository<InventoryEntity> _inventoryRequestRepository;
     private readonly IBaseRepository<InventoryItem> _inventoryItemRepository;
     private readonly IBaseRepository<InventoryRequestItem> _inventoryRequestItemRepository;
@@ -29,7 +32,8 @@ public class InventoryRequestService : IInventoryRequestService
         IBaseRepository<InventoryRequestItem> inventoryRequestItemRepository,
         IBaseRepository<InventoryItem> inventoryItemRepository,
         IEmailService emailService,
-        IInventoryRequestRepository requestRepository)
+        IInventoryRequestRepository requestRepository,
+        IBaseRepository<Collaborator> collaboratorRepository2)
     {
         _collaboratorRepository = collaboratorRepository;
         _inventoryRequestRepository = inventoryRequestRepository;
@@ -37,6 +41,7 @@ public class InventoryRequestService : IInventoryRequestService
         _inventoryItemRepository = inventoryItemRepository;
         _emailService = emailService;
         _requestRepository = requestRepository;
+        _collaboratorRepository2 = collaboratorRepository2;
     }
 
     public async Task<InventoryResponseDto> AddInventoryRequest(InventoryRequestDto inventoryRequestDto, CancellationToken cancellationToken)
@@ -65,7 +70,7 @@ public class InventoryRequestService : IInventoryRequestService
         await _inventoryRequestItemRepository.AddRange(inventoryRequestItems, cancellationToken);
 
         var inventoryRequestWithCollaborator = await _inventoryRequestRepository.Query()
-            .Include(ir => ir.Collaborator) 
+            .Include(ir => ir.Collaborator)
             .Include(ir => ir.InventoryRequestItems)
             .ThenInclude(iri => iri.InventoryItem)
             .FirstOrDefaultAsync(ir => ir.Id == createdInventoryRequest.Id, cancellationToken);
@@ -115,74 +120,104 @@ public class InventoryRequestService : IInventoryRequestService
 
     public async Task<string> ApproveInventoryRequest(ApprovalDto approvalDto, CancellationToken cancellationToken)
     {
-        //var request = await _inventoryRepository.GetById(id, cancellationToken);
-        //if (request == null)
-        //    return NotFound(BaseResponse.NotFound($"Inventory request with ID {id} not found."));
+        var request = await _inventoryRequestRepository.GetById(approvalDto.RequestId, cancellationToken);
 
-        //// Verificar si ya está completada o rechazada
-        //if (request.RequestStatus == RequestStatus.Completed || request.RequestStatus == RequestStatus.Rejected)
-        //    return BadRequest(BaseResponse.BadRequest($"Inventory request is already {request.RequestStatus}."));
+        if (request.RequestStatus != RequestStatus.Pending)
+            throw new BadRequestException($"Inventory request is already {request.RequestStatus}.");
 
-        //// Obtener rol del usuario actual
-        //var userRole = GetUserRoleFromToken();
+        // Obtener el rol del colaborador actual
+        var collaboratorRoles = await _collaboratorRepository2
+            .Query()
+            .Where(x => x.Id == request.CollaboratorId)
+            .Select(x => x.Roles)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        //// Validar flujo de aprobación
-        //var requiredRole = request.PendingApprovalBy?.ToString();
-        //if (requiredRole != userRole)
-        //    return Forbid(BaseResponse.Unauthorized($"Approval by {requiredRole} is required before your approval."));
+        if (collaboratorRoles == null)
+            throw new BadRequestException("Collaborator roles not found.");
 
-        //if (!approvalDto.IsApproved)
-        //{
-        //    // Manejar el rechazo
-        //    request.RequestStatus = RequestStatus.Rejected;
-        //    request.PendingApprovalBy = null;
-        //    request.Comment = approvalDto.Comment;
+        var userRoles = collaboratorRoles
+            .Select(EnumExtensions.MapDbRoleToEnum)
+            .Where(role => role != null)
+            .Cast<UserRoles>()
+            .ToList();
 
-        //    await _inventoryRepository.UpdateAsync(request, cancellationToken);
+        // Validar si el rol del usuario coincide con el rol requerido para aprobar la solicitud
+        var requiredRole = request.PendingApprovalBy?.ToString();
+        if (!userRoles.Any(role => role.ToString() == requiredRole))
+        {
+            throw new UnauthorizedAccessException("You do not have the required role to perform this action.");
+        }
 
-        //    // Notificar al colaborador
-        //    await _notificationService.NotifyAsync(
-        //        new NotificationDto
-        //        {
-        //            Recipient = request.Collaborator.Email,
-        //            Subject = "Inventory Request Rejected",
-        //            Message = $"Your inventory request has been rejected by {userRole}."
-        //        });
+        // Si se rechaza la solicitud
+        if (!approvalDto.IsApproved)
+        {
+            var updates = new Dictionary<string, object>
+        {
+            { nameof(request.RequestStatus), RequestStatus.Rejected },
+            { nameof(request.PendingApprovalBy), PendingApprovalBy.None },
+            { nameof(request.Comment), approvalDto.Comment }
+        };
 
-        //    return Ok(BaseResponse.Ok($"Inventory request {id} has been rejected."));
-        //}
+            await _inventoryRequestRepository.PatchAsync(request.Id, updates, cancellationToken);
 
-        //// Manejar la aprobación
-        //request.ApprovedBy.Add(userRole);
-        //request.Comment = approvalDto.Comment;
+            // Notificar al colaborador (comentado por ahora)
+            //await _notificationService.NotifyAsync(
+            //    new NotificationDto
+            //    {
+            //        Recipient = request.Collaborator.Email,
+            //        Subject = "Inventory Request Rejected",
+            //        Message = $"Your inventory request has been rejected by {userRoles.FirstOrDefault()}."
+            //    });
 
-        //// Avanzar al siguiente nivel de aprobación
-        //switch (userRole)
-        //{
-        //    case "Supervisor":
-        //        request.PendingApprovalBy = PendingApprovalBy.Admin;
-        //        break;
-        //    case "Admin":
-        //        request.PendingApprovalBy = PendingApprovalBy.AreaAdministrator;
-        //        break;
-        //    case "AreaAdministrator":
-        //        request.PendingApprovalBy = null; // Completa el flujo
-        //        request.RequestStatus = RequestStatus.Approved; // Marca como completada
-        //        break;
-        //}
+            return $"Inventory request {approvalDto.RequestId} has been rejected with comments: {approvalDto.Comment}";
+        }
 
-        //await _inventoryRepository.UpdateAsync(request, cancellationToken);
+        // Si se aprueba la solicitud, cambiar el estado de PendingApprovalBy para avanzar al siguiente nivel de aprobación
+        request.Comment = approvalDto.Comment;
 
-        //// Notificar al colaborador
+        // Avanzar al siguiente nivel de aprobación
+        switch (userRoles.FirstOrDefault())
+        {
+            case UserRoles.Supervisor:
+                request.PendingApprovalBy = PendingApprovalBy.Administrative;
+                break;
+
+            case UserRoles.Administrative:
+                request.PendingApprovalBy = PendingApprovalBy.AreaAdministrator;
+                break;
+
+            case UserRoles.AreaAdministrator:
+                request.PendingApprovalBy = PendingApprovalBy.None; // Ya no hay más aprobaciones pendientes
+                request.RequestStatus = RequestStatus.Approved; // Marca la solicitud como aprobada
+                request.ApprovedDate = DateTime.Now;
+                break;
+
+            default:
+                throw new UnauthorizedAccessException("Role not authorized for approval.");
+        }
+
+        // Guardar los cambios
+        var updatesApproval = new Dictionary<string, object>
+    {
+        { nameof(request.RequestStatus), request.RequestStatus },
+        { nameof(request.PendingApprovalBy), request.PendingApprovalBy },
+        { nameof(request.ApprovedDate), request.ApprovedDate },
+        { nameof(request.Comment), request.Comment },
+    };
+
+        await _inventoryRequestRepository.PatchAsync(request.Id, updatesApproval, cancellationToken);
+
+        // Notificar al colaborador (comentado por ahora)
         //await _notificationService.NotifyAsync(
         //    new NotificationDto
         //    {
         //        Recipient = request.Collaborator.Email,
         //        Subject = "Inventory Request Approved",
-        //        Message = $"Your inventory request has been approved by {userRole}."
+        //        Message = $"Your inventory request has been approved by {userRoles.FirstOrDefault()}."
         //    });
 
-        //return Ok(BaseResponse.Ok($"Inventory request {id} has been approved."));
         return "";
+        //return $"Inventory request {approvalDto.RequestId} has been {approvalDto.IsApproved ? "approved" : "rejected"} with comments: {approvalDto.Comment}";
     }
 }
+

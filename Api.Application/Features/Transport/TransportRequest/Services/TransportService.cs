@@ -225,25 +225,23 @@ public class TransportService : ITransportService
         if (request.RequestStatus != RequestStatus.Pending)
             throw new BadRequestException($"Transport request is already {request.RequestStatus}.");
 
-        //var collaboratorRoles = await _collaboratorRepository2.
-        //    Query()
-        //    .Where(x => x.Id == approvalDto.CollaboratorId)
-        //    .Select(x => x.Roles)
-        //    .FirstOrDefaultAsync(cancellationToken);
+        var collaboratorRoles = await _collaboratorRepository2.
+            Query()
+            .Where(x => x.Id == request.CollaboratorId)
+            .Select(x => x.Roles)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        //var userRoles = collaboratorRoles!
-        //   .Select(EnumExtensions.MapDbRoleToEnum)
-        //   .Where(role => role != null)
-        //   .Cast<UserRoles>()
-        //   .ToList();
+        var userRoles = collaboratorRoles!
+           .Select(EnumExtensions.MapDbRoleToEnum)
+           .Where(role => role != null)
+           .Cast<UserRoles>()
+           .ToList();
 
         //var requiredRoles = new[] { UserRoles.Supervisor, UserRoles.Sudo };
         ////todo Maybe jj poner ese exception con un 403 cuando se agregue rol de azure que se agregue a la BD tambien jj
         //if (!userRoles.Any(role => requiredRoles.Contains(role)))
         //    throw new UnauthorizedAccessException("You do not have the required role to perform this action.");
 
-
-        // Construye los campos que necesitas actualizar
         var updates = new Dictionary<string, object>
         {
             { nameof(request.RequestStatus), approvalDto.IsApproved ? RequestStatus.Approved : RequestStatus.Rejected },
@@ -251,13 +249,13 @@ public class TransportService : ITransportService
             { nameof(request.Comment), approvalDto.Comment }
         };
 
-        // Aplica el `PATCH` a los campos relevantes
         await _transportRepository.PatchAsync(request.Id, updates, cancellationToken);
 
         string action = approvalDto.IsApproved ? "approved" : "rejected";
         if (approvalDto.IsApproved)
         {
             action = "approved";
+            request.ApprovedDate = DateTime.Now;
             //await _emailService.SendEmail("supervisor@example.com", "Notificación de Solicitud aprobada", htmlTemplate);
         }
         else
