@@ -1,5 +1,6 @@
 ﻿using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Pagination;
+using Api.Application.Features.Inventory.InventoryItems.Dtos;
 using Api.Application.Features.Inventory.InventoryRequest.Dtos;
 using Api.Application.Interfaces.Inventory;
 using Microsoft.AspNetCore.Authorization;
@@ -45,4 +46,15 @@ public class InventoryRequestController : ControllerBase
         return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
 
+    [HttpPatch]
+    [SwaggerOperation(
+    Summary = "Approve or reject an Inventory request",
+    Description = "Allows supervisors or administrators to approve or reject a transport request. " +
+                  "Only requests in a 'Pending' status can be processed. " +
+                  "Supervisors or Sudo roles are required to perform this action.")]
+    public async Task<IActionResult> ApproveOrRejectRequest([FromBody] ApprovalDto approvalDto, CancellationToken cancellationToken) 
+    {
+        var result = await _inventoryRequestService.ApproveInventoryRequest(approvalDto, cancellationToken);
+        return Ok(BaseResponse.Ok(result));
+    }
 }
