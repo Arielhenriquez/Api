@@ -21,13 +21,19 @@ public class ApplicationDbContext(DbContextOptions options, IHttpContextAccessor
     {
         base.OnModelCreating(modelBuilder);
 
-        var rolesConverter = new ValueConverter<List<string>, string>(
+        var jsonConverter = new ValueConverter<List<string>, string>(
             v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
             v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, new System.Text.Json.JsonSerializerOptions()) ?? new List<string>());
 
         modelBuilder.Entity<Collaborator>()
             .Property(c => c.Roles)
-            .HasConversion(rolesConverter) 
+            .HasConversion(jsonConverter) 
+            .HasColumnType("json");
+
+
+        modelBuilder.Entity<InventoryRequest>()
+            .Property(c => c.ApprovedOrRejectedBy)
+            .HasConversion(jsonConverter)
             .HasColumnType("json");
     }
 }

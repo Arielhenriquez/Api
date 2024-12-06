@@ -13,8 +13,11 @@ public enum UserRoles
     [Description("Administrativo")]
     Administrative,
 
-    [Description("Administrador de área")]
+    [Description("Administrador de área de suministro")]
     AreaAdministrator,
+
+    [Description("Administrador de área de transporte")]
+    AreaAdministratorTrans,
 
     [Description("Sudo")]
     Sudo,

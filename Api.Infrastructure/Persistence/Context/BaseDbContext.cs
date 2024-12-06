@@ -24,7 +24,7 @@ public abstract class BaseDbContext : DbContext, IDbContext
 
     private void SetAuditEntities()
     {
-        string email = _context?.HttpContext?.User?.FindFirst(ClaimTypes.Email)?.Value ?? "Anonymous";
+        string email = _context?.HttpContext?.User?.FindFirst(ClaimTypes.Email)?.Value ?? "System";
 
         foreach (var entry in ChangeTracker.Entries<IBase>())
         {

@@ -4,6 +4,7 @@ using Api.Application.Features.Inventory.InventoryItems.Dtos;
 using Api.Application.Features.Transport.TransportRequest.Dtos;
 using Api.Application.Interfaces.Transport;
 using Api.Domain.Entities.InventoryEntities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -17,6 +18,7 @@ public class TransportRequestController : ControllerBase
 
     public TransportRequestController(ITransportService transportService) => _transportService = transportService;
 
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpGet("paged")]
     [SwaggerOperation(
         Summary = "Get paged Transport Requests")]
@@ -66,6 +68,7 @@ public class TransportRequestController : ControllerBase
         return Ok(BaseResponse.Ok(result));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite, Supervisor.Approval")]
     [HttpPatch("approve")]
     [SwaggerOperation(
     Summary = "Approve or reject a transport request",

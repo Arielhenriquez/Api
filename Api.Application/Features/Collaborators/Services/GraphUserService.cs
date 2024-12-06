@@ -93,12 +93,23 @@ public class GraphUserService : IGraphUserService
         var userClaims = _accessor?.HttpContext?.User;
 
         var azureRoles = userClaims!.FindAll(ClaimTypes.Role)
-                   .Select(claim => claim.Value)
-                   .ToList() ?? [];
+            .Select(claim => claim.Value)
+            .ToList() ?? [];
+
+        var azureRolesAvailable = await _provider.GetAppRoles(cancellationToken);
+
+        var applicantRole = azureRolesAvailable
+            .FirstOrDefault(x => x.Value == "Solicitante.ReadWrite");
+
+        if (azureRoles.Count == 0)
+        {
+            azureRoles.Add(applicantRole.Value);
+
+            await _provider.AddPermissionsToUser(userOid, applicantRole.Id.ToString(), cancellationToken);
+        }
 
         var graphUser = await FindUserWithManagerAsync(userOid);
 
-        Guid userOidGuid = Guid.Parse(userOid);
         var collaborator = await _collaboratorRepository
             .Query()
             .FirstOrDefaultAsync(x => x.UserOid == userOid, cancellationToken);
@@ -109,10 +120,11 @@ public class GraphUserService : IGraphUserService
             {
                 Name = graphUser.Name,
                 Email = graphUser.Email,
-                Department = graphUser.Department!,
-                Supervisor = graphUser.Manager?.Email!,
+                Department = graphUser.Department ?? "No Department",
+                Supervisor = graphUser.Manager?.Email ?? "No manager",
                 UserOid = userOid,
-                Roles = azureRoles
+                Roles = [applicantRole?.Value],
+                CreatedBy = "System"
             };
 
             await _collaboratorRepository.AddAsync(collaborator, cancellationToken);
@@ -121,9 +133,10 @@ public class GraphUserService : IGraphUserService
         {
             collaborator.Name = graphUser.Name;
             collaborator.Email = graphUser.Email;
-            collaborator.Department = graphUser.Department!;
-            collaborator.Supervisor = graphUser.Manager?.Email!;
+            collaborator.Department = graphUser.Department ?? "No Department";
+            collaborator.Supervisor = graphUser.Manager?.Email ?? "No manager";
             collaborator.Roles = azureRoles;
+            collaborator.UpdatedBy = "System";
 
             await _collaboratorRepository.UpdateAsync(collaborator, cancellationToken);
         }

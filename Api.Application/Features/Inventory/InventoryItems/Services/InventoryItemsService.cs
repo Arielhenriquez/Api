@@ -13,13 +13,22 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
 {
     private readonly IInventoryItemRepository _inventoryItemRepository = inventoryItemRepository;
 
-    public async Task<List<InventoryItemResponseDto>> FindInventoryItemByName(string criteria)
+    public async Task<IEnumerable<InventoryItemResponseDto>> FindInventoryItemByName(string criteria)
     {
         var inventoryItems = await _inventoryItemRepository.GetByName(criteria);
 
         if (string.IsNullOrWhiteSpace(criteria))
         {
-            return [];
+            var allItems = await repository.GetAll();
+
+            return allItems.Select(item => new InventoryItemResponseDto
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Quantity = item.Quantity,
+                UnitOfMeasure = item.UnitOfMeasure,
+                Value = item.Value
+            });
         }
 
         if (inventoryItems == null || inventoryItems.Count == 0)
@@ -38,8 +47,12 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
     public async Task UpdateArticleQuantity(Guid id, UpdateArticleQuantityDto updateArticle, CancellationToken cancellationToken)
     {
         var article = await repository.GetById(id, cancellationToken);
+        var updates = new Dictionary<string, object>
+        {
+             { nameof(article.Quantity), updateArticle.Quantity}
+        };
         article.Quantity = updateArticle.Quantity;
-        await repository.UpdateAsync(article, cancellationToken);
+        await repository.PatchAsync(id, updates, cancellationToken);
     }
 
     protected override InventoryItemResponseDto MapToDto(InventoryItem entity)

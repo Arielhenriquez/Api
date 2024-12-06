@@ -96,7 +96,7 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
                         value = value != null ? Enum.Parse(property.PropertyType.GetGenericArguments()[0], value.ToString()) : null;
                     }
                 }
-                else if (property.PropertyType.IsEnum) // Si no es nullable pero es un enum
+                else if (property.PropertyType.IsEnum)
                 {
                     value = Enum.Parse(property.PropertyType, value.ToString());
                 }
@@ -107,9 +107,6 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 
         await _context.SaveChangesAsync(cancellationToken);
     }
-
-
-
 
     public virtual async Task<TEntity> Delete(Guid id, CancellationToken cancellationToken)
     {

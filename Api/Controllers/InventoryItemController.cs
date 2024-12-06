@@ -2,6 +2,7 @@
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Inventory.InventoryItems.Dtos;
 using Api.Application.Interfaces.Inventory;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -16,7 +17,7 @@ public class InventoryItemController : ControllerBase
     public InventoryItemController(IInventoryItemsService inventoryItemsService) =>
        _inventoryItemsService = inventoryItemsService;
 
-
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite")]
     [HttpGet("paged")]
     [SwaggerOperation(
       Summary = "Gets Paged Inventory items in the database")]
@@ -53,6 +54,7 @@ public class InventoryItemController : ControllerBase
         var result = await _inventoryItemsService.GetByIdAsync(id, cancellationToken);
         return Ok(BaseResponse.Ok(result));
     }
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite")]
     [HttpPost]
     [SwaggerOperation(
        Summary = "Creates a new inventory item")]

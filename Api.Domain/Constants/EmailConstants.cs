@@ -7,6 +7,7 @@ public static class EmailConstants
     public const string InventoryRequestTemplate = "InventoryRequestTemplate.html";
     public const string TransportRequestTemplate = "TransportRequestTemplate.html";
     public const string AssignedTransportRequestTemplate = "AssignedTransportRequestTemplate.html";
+    public const string ApprovedRequestTemplate = "ApprovedRequestTemplate.html";
     public const string RejectedRequestTemplate = "RejectedRequestTemplate.html";
     public const string TemplateEmailRoute = "wwwroot/EmailTemplates";
 }

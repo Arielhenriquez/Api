@@ -24,7 +24,7 @@ public class RoleAssignmentDto
             UserId = source.appRoleAssignment.PrincipalId ?? Guid.Empty,
             RoleAssignmentId = source.appRoleAssignment.Id,
             UserName = source.appRoleAssignment.PrincipalDisplayName ?? string.Empty,
-            RoleName = source.appRole.DisplayName ?? string.Empty,
+            RoleName = source.appRole.Value ?? string.Empty,
             RoleDescription = source.appRole.Description ?? string.Empty
         };
     }

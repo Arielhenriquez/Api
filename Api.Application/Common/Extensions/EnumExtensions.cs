@@ -31,10 +31,11 @@ public static class EnumExtensions
     {
         return dbRole switch
         {
-            "Solicitante.ReadWrite" => UserRoles.Supervisor,
-            "Supervisor.Approval" => UserRoles.Applicant,
+            "Solicitante.ReadWrite" => UserRoles.Applicant,
+            "Supervisor.Approval" => UserRoles.Supervisor,
             "Admin.Approval" => UserRoles.Administrative,
             "AdminDeArea.ReadWrite" => UserRoles.AreaAdministrator,
+            "AdminDeAreaTrans.ReadWrite" => UserRoles.AreaAdministratorTrans,
             "Sudo.All" => UserRoles.Sudo,
             "Chofer.Read" => UserRoles.Driver,
             _ => null

@@ -6,6 +6,6 @@ namespace Api.Application.Interfaces.Inventory;
 public interface IInventoryItemsService : IBaseService<InventoryItemRequestDto, InventoryItemResponseDto>
 {
     Task<Paged<InventoryItemResponseDto>> GetPagedInventoryItems(PaginationQuery paginationQuery, CancellationToken cancellationToken);
-    Task<List<InventoryItemResponseDto>> FindInventoryItemByName(string criteria);
+    Task<IEnumerable<InventoryItemResponseDto>> FindInventoryItemByName(string criteria);
     Task UpdateArticleQuantity(Guid id, UpdateArticleQuantityDto updateArticle, CancellationToken cancellationToken);
 }

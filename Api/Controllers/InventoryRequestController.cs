@@ -46,7 +46,7 @@ public class InventoryRequestController : ControllerBase
         return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
 
-    [HttpPatch]
+    [HttpPatch("approve")]
     [SwaggerOperation(
     Summary = "Approve or reject an Inventory request",
     Description = "Allows supervisors or administrators to approve or reject a transport request. " +

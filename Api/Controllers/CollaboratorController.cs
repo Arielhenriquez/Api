@@ -1,5 +1,6 @@
 ﻿using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Pagination;
+using Api.Application.Features.Collaborators.Dtos;
 using Api.Application.Features.Collaborators.Dtos.GraphDtos;
 using Api.Application.Interfaces.Collaborators;
 using Microsoft.AspNetCore.Authorization;
@@ -69,6 +70,16 @@ public class CollaboratorController : ControllerBase
         var addedRoles = await _collaboratorService.AddRolesToUser(assignRoleToUserDto, cancellationToken);
         return Ok(BaseResponse.Ok(addedRoles));
     }
+
+    [HttpPut("roles")]
+    [SwaggerOperation(
+    Summary = "Add Roles to Users")]
+    public async Task<IActionResult> UpdateUserRoles([FromBody] CollaboratorRequest collaborator, CancellationToken cancellationToken)
+    {
+        await _collaboratorService.UpdateRoles(collaborator);
+        return NoContent();
+    }
+
 
     [HttpDelete("roles")]
     [SwaggerOperation(

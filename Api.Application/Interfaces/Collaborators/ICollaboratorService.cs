@@ -1,11 +1,13 @@
 ﻿using Api.Application.Common.Pagination;
 using Api.Application.Features.Collaborators.Dtos;
 using Api.Application.Features.Collaborators.Dtos.GraphDtos;
+using Api.Domain.Entities;
 
 namespace Api.Application.Interfaces.Collaborators;
 
 public interface ICollaboratorService
 {
+    Task UpdateRoles(CollaboratorRequest collaborator);
     Task<Paged<CollaboratorResponseDto>> GetPagedCollaborators(PaginationQuery paginationQuery, CancellationToken cancellationToken);
     Task<CollaboratorResponseDto> GetCollaboratorById(Guid id);
     Task<List<CollaboratorResponseDto>> FindCollaboratorByEmail(string criteria);

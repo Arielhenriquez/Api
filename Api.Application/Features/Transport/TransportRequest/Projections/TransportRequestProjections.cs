@@ -16,6 +16,9 @@ public static class TransportRequestProjections
         DepartureDateTime = transportEntity.DepartureDateTime,
         CreatedDate = transportEntity.CreatedDate,
         RequestStatus = transportEntity.RequestStatus,
+        PendingApproval = transportEntity.PendingApprovalBy,
+        StatusChangedDate = transportEntity.StatusChangedDate,
+        ApprovedOrRejectedBy = transportEntity.ApprovedOrRejectedBy,
         PhoneNumber = transportEntity.PhoneNumber,
         DriverResponse = transportEntity.Driver,
         VehicleResponse = transportEntity.Vehicle
