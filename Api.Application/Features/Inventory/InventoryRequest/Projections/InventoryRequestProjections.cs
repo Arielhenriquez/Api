@@ -13,6 +13,9 @@ public static class InventoryRequestProjections
         Collaborator = inventoryRequest.Collaborator,
         CreatedDate = inventoryRequest.CreatedDate,
         RequestStatus = inventoryRequest.RequestStatus,
+        ApprovedOrRejectedBy = inventoryRequest.ApprovedOrRejectedBy,
+        StatusChangedDate = inventoryRequest.StatusChangedDate,
+        PendingApproval = inventoryRequest.PendingApprovalBy,
         InventoryRequestItems = inventoryRequest.InventoryRequestItems.Select(inventoryItem => new InventoryItemResponseDto
         {
             Id = inventoryItem.InventoryItem.Id,

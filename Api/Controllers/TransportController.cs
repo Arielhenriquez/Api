@@ -18,7 +18,7 @@ public class TransportRequestController : ControllerBase
 
     public TransportRequestController(ITransportService transportService) => _transportService = transportService;
 
-    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
+    //[Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpGet("paged")]
     [SwaggerOperation(
         Summary = "Get paged Transport Requests")]

@@ -119,7 +119,7 @@ public class TransportService : ITransportService
         await _emailService.SendEmail(transportRequest.Collaborator.Email, "Asignación de Conductor y Vehículo a Solicitud de Transporte", htmlTemplate);
     }
 
-
+    //Todo use patch here
     public async Task AssignDriverAndVehicle(Guid transportRequestId, AssignDriverVehicleDto driverVehicleDto, CancellationToken cancellationToken)
     {
         var transportRequest = await _transportRepository.Query()
