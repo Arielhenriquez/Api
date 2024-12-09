@@ -1,4 +1,5 @@
-﻿using Api.Application.Common.Pagination;
+﻿using Api.Application.Common.Exceptions;
+using Api.Application.Common.Pagination;
 using Api.Application.Features.Inventory.InventoryRequest.Dtos;
 using Api.Application.Features.Inventory.InventoryRequest.Predicates;
 using Api.Application.Features.Inventory.InventoryRequest.Projections;
@@ -45,5 +46,21 @@ public class InventoryRequestRepository : IInventoryRequestRepository
         return await query
             .Select(InventoryRequestProjections.Summary)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<InventoryRequest> UpdateRequestAsync(Guid requestId, InventoryRequest updatedRequest, CancellationToken cancellationToken = default)
+    {
+        var existingRequest = await _db.FirstOrDefaultAsync(r => r.Id == requestId, cancellationToken)
+            ?? throw new NotFoundException($"Inventory request with ID {requestId} not found.");
+
+        existingRequest.ApprovedOrRejectedBy = new List<string>(updatedRequest.ApprovedOrRejectedBy);
+        existingRequest.RequestStatus = updatedRequest.RequestStatus;
+        existingRequest.PendingApprovalBy = updatedRequest.PendingApprovalBy;
+        existingRequest.Comment = updatedRequest.Comment;
+        existingRequest.StatusChangedDate = updatedRequest.StatusChangedDate;
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return existingRequest;
     }
 }

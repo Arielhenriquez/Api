@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Api.Application.Common.BaseResponse;
 using Api.Application.Common.Exceptions;
 using Api.Application.Common.Extensions;
 using Api.Application.Common.Pagination;
@@ -56,6 +55,7 @@ public class InventoryRequestService : IInventoryRequestService
             CollaboratorId = collaborator.Id,
             CreatedDate = DateTime.Now,
             RequestStatus = RequestStatus.Pending,
+            PendingApprovalBy = PendingApprovalBy.Supervisor,
         };
         var createdInventoryRequest = await _inventoryRequestRepository.AddAsync(inventoryRequestEntity, cancellationToken);
 
@@ -101,7 +101,6 @@ public class InventoryRequestService : IInventoryRequestService
         await _emailService.SendEmail(inventoryResponseDto.Collaborator.Supervisor, "Solicitud de Almacén y Suministro", htmlFile);
     }
 
-    //todo validar porque el approvedby no se esta mapeando.. (no se ta guardando en la BD)
     public async Task<Paged<InventorySummaryDto>> GetPagedInventoryRequest(PaginationQuery paginationQuery, CancellationToken cancellationToken)
     {
         var result = await _requestRepository.SearchAsync(paginationQuery, cancellationToken);
@@ -122,15 +121,40 @@ public class InventoryRequestService : IInventoryRequestService
         return result;
     }
 
-    //todo test this more jj, approved or reject by no se estan guardando en la BD..
-    //Hacer endpoint que le haga update solo a eso como con colaborator roles.
+    private async Task SendApproveOrRejectEmail(string collaboratorEmail, Guid requestId, string comment, bool isApprove)
+    {
+        if (!isApprove)
+        {
+            string htmlTemplate = FileExtensions.ReadEmailTemplate(EmailConstants.RejectedRequestTemplate, EmailConstants.TemplateEmailRoute);
+
+            htmlTemplate = htmlTemplate.Replace("{{Email}}", collaboratorEmail)
+                                       .Replace("{{RequestId}}", requestId.ToString())
+                                       .Replace("{{Comment}}", comment);
+
+            await _emailService.SendEmail(collaboratorEmail, "Notificación de Solicitud Rechazada", htmlTemplate);
+        }
+        else
+        {
+            string htmlTemplate = FileExtensions.ReadEmailTemplate(EmailConstants.ApprovedRequestTemplate, EmailConstants.TemplateEmailRoute);
+
+            htmlTemplate = htmlTemplate.Replace("{{Email}}", collaboratorEmail)
+                                       .Replace("{{RequestId}}", requestId.ToString())
+                                       .Replace("{{Comment}}", comment);
+
+            await _emailService.SendEmail(collaboratorEmail, "Notificación de Solicitud Aprobada", htmlTemplate);
+        }
+
+    }
+
     public async Task<string> ApproveInventoryRequest(ApprovalDto approvalDto, CancellationToken cancellationToken)
     {
-        var request = await _inventoryRequestRepository.GetById(approvalDto.RequestId, cancellationToken);
-
-      if (request.RequestStatus != RequestStatus.Pending)
-            throw new BadRequestException($"Transport request is already {request.RequestStatus}.");
-
+        var request = await _inventoryRequestRepository
+            .Query()
+            .Where(x => x.Id == approvalDto.RequestId)
+            .Include(x => x.Collaborator)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken) 
+            ?? throw new NotFoundException($"Inventory request with ID {approvalDto.RequestId} not found.");
+        
         var loggedUser = await _graphUserService.Current();
 
         if (loggedUser.Roles == null)
@@ -145,73 +169,51 @@ public class InventoryRequestService : IInventoryRequestService
         if (!userRoles.Any())
             throw new UnauthorizedAccessException("User does not have valid roles for this action.");
 
-        if (userRoles.Contains((UserRoles)request.PendingApprovalBy) == false)
+        if (!userRoles.Contains((UserRoles)request.PendingApprovalBy))
             throw new UnauthorizedAccessException($"Approval not allowed. Current pending approval is by {request.PendingApprovalBy}.");
+
+        request.ApprovedOrRejectedBy.Add(loggedUser.Name);
 
         if (!approvalDto.IsApproved)
         {
-            request.ApprovedOrRejectedBy.Add(loggedUser.Name);
-            var updates = new Dictionary<string, object>
-            {
-                { nameof(request.RequestStatus), RequestStatus.Rejected },
-                { nameof(request.PendingApprovalBy), PendingApprovalBy.None },
-                { nameof(request.Comment), approvalDto.Comment },
-                { nameof(request.StatusChangedDate), DateTime.Now },
-                { nameof(request.ApprovedOrRejectedBy), request.ApprovedOrRejectedBy },
-            };
+            request.RequestStatus = RequestStatus.Rejected;
+            request.PendingApprovalBy = PendingApprovalBy.None;
+            request.Comment = approvalDto.Comment;
+            request.StatusChangedDate = DateTime.Now;
 
-            await _inventoryRequestRepository.PatchAsync(request.Id, updates, cancellationToken);
+            await _requestRepository.UpdateRequestAsync(request.Id, request, cancellationToken);
+
+            await SendApproveOrRejectEmail(request.Collaborator.Email, request.Id, approvalDto.Comment, false);
             return $"Inventory request {approvalDto.RequestId} has been rejected with comments: {approvalDto.Comment}";
         }
 
         request.Comment = approvalDto.Comment;
-        request.ApprovedOrRejectedBy.Add(loggedUser.Name);
 
-        var prioritizedRole = userRoles
-            .OrderByDescending(role => (int)role) 
-            .First();
-
-        switch (prioritizedRole)
+        if (userRoles.Contains(UserRoles.Supervisor) && request.PendingApprovalBy == PendingApprovalBy.Supervisor)
         {
-            case UserRoles.Supervisor:
-                if (request.PendingApprovalBy != PendingApprovalBy.Supervisor)
-                    throw new UnauthorizedAccessException("Supervisor cannot approve this request at this stage.");
-                request.PendingApprovalBy = PendingApprovalBy.Administrative;
-                request.RequestStatus = RequestStatus.Approved;
-                request.StatusChangedDate = DateTime.Now;
-                break;
-
-            case UserRoles.Administrative:
-                if (request.PendingApprovalBy != PendingApprovalBy.Administrative)
-                    throw new UnauthorizedAccessException("Administrative user cannot approve this request at this stage.");
-                request.PendingApprovalBy = PendingApprovalBy.AreaAdministrator;
-                request.RequestStatus = RequestStatus.ApprovedByAdmin;
-                request.StatusChangedDate = DateTime.Now;
-                break;
-
-            case UserRoles.AreaAdministrator:
-                if (request.PendingApprovalBy != PendingApprovalBy.AreaAdministrator)
-                    throw new UnauthorizedAccessException("Area Administrator cannot approve this request at this stage.");
-                request.PendingApprovalBy = PendingApprovalBy.None;
-                request.RequestStatus = RequestStatus.Dispatched;
-                request.StatusChangedDate = DateTime.Now;
-                break;
-
-            default:
-                throw new UnauthorizedAccessException("Role not authorized for approval.");
+            request.PendingApprovalBy = PendingApprovalBy.Administrative;
+            request.RequestStatus = RequestStatus.Approved;
+        }
+        else if (userRoles.Contains(UserRoles.Administrative) && request.PendingApprovalBy == PendingApprovalBy.Administrative)
+        {
+            request.PendingApprovalBy = PendingApprovalBy.AreaAdministrator;
+            request.RequestStatus = RequestStatus.ApprovedByAdmin;
+        }
+        else if (userRoles.Contains(UserRoles.AreaAdministrator) && request.PendingApprovalBy == PendingApprovalBy.AreaAdministrator)
+        {
+            request.PendingApprovalBy = PendingApprovalBy.None;
+            request.RequestStatus = RequestStatus.Dispatched;
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("User roles are not authorized for approval at this stage.");
         }
 
-        var updatesApproval = new Dictionary<string, object>
-        {
-            { nameof(request.RequestStatus), request.RequestStatus },
-            { nameof(request.PendingApprovalBy), request.PendingApprovalBy },
-            { nameof(request.StatusChangedDate), request.StatusChangedDate },
-            { nameof(request.Comment), request.Comment },
-            { nameof(request.ApprovedOrRejectedBy), request.ApprovedOrRejectedBy }
-        };
+        request.StatusChangedDate = DateTime.Now;
 
-        await _inventoryRequestRepository.PatchAsync(request.Id, updatesApproval, cancellationToken);
+        await _requestRepository.UpdateRequestAsync(request.Id, request, cancellationToken);
 
+        await SendApproveOrRejectEmail(request.Collaborator.Email, request.Id, approvalDto.Comment, true);
         return $"Inventory request {approvalDto.RequestId} has been approved with comments: {approvalDto.Comment}";
     }
 }

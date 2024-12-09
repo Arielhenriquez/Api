@@ -86,6 +86,7 @@ public class TransportService : ITransportService
             NumberOfPeople = transportRequestDto.NumberOfPeople,
             DepartureDateTime = transportRequestDto.DepartureDateTime,
             PhoneNumber = transportRequestDto.PhoneNumber,
+            PendingApprovalBy = PendingApprovalBy.Supervisor,
         };
     }
 
@@ -119,7 +120,6 @@ public class TransportService : ITransportService
         await _emailService.SendEmail(transportRequest.Collaborator.Email, "Asignación de Conductor y Vehículo a Solicitud de Transporte", htmlTemplate);
     }
 
-    //Todo use patch here
     public async Task AssignDriverAndVehicle(Guid transportRequestId, AssignDriverVehicleDto driverVehicleDto, CancellationToken cancellationToken)
     {
         var transportRequest = await _transportRepository.Query()
@@ -146,7 +146,7 @@ public class TransportService : ITransportService
 
         var updatedTransportRequest = await _transportRepository.UpdateAsync(transportRequest, cancellationToken);
 
-        //await SendAssignedTransportRequestEmail(updatedTransportRequest, driver, vehicle);
+        await SendAssignedTransportRequestEmail(updatedTransportRequest, driver, vehicle);
     }
 
     public async Task<string> UpdateExpiredTransportRequestsStatus(CancellationToken cancellationToken = default)

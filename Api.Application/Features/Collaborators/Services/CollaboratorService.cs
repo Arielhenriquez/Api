@@ -149,8 +149,8 @@ public class CollaboratorService : ICollaboratorService
                 var roleAssignment = await _graphProvider.AddPermissionsToUser(assignRoleToUserDto.UserId, roleId, cancellationToken);
 
                 var assignedRoles = await GetUserRoleAssignments(assignRoleToUserDto.UserId, true, cancellationToken);
-                var roleNames = assignedRoles.Select(x => x.RoleName);
-                await AddRolesInDatabase(assignRoleToUserDto.UserId, roleNames);
+                var roleValues = assignedRoles.Select(x => x.RoleValue);
+                await AddRolesInDatabase(assignRoleToUserDto.UserId, roleValues);
 
                 results.Add(new RoleAssignmentResultDto
                 {
@@ -188,17 +188,19 @@ public class CollaboratorService : ICollaboratorService
     private async Task AddRolesInDatabase(string userId, IEnumerable<string> graphRoleValues)
     {
         var appRoles = graphRoleValues
-            .Select(role => Enum.TryParse<UserRoles>(role, out var parsedRole) ? parsedRole : (UserRoles?)null)
-            .Where(role => role != null)
+            .Select(EnumExtensions.MapDbRoleToEnum)
+            .Where(role => role != null) 
             .Cast<UserRoles>()
             .ToList();
 
         var existingCollaborator = await _baseRepository.Query()
-         .AsTracking()
-         .FirstOrDefaultAsync(c => c.UserOid == userId)
-         ?? throw new NotFoundException("Collaborator not found");
+            .AsTracking()
+            .FirstOrDefaultAsync(c => c.UserOid == userId)
+            ?? throw new NotFoundException("Collaborator not found");
 
-        var updatedRoles = appRoles.Select(EnumExtensions.MapEnumToDbRole).ToList();
+        var updatedRoles = appRoles
+            .Select(role => EnumExtensions.MapEnumToDbRole(role)!)
+            .ToList();
 
         if (!updatedRoles.SequenceEqual(existingCollaborator.Roles ?? []))
         {
@@ -242,7 +244,7 @@ public class CollaboratorService : ICollaboratorService
                     Message = "Role removed successfully."
                 });
             }
-            catch (Exception ex)
+            catch (BadRequestException ex)
             {
                 results.Add(new DeleteRoleAssignmentResultDto
                 {
@@ -272,7 +274,7 @@ public class CollaboratorService : ICollaboratorService
         }
         else
         {
-            throw new InvalidOperationException($"Role {dbRole} does not exist for the collaborator.");
+            throw new BadRequestException($"Role {dbRole} does not exist for the collaborator.");
         }
     }
 }
