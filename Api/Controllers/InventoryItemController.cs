@@ -10,6 +10,7 @@ namespace Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+
 public class InventoryItemController : ControllerBase
 {
     private readonly IInventoryItemsService _inventoryItemsService;
@@ -27,6 +28,7 @@ public class InventoryItemController : ControllerBase
         return Ok(BaseResponse.Ok(collaborators));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite")]
     [HttpGet]
     [SwaggerOperation(
      Summary = "List Inventory Items in the database")]
@@ -36,6 +38,7 @@ public class InventoryItemController : ControllerBase
         return Ok(BaseResponse.Ok(inventoryItems));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite, Solicitante.ReadWrite, Supervisor.Approval")]
     [HttpGet("search-by-name")]
     [SwaggerOperation(
      Summary = "Get Inventory Items by partial name match")]
@@ -45,7 +48,7 @@ public class InventoryItemController : ControllerBase
         return Ok(BaseResponse.Ok(inventoryItems));
     }
 
-
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite, Solicitante.ReadWrite, Supervisor.Approval")]
     [HttpGet("{id}")]
     [SwaggerOperation(
         Summary = "Get a single inventory by id")]
@@ -54,6 +57,7 @@ public class InventoryItemController : ControllerBase
         var result = await _inventoryItemsService.GetByIdAsync(id, cancellationToken);
         return Ok(BaseResponse.Ok(result));
     }
+
     [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite")]
     [HttpPost]
     [SwaggerOperation(
@@ -64,7 +68,7 @@ public class InventoryItemController : ControllerBase
         return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
 
-
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite")]
     [HttpPut("{id}")]
     [SwaggerOperation(
         Summary = "Updates existing Inventory item")]
@@ -74,6 +78,7 @@ public class InventoryItemController : ControllerBase
         return Ok(BaseResponse.Updated(request));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite, Solicitante.ReadWrite")]
     [HttpPatch("{id}")]
     [SwaggerOperation(
     Summary = "Update the quantity of an inventory item")]
@@ -83,6 +88,7 @@ public class InventoryItemController : ControllerBase
         return Ok(BaseResponse.Updated(request));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite")]
     [HttpDelete("{id}")]
     [SwaggerOperation(
         Summary = "Deletes an inventory item")]

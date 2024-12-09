@@ -1,6 +1,7 @@
 ﻿using Api.Application.Common.BaseResponse;
 using Api.Application.Interfaces.Collaborators;
 using Api.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -9,6 +10,7 @@ namespace Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [TypeFilter(typeof(SyncCollaboratorFilter))]
+    [Authorize]
     public class GraphUserController : ControllerBase
     {
         private readonly IGraphUserService _userService;

@@ -3,7 +3,6 @@ using Api.Application.Common.Pagination;
 using Api.Application.Features.Inventory.InventoryItems.Dtos;
 using Api.Application.Features.Transport.TransportRequest.Dtos;
 using Api.Application.Interfaces.Transport;
-using Api.Domain.Entities.InventoryEntities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -18,7 +17,7 @@ public class TransportRequestController : ControllerBase
 
     public TransportRequestController(ITransportService transportService) => _transportService = transportService;
 
-    //[Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite, Solicitante.ReadWrite, Supervisor.Approval")]
     [HttpGet("paged")]
     [SwaggerOperation(
         Summary = "Get paged Transport Requests")]
@@ -28,7 +27,7 @@ public class TransportRequestController : ControllerBase
         return Ok(BaseResponse.Ok(inventoryRequests));
     }
 
-
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpGet("{id}")]
     [SwaggerOperation(
         Summary = "Get Transport Request details")]
@@ -38,6 +37,7 @@ public class TransportRequestController : ControllerBase
         return Ok(BaseResponse.Ok(inventoryRequests));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite, Solicitante.ReadWrite, Supervisor.Approval")]
     [HttpPost]
     [SwaggerOperation(
        Summary = "Creates a Transport Request")]
@@ -47,6 +47,7 @@ public class TransportRequestController : ControllerBase
         return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpPatch("{id}")]
     [SwaggerOperation(
         Summary = "Assigns a driver and vehicle to an existing transport request")]
@@ -56,6 +57,7 @@ public class TransportRequestController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpPost("update-expired")]
     [SwaggerOperation(
     Summary = "Updates the status of expired transport requests",
@@ -76,7 +78,7 @@ public class TransportRequestController : ControllerBase
                   "Only requests in a 'Pending' status can be processed. " +
                   "Supervisors or Sudo roles are required to perform this action."
     )]
-    public async Task<IActionResult> ApproveOrRejectRequest([FromBody] ApprovalDto approvalDto, CancellationToken cancellationToken) 
+    public async Task<IActionResult> ApproveOrRejectRequest([FromBody] ApprovalDto approvalDto, CancellationToken cancellationToken)
     {
         var result = await _transportService.ApproveTransportRequest(approvalDto, cancellationToken);
         return Ok(BaseResponse.Ok(result));

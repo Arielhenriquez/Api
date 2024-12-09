@@ -2,6 +2,7 @@
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Transport.Drivers.Dtos;
 using Api.Application.Interfaces.Transport;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -15,6 +16,7 @@ public class DriverController : ControllerBase
     private readonly IDriverService _driverService;
     public DriverController(IDriverService driverService) => _driverService = driverService;
 
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpGet("paged")]
     [SwaggerOperation(
          Summary = "Gets Paged Drivers in the database")]
@@ -24,6 +26,7 @@ public class DriverController : ControllerBase
         return Ok(BaseResponse.Ok(drivers));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpGet]
     [SwaggerOperation(
         Summary = "List Drivers in the database")]
@@ -33,6 +36,7 @@ public class DriverController : ControllerBase
         return Ok(BaseResponse.Ok(drivers));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite, Chofer.Read")]
     [HttpGet("{id}/transport-requests")]
     [SwaggerOperation(
     Summary = "Get Drivers transport requests in the database")]
@@ -42,6 +46,7 @@ public class DriverController : ControllerBase
         return Ok(BaseResponse.Ok(drivers));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpGet("{id}")]
     [SwaggerOperation(
         Summary = "Get a single driver by id")]
@@ -51,7 +56,7 @@ public class DriverController : ControllerBase
         return Ok(BaseResponse.Ok(driver));
     }
 
-
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpGet("search-by-name")]
     [SwaggerOperation(
      Summary = "Get Drivers by partial name match")]
@@ -61,7 +66,7 @@ public class DriverController : ControllerBase
         return Ok(BaseResponse.Ok(inventoryItems));
     }
 
-
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpPost]
     [SwaggerOperation(
        Summary = "Creates a new Driver")]
@@ -71,7 +76,7 @@ public class DriverController : ControllerBase
         return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
 
-
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpPut("{id}")]
     [SwaggerOperation(
         Summary = "Updates an existing Driver")]
@@ -81,6 +86,7 @@ public class DriverController : ControllerBase
         return Ok(BaseResponse.Updated(request));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpDelete("{id}")]
     [SwaggerOperation(
         Summary = "Deletes a Driver")]

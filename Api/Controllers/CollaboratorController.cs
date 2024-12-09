@@ -17,7 +17,7 @@ public class CollaboratorController : ControllerBase
     public CollaboratorController(ICollaboratorService collaboratorService) =>
         _collaboratorService = collaboratorService;
 
-    //[Authorize(Roles = "Sudo.All, Admin.Approval")]
+    [Authorize(Roles = "Sudo.All")]
     [HttpGet]
     [SwaggerOperation(
         Summary = "Gets paged Collaborators in the database")]
@@ -28,12 +28,6 @@ public class CollaboratorController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("test")]
-    public async Task<IActionResult> Test()
-    {
-        return Ok("login");
-    }
-
     [HttpGet("search-by-email")]
     [SwaggerOperation(
         Summary = "Get Collaborators by email")]
@@ -43,6 +37,7 @@ public class CollaboratorController : ControllerBase
         return Ok(BaseResponse.Ok(collaborators));
     }
 
+    [Authorize(Roles = "Sudo.All")]
     [HttpGet("roles")]
     [SwaggerOperation(
         Summary = "Gets All Graph User Roles")]
@@ -52,6 +47,7 @@ public class CollaboratorController : ControllerBase
         return Ok(BaseResponse.Ok(roles));
     }
 
+    [Authorize(Roles = "Sudo.All")]
     //Todo: Add validation of userOid
     [SwaggerOperation(
         Summary = "Gets user roles (assigned or unassigned) based on the isAssigned flag.")]
@@ -62,6 +58,7 @@ public class CollaboratorController : ControllerBase
         return Ok(BaseResponse.Ok(rolesAssignments));
     }
 
+    [Authorize(Roles = "Sudo.All")]
     [HttpPost("roles")]
     [SwaggerOperation(
         Summary = "Add Roles to Users")]
@@ -71,6 +68,7 @@ public class CollaboratorController : ControllerBase
         return Ok(BaseResponse.Ok(addedRoles));
     }
 
+    [Authorize(Roles = "Sudo.All")]
     [HttpPut("roles")]
     [SwaggerOperation(
     Summary = "Add Roles to Users")]
@@ -80,7 +78,7 @@ public class CollaboratorController : ControllerBase
         return NoContent();
     }
 
-
+    [Authorize(Roles = "Sudo.All")]
     [HttpDelete("roles")]
     [SwaggerOperation(
         Summary = "Delete Roles from user")]

@@ -2,6 +2,7 @@
 using Api.Application.Common.Pagination;
 using Api.Application.Features.Transport.Vehicles.Dtos;
 using Api.Application.Interfaces.Transport;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -9,6 +10,7 @@ namespace Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
 public class VehicleController : ControllerBase
 {
     private readonly IVehicleService _vehicleService;

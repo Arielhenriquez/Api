@@ -9,7 +9,6 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Api.Controllers;
 
-
 [Route("api/[controller]")]
 [ApiController]
 public class InventoryRequestController : ControllerBase
@@ -18,6 +17,8 @@ public class InventoryRequestController : ControllerBase
     public InventoryRequestController(IInventoryRequestService inventoryRequestService) =>
         _inventoryRequestService = inventoryRequestService;
 
+    //Todo: Get by department.. Este simplemente lo veran los admin
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite, Supervisor.Approval, Solicitante.ReadWrite")]
     [HttpGet("paged")]
     [SwaggerOperation(
     Summary = "Get paged Inventory Requests")]
@@ -27,7 +28,7 @@ public class InventoryRequestController : ControllerBase
         return Ok(BaseResponse.Ok(inventoryRequests));
     }
 
-
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite")]
     [HttpGet("{id}")]
     [SwaggerOperation(
         Summary = "Get Inventory Request details")]
@@ -37,6 +38,7 @@ public class InventoryRequestController : ControllerBase
         return Ok(BaseResponse.Ok(inventoryRequests));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite, Supervisor.Approval, Solicitante.ReadWrite")]
     [HttpPost]
     [SwaggerOperation(
         Summary = "Creates an Inventory Request")]
@@ -46,6 +48,7 @@ public class InventoryRequestController : ControllerBase
         return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite, Supervisor.Approval, Admin.Approval")]
     [HttpPatch("approve")]
     [SwaggerOperation(
     Summary = "Approve or reject an Inventory request",
