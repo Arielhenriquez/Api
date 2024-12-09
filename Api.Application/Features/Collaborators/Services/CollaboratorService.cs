@@ -45,25 +45,23 @@ public class CollaboratorService : ICollaboratorService
         return collaborators;
     }
 
-    //Todo Test this.
-    public async Task UpdateRoles(CollaboratorRequest collaborator) 
+    public async Task UpdateRoles(CollaboratorRequest collaboratorRequest)
     {
-        var appRoles = collaborator.RolesDescriptions
-          .Select(role => Enum.TryParse<UserRoles>(role, out var parsedRole) ? parsedRole : (UserRoles?)null)
-          .Where(role => role != null)
-          .Cast<UserRoles>()
-          .ToList();
+        var appRoles = collaboratorRequest.RolesDescriptions
+            .Select(role => Enum.TryParse<UserRoles>(role, out var parsedRole) ? parsedRole : (UserRoles?)null)
+            .Where(role => role != null)
+            .Cast<UserRoles>()
+            .ToList();
 
-        var collaboratorEntity = new Collaborator()
+        var existingCollaborator = await _baseRepository.GetById(collaboratorRequest.Id, CancellationToken.None);
+
+        var updatedRoles = appRoles.Select(EnumExtensions.MapEnumToDbRole).ToList();
+
+        if (!updatedRoles.SequenceEqual(existingCollaborator.Roles ?? []))
         {
-            Email = "",
-            Department = collaborator.Department,
-            Name = collaborator.Name,
-            Supervisor = collaborator.Supervisor,
-            UserOid = collaborator.UserOid,
-            Id = collaborator.Id
-        };
-        var oal = await _baseRepository.UpdateAsync(collaboratorEntity);
+            existingCollaborator.Roles = updatedRoles;
+            await _collaboratorRepository.UpdateAsync(existingCollaborator);
+        }
     }
     public async Task<CollaboratorResponseDto> GetCollaboratorById(Guid id)
     {
@@ -125,13 +123,11 @@ public class CollaboratorService : ICollaboratorService
         if (hasMaxRolesInAzure)
             throw new BadRequestException("The user already has 2 roles Azure, cannot assign more.");
 
-
         var collaborator = await _baseRepository.Query()
             .FirstOrDefaultAsync(c => c.UserOid == assignRoleToUserDto.UserId, cancellationToken);
 
         if (collaborator != null && collaborator.Roles.Count >= 2)
-            throw new BadRequestException("The user already has 2 roles in the database, cannot assign more.");    
-        
+            throw new BadRequestException("The user already has 2 roles in the database, cannot assign more.");
 
         foreach (var roleId in assignRoleToUserDto.RoleIds)
         {
@@ -177,97 +173,106 @@ public class CollaboratorService : ICollaboratorService
         return results;
     }
 
-
     public async Task<bool> CheckIfUserHasMaxRoles(string userId, CancellationToken cancellationToken)
     {
-        var userRoles = await _graphProvider.GetAssignedRolesAsync(userId, cancellationToken);
+        var userRoles = await GetUserRoleAssignments(userId, true, cancellationToken);
 
         if (userRoles.Count >= 2)
         {
-            return true; 
+            return true;
         }
 
-        return false; 
+        return false;
     }
 
-    //Todo Fix this.
     private async Task AddRolesInDatabase(string userId, IEnumerable<string> graphRoleValues)
     {
-        // Obtén el colaborador y asegúrate de rastrearlo
-        var collaborator = await _baseRepository.Query()
-            .AsTracking() // Asegura que EF Core rastree cambios
-            .FirstOrDefaultAsync(c => c.UserOid == userId) ?? throw new NotFoundException("Collaborator not found");
+        var appRoles = graphRoleValues
+            .Select(role => Enum.TryParse<UserRoles>(role, out var parsedRole) ? parsedRole : (UserRoles?)null)
+            .Where(role => role != null)
+            .Cast<UserRoles>()
+            .ToList();
 
-        // Itera sobre los valores de los roles
-        foreach (var graphRoleValue in graphRoleValues)
+        var existingCollaborator = await _baseRepository.Query()
+         .AsTracking()
+         .FirstOrDefaultAsync(c => c.UserOid == userId)
+         ?? throw new NotFoundException("Collaborator not found");
+
+        var updatedRoles = appRoles.Select(EnumExtensions.MapEnumToDbRole).ToList();
+
+        if (!updatedRoles.SequenceEqual(existingCollaborator.Roles ?? []))
         {
-            // Mapea cada rol al enum de tu aplicación
-            var appRole = EnumExtensions.MapDbRoleToEnum(graphRoleValue)?.ToString();
-
-            if (appRole != null && !collaborator.Roles.Contains(graphRoleValue))
-            {
-                collaborator.Roles.Add(graphRoleValue);
-            }
-
+            existingCollaborator.Roles = updatedRoles;
+            await _collaboratorRepository.UpdateAsync(existingCollaborator);
         }
-
-        // Actualiza el colaborador en la base de datos
-        await _baseRepository.UpdateAsync(collaborator, CancellationToken.None);
     }
 
-    public async Task DeleteRolesFromUser(DeleteRoleFromUserDto deleteRoleFromUserDto, CancellationToken cancellationToken)
+    public async Task<List<DeleteRoleAssignmentResultDto>> DeleteRolesFromUser(DeleteRoleFromUserDto deleteRoleFromUserDto, CancellationToken cancellationToken)
     {
-        // Obtén las asignaciones de roles actuales del usuario en Azure
+        var results = new List<DeleteRoleAssignmentResultDto>();
+
         var assignedRoles = await GetUserRoleAssignments(deleteRoleFromUserDto.UserId, true, cancellationToken);
 
         foreach (var roleId in deleteRoleFromUserDto.AppRoleAssignmentIds)
         {
             try
             {
-                // Encuentra el nombre del rol asociado al roleId en Azure
                 var roleToRemove = assignedRoles
                     .FirstOrDefault(r => r.RoleAssignmentId == roleId);
 
                 if (roleToRemove == null)
                 {
-                    // Si no se encuentra la asignación, continúa con el siguiente rol
+                    results.Add(new DeleteRoleAssignmentResultDto
+                    {
+                        RoleId = roleId,
+                        UserId = deleteRoleFromUserDto.UserId,
+                        Message = "Role not found for user."
+                    });
                     continue;
                 }
 
+                await _graphProvider.DeletePermissionsFromUser(deleteRoleFromUserDto.UserId, roleToRemove.RoleAssignmentId, cancellationToken);
 
-               await _graphProvider.DeletePermissionsFromUser(deleteRoleFromUserDto.UserId, roleToRemove.RoleAssignmentId, cancellationToken);
+                await RemoveRoleFromDatabase(deleteRoleFromUserDto.UserId, roleToRemove.RoleValue, cancellationToken);
 
-                // Elimina el rol de la base de datos
-                //await RemoveRoleFromDatabase(deleteRoleFromUserDto.UserId, roleToRemove.RoleName, cancellationToken);
+                results.Add(new DeleteRoleAssignmentResultDto
+                {
+                    RoleId = roleId,
+                    UserId = deleteRoleFromUserDto.UserId,
+                    Message = "Role removed successfully."
+                });
             }
             catch (Exception ex)
             {
-                // Opcional: Log o manejo de errores
-                Console.WriteLine($"Error removing role {roleId} from user {deleteRoleFromUserDto.UserId}: {ex.Message}");
+                results.Add(new DeleteRoleAssignmentResultDto
+                {
+                    RoleId = roleId,
+                    UserId = deleteRoleFromUserDto.UserId,
+                    Message = $"Failed to remove role: {ex.Message}"
+                });
             }
         }
+        return results;
     }
 
-    //Todo Test this.
     private async Task RemoveRoleFromDatabase(string userId, string graphRoleValue, CancellationToken cancellationToken)
     {
-        // Obtén el colaborador desde la base de datos
-        var collaborator = await _baseRepository.Query()
-            .FirstOrDefaultAsync(c => c.UserOid == userId, cancellationToken);
+        var collaborator = await _baseRepository
+            .Query()
+            .FirstOrDefaultAsync(c => c.UserOid == userId, cancellationToken)
+            ?? throw new NotFoundException($"Collaborator with UserOid {userId} not found.");
 
-        if (collaborator != null)
+        var dbRole = EnumExtensions.MapEnumToDbRole(EnumExtensions.MapDbRoleToEnum(graphRoleValue)
+            ?? throw new ArgumentException($"Invalid role value: {graphRoleValue}"));
+
+        if (collaborator.Roles.Contains(dbRole))
         {
-            // Mapea el valor del rol al enum de tu aplicación
-            var appRole = EnumExtensions.MapDbRoleToEnum(graphRoleValue)?.ToString();
-
-            if (appRole != null && collaborator.Roles.Contains(appRole))
-            {
-                collaborator.Roles.Remove(appRole);
-
-                // Actualiza el colaborador en la base de datos
-                await _baseRepository.UpdateAsync(collaborator, cancellationToken);
-            }
+            collaborator.Roles.Remove(dbRole);
+            await _collaboratorRepository.UpdateAsync(collaborator, cancellationToken);
+        }
+        else
+        {
+            throw new InvalidOperationException($"Role {dbRole} does not exist for the collaborator.");
         }
     }
-
 }

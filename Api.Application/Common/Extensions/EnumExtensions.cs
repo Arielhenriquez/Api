@@ -41,4 +41,18 @@ public static class EnumExtensions
             _ => null
         };
     }
+    public static string MapEnumToDbRole(UserRoles role)
+    {
+        return role switch
+        {
+            UserRoles.Applicant => "Solicitante.ReadWrite",
+            UserRoles.Supervisor => "Supervisor.Approval",
+            UserRoles.Administrative => "Admin.Approval",
+            UserRoles.AreaAdministrator => "AdminDeArea.ReadWrite",
+            UserRoles.AreaAdministratorTrans => "AdminDeAreaTrans.ReadWrite",
+            UserRoles.Sudo => "Sudo.All",
+            UserRoles.Driver => "Chofer.Read",
+            _ => throw new ArgumentOutOfRangeException(nameof(role), role, null)
+        };
+    }
 }

@@ -51,13 +51,13 @@ public class CollaboratorRequest
     public List<UserRoles> Roles { get; set; } = [];
     public List<string> RolesDescriptions { get; set; } = [];
 
-    public static implicit operator CollaboratorRequest(Collaborator collaborator) 
+    public static implicit operator CollaboratorRequest(Collaborator collaborator)
     {
         var appRoles = collaborator.Roles
-           .Select(role => Enum.TryParse<UserRoles>(role, out var parsedRole) ? parsedRole : (UserRoles?)null)
-           .Where(role => role != null)
-           .Cast<UserRoles>()
-           .ToList();
+            .Select(EnumExtensions.MapDbRoleToEnum)
+            .Where(role => role != null)
+            .Cast<UserRoles>()
+            .ToList();
 
         return new CollaboratorRequest
         {

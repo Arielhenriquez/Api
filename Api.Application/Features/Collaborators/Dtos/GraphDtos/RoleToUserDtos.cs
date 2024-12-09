@@ -5,13 +5,6 @@ public class AssignRolesToUserDto
     public required string UserId { get; set; }
     public required string[] RoleIds { get; set; }
 }
-
-public class DeleteRoleFromUserDto
-{
-    public required string UserId { get; set; }
-    public required string[] AppRoleAssignmentIds { get; set; }
-}
-
 public class RoleAssignmentResultDto
 {
     public required Guid RoleId { get; set; }

@@ -210,7 +210,7 @@ public class TransportService : ITransportService
              Query()
             .Where(x => x.Id == approvalDto.RequestId)
             .Include(x => x.Collaborator)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         if (request.RequestStatus != RequestStatus.Pending)
             throw new BadRequestException($"Transport request is already {request.RequestStatus}.");

@@ -122,7 +122,8 @@ public class InventoryRequestService : IInventoryRequestService
         return result;
     }
 
-    //todo test this more jj, approved or reject by no se estan mapeando
+    //todo test this more jj, approved or reject by no se estan guardando en la BD..
+    //Hacer endpoint que le haga update solo a eso como con colaborator roles.
     public async Task<string> ApproveInventoryRequest(ApprovalDto approvalDto, CancellationToken cancellationToken)
     {
         var request = await _inventoryRequestRepository.GetById(approvalDto.RequestId, cancellationToken);

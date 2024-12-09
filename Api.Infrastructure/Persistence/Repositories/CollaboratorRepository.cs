@@ -1,4 +1,5 @@
-﻿using Api.Application.Common.Pagination;
+﻿using Api.Application.Common.Exceptions;
+using Api.Application.Common.Pagination;
 using Api.Application.Features.Collaborators.Dtos;
 using Api.Application.Features.Collaborators.Predicates;
 using Api.Application.Features.Collaborators.Projections;
@@ -49,5 +50,25 @@ public class CollaboratorRepository : ICollaboratorRepository
         var processedResults = collaborators.Select(CollaboratorProjections.ToResponseDto).ToList();
 
         return processedResults.Paginate(query.PageNumber, query.PageSize);
+    }
+
+    public async Task<Collaborator> UpdateAsync(Collaborator updatedCollaborator, CancellationToken cancellationToken = default)
+    {
+        var existingCollaborator = await _db.FirstOrDefaultAsync(c => c.Id == updatedCollaborator.Id, cancellationToken)
+            ?? throw new NotFoundException($"Collaborator with ID {updatedCollaborator.Id} not found.");
+
+        existingCollaborator.Name = updatedCollaborator.Name ?? existingCollaborator.Name;
+        existingCollaborator.Email = updatedCollaborator.Email ?? existingCollaborator.Email;
+        existingCollaborator.Supervisor = updatedCollaborator.Supervisor ?? existingCollaborator.Supervisor;
+        existingCollaborator.Department = updatedCollaborator.Department ?? existingCollaborator.Department;
+
+        if (updatedCollaborator.Roles != null && !updatedCollaborator.Roles.SequenceEqual(existingCollaborator.Roles))
+        {
+            existingCollaborator.Roles = new List<string>(updatedCollaborator.Roles);
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return existingCollaborator;
     }
 }

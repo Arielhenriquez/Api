@@ -86,8 +86,8 @@ public class CollaboratorController : ControllerBase
         Summary = "Delete Roles from user")]
     public async Task<IActionResult> DeleteRolesFromUser([FromBody] DeleteRoleFromUserDto assignRoleToUserDto, CancellationToken cancellationToken)
     {
-        await _collaboratorService.DeleteRolesFromUser(assignRoleToUserDto, cancellationToken);
-        return NoContent();
+        var deletedRoles = await _collaboratorService.DeleteRolesFromUser(assignRoleToUserDto, cancellationToken);
+        return Ok(BaseResponse.Ok(deletedRoles));
     }
 }
 

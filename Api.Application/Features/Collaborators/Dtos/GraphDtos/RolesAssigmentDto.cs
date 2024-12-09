@@ -9,6 +9,7 @@ public class RoleAssignmentDto
     public string? RoleAssignmentId { get; set; }
     public string? UserName { get; set; }
     public string? RoleName { get; set; }
+    public string? RoleValue { get; set; }
     public string? RoleDescription { get; set; }
 
     public static implicit operator RoleAssignmentDto((AppRole appRole, AppRoleAssignment appRoleAssignment) source)
@@ -24,7 +25,8 @@ public class RoleAssignmentDto
             UserId = source.appRoleAssignment.PrincipalId ?? Guid.Empty,
             RoleAssignmentId = source.appRoleAssignment.Id,
             UserName = source.appRoleAssignment.PrincipalDisplayName ?? string.Empty,
-            RoleName = source.appRole.Value ?? string.Empty,
+            RoleName = source.appRole.DisplayName ?? string.Empty,
+            RoleValue = source.appRole.Value ?? string.Empty,
             RoleDescription = source.appRole.Description ?? string.Empty
         };
     }
