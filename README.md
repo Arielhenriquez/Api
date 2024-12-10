@@ -34,9 +34,13 @@
     }
 }
 ```
-#Configuración de la Base de Datos Local
-Crear la Base de Datos en Docker
+# Configuración de la Base de Datos Local
+
+## Crear la Base de Datos en Docker
+
 Ejecuta el siguiente comando para crear e iniciar un contenedor de MySQL:
+
+```bash
 docker run --name mysql-db \
     -e MYSQL_ROOT_PASSWORD=rootpassword \
     -e MYSQL_DATABASE=culturaDb_local \
@@ -46,9 +50,10 @@ docker run --name mysql-db \
     -d mysql:latest
 
 
+
 Cadena de Conexión
 MySQL (JDBC)
 
 jdbc:mysql://localhost:3306/culturaDb_local?allowPublicKeyRetrieval=true&useSSL=false
-
+```
 
