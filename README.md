@@ -1,7 +1,8 @@
-# Api
+# Configuración del Proyecto
 
-Settings:
+## Configuración de `appsettings.json`
 
+```json
 {
     "Logging": {
         "LogLevel": {
@@ -11,10 +12,8 @@ Settings:
     },
     "ConnectionStrings": {
         //"DefaultConnection": "Server=localhost;Port=3306;Database=culturaDb_local2;User=myuser;Password=mypassword;SslMode=None;AllowPublicKeyRetrieval=true;",
-        "DefaultConnection":"Server=localhost;Port=3306;Database=culturaDb_local;User=myuser;Password=mypassword;SslMode=None;AllowPublicKeyRetrieval=true;",
-
+        "DefaultConnection": "Server=localhost;Port=3306;Database=culturaDb_local;User=myuser;Password=mypassword;SslMode=None;AllowPublicKeyRetrieval=true;"
     },
-
     "EmailSettings": {
         "Port": 2525,
         "Host": "sandbox.smtp.mailtrap.io",
@@ -34,13 +33,22 @@ Settings:
         "ServicePrincipalId": "96b41073-8601-4827-be54-d52994080767"
     }
 }
+```
+#Configuración de la Base de Datos Local
+Crear la Base de Datos en Docker
+Ejecuta el siguiente comando para crear e iniciar un contenedor de MySQL:
+docker run --name mysql-db \
+    -e MYSQL_ROOT_PASSWORD=rootpassword \
+    -e MYSQL_DATABASE=culturaDb_local \
+    -e MYSQL_USER=myuser \
+    -e MYSQL_PASSWORD=mypassword \
+    -p 3306:3306 \
+    -d mysql:latest
 
 
+Cadena de Conexión
+MySQL (JDBC)
+
+jdbc:mysql://localhost:3306/culturaDb_local?allowPublicKeyRetrieval=true&useSSL=false
 
 
-BD local docker: docker run --name mysql-db -e MYSQL_ROOT_PASSWORD=rootpassword -e MYSQL_DATABASE=culturaDb_local -e MYSQL_USER=myuser -e MYSQL_PASSWORD=mypassword -p 3306:3306 -d mysql:latest
-
-
-Connection string: jdbc:mysql://localhost:3306/culturaDb_local?allowPublicKeyRetrieval=true&useSSL=false
-
-Luego correr update database
