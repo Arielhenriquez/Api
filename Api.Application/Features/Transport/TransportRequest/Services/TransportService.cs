@@ -42,12 +42,29 @@ public class TransportService : ITransportService
     public async Task<Paged<TransportSummaryDto>> GetPagedTransportRequests(PaginationQuery paginationQuery, CancellationToken cancellationToken)
     {
         var result = await _transportRequestRepository.SearchAsync(paginationQuery, cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(paginationQuery.Search))
+        {
+            var statusMap = EnumExtensions.GetRequestStatusMap();
+            result.Items = result.Items
+                .Where(item =>
+                    statusMap[item.RequestStatus.DisplayName()]
+                        .DisplayName()
+                        .Contains(paginationQuery.Search, StringComparison.OrdinalIgnoreCase) ||
+                    item.DeparturePoint.Contains(paginationQuery.Search, StringComparison.OrdinalIgnoreCase) ||
+                    item.Destination.Contains(paginationQuery.Search, StringComparison.OrdinalIgnoreCase) ||
+                    item.PhoneNumber.Contains(paginationQuery.Search, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
         foreach (var item in result.Items)
         {
             item.RequestStatusDescription = item.RequestStatus.DisplayName();
         }
+
         return result;
     }
+
 
     public async Task<IEnumerable<TransportSummaryDto>> GetTransportRequestDetails(Guid id, CancellationToken cancellationToken)
     {

@@ -27,6 +27,16 @@ public static class EnumExtensions
 
         return displayName;
     }
+
+    public static Dictionary<string, RequestStatus> GetRequestStatusMap()
+    {
+        return Enum.GetValues(typeof(RequestStatus))
+            .Cast<RequestStatus>()
+            .ToDictionary(
+                status => status.DisplayName(),
+                status => status);
+    }
+
     public static UserRoles? MapDbRoleToEnum(string dbRole)
     {
         return dbRole switch

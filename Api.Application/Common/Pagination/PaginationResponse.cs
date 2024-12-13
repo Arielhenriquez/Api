@@ -2,7 +2,7 @@
 
 public class Paged<T> where T : class
 {
-    public List<T> Items { get; private set; }
+    public List<T> Items { get; set; }
     public int PageNumber { get; private set; }
     public int PageSize { get; private set; }
     public int TotalPages { get; private set; }

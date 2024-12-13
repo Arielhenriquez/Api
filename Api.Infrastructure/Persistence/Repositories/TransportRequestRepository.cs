@@ -1,6 +1,5 @@
 ﻿using Api.Application.Common.Pagination;
 using Api.Application.Features.Transport.TransportRequest.Dtos;
-using Api.Application.Features.Transport.TransportRequest.Predicates;
 using Api.Application.Features.Transport.TransportRequest.Projections;
 using Api.Application.Interfaces.Transport;
 using Api.Domain.Entities.TransportEntities;
@@ -39,13 +38,12 @@ public class TransportRequestRepository : ITransportRequestRepository
     public Task<Paged<TransportSummaryDto>> SearchAsync(PaginationQuery paginationQuery, CancellationToken cancellationToken = default)
     {
         return _db
-        .AsNoTracking()
-        .Include(ir => ir.Collaborator)
-        .Include(ir => ir.Driver)
-        .Include(iri => iri.Vehicle)
-        .Where(TransportRequestPredicates.Search(paginationQuery.Search))
-        .OrderByDescending(p => p.CreatedDate)
-        .Select(TransportRequestProjections.Summary)
-        .Paginate(paginationQuery.PageSize, paginationQuery.PageNumber, cancellationToken);
+            .AsNoTracking()
+            .Include(ir => ir.Collaborator)
+            .Include(ir => ir.Driver)
+            .Include(iri => iri.Vehicle)
+            .OrderByDescending(p => p.CreatedDate)
+            .Select(TransportRequestProjections.Summary)
+            .Paginate(paginationQuery.PageSize, paginationQuery.PageNumber, cancellationToken);
     }
 }

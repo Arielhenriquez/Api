@@ -104,12 +104,25 @@ public class InventoryRequestService : IInventoryRequestService
     public async Task<Paged<InventorySummaryDto>> GetPagedInventoryRequest(PaginationQuery paginationQuery, CancellationToken cancellationToken)
     {
         var result = await _requestRepository.SearchAsync(paginationQuery, cancellationToken);
+
+        var statusMap = EnumExtensions.GetRequestStatusMap();
+        if (!string.IsNullOrWhiteSpace(paginationQuery.Search))
+        {
+            result.Items = result.Items
+                .Where(item => statusMap[item.RequestStatus.DisplayName()]
+                    .DisplayName()
+                    .Contains(paginationQuery.Search, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
         foreach (var item in result.Items)
         {
             item.RequestStatusDescription = item.RequestStatus.DisplayName();
         }
+
         return result;
     }
+
 
     public async Task<IEnumerable<InventorySummaryDto>> GetInventoryRequestDetails(Guid id, CancellationToken cancellationToken)
     {
