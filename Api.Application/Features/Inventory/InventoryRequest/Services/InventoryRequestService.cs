@@ -56,6 +56,7 @@ public class InventoryRequestService : IInventoryRequestService
             CreatedDate = DateTime.Now,
             RequestStatus = RequestStatus.Pending,
             PendingApprovalBy = PendingApprovalBy.Supervisor,
+            RequestCode = RequestCodeHelper.GenerateRequestCode(collaborator.Department)
         };
         var createdInventoryRequest = await _inventoryRequestRepository.AddAsync(inventoryRequestEntity, cancellationToken);
 
@@ -165,9 +166,9 @@ public class InventoryRequestService : IInventoryRequestService
             .Query()
             .Where(x => x.Id == approvalDto.RequestId)
             .Include(x => x.Collaborator)
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken) 
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken)
             ?? throw new NotFoundException($"Inventory request with ID {approvalDto.RequestId} not found.");
-        
+
         var loggedUser = await _graphUserService.Current();
 
         if (loggedUser.Roles == null)
@@ -185,7 +186,11 @@ public class InventoryRequestService : IInventoryRequestService
         if (!userRoles.Contains((UserRoles)request.PendingApprovalBy))
             throw new UnauthorizedAccessException($"Approval not allowed. Current pending approval is by {request.PendingApprovalBy}.");
 
-        request.ApprovedOrRejectedBy.Add(loggedUser.Name);
+        request.ApprovalHistory.Add(new ApprovalEntry
+        {
+            ApproverName = loggedUser.Name,
+            Status = request.RequestStatus.DisplayName()
+        });
 
         if (!approvalDto.IsApproved)
         {
@@ -194,7 +199,7 @@ public class InventoryRequestService : IInventoryRequestService
             request.Comment = approvalDto.Comment;
             request.StatusChangedDate = DateTime.Now;
 
-            await _requestRepository.UpdateRequestAsync(request.Id, request, cancellationToken);
+            await _requestRepository.UpdateRequestAsync(request.Id, request, loggedUser.Name, cancellationToken);
 
             await SendApproveOrRejectEmail(request.Collaborator.Email, request.Id, approvalDto.Comment, false);
             return $"Inventory request {approvalDto.RequestId} has been rejected with comments: {approvalDto.Comment}";
@@ -224,7 +229,13 @@ public class InventoryRequestService : IInventoryRequestService
 
         request.StatusChangedDate = DateTime.Now;
 
-        await _requestRepository.UpdateRequestAsync(request.Id, request, cancellationToken);
+        request.ApprovalHistory.Add(new ApprovalEntry
+        {
+            ApproverName = loggedUser.Name,
+            Status = request.RequestStatus.DisplayName()
+        });
+
+        await _requestRepository.UpdateRequestAsync(request.Id, request, loggedUser.Name, cancellationToken);
 
         await SendApproveOrRejectEmail(request.Collaborator.Email, request.Id, approvalDto.Comment, true);
         return $"Inventory request {approvalDto.RequestId} has been approved with comments: {approvalDto.Comment}";

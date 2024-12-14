@@ -1,5 +1,7 @@
 ﻿using Api.Application.Common.Exceptions;
+using Api.Application.Common.Extensions;
 using Api.Application.Common.Pagination;
+using Api.Application.Features.Collaborators.Dtos.GraphDtos;
 using Api.Application.Features.Inventory.InventoryRequest.Dtos;
 using Api.Application.Features.Inventory.InventoryRequest.Projections;
 using Api.Application.Interfaces.Inventory;
@@ -7,6 +9,7 @@ using Api.Domain.Entities.InventoryEntities;
 using Api.Infrastructure.Extensions;
 using Api.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models.Security;
 
 namespace Api.Infrastructure.Persistence.Repositories;
 
@@ -45,12 +48,17 @@ public class InventoryRequestRepository : IInventoryRequestRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<InventoryRequest> UpdateRequestAsync(Guid requestId, InventoryRequest updatedRequest, CancellationToken cancellationToken = default)
+    public async Task<InventoryRequest> UpdateRequestAsync(Guid requestId, InventoryRequest updatedRequest, string loggedUserName, CancellationToken cancellationToken = default)
     {
         var existingRequest = await _db.FirstOrDefaultAsync(r => r.Id == requestId, cancellationToken)
-            ?? throw new NotFoundException($"Inventory request with ID {requestId} not found.");
+        ?? throw new NotFoundException($"Inventory request with ID {requestId} not found.");
 
-        existingRequest.ApprovedOrRejectedBy = new List<string>(updatedRequest.ApprovedOrRejectedBy);
+        existingRequest.ApprovalHistory.Add(new ApprovalEntry
+        {
+            ApproverName = loggedUserName,
+            Status = updatedRequest.RequestStatus.DisplayName()
+        });
+
         existingRequest.RequestStatus = updatedRequest.RequestStatus;
         existingRequest.PendingApprovalBy = updatedRequest.PendingApprovalBy;
         existingRequest.Comment = updatedRequest.Comment;

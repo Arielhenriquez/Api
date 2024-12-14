@@ -8,5 +8,5 @@ public interface IInventoryRequestRepository
 {
     Task<IEnumerable<InventorySummaryDto>> GetSummary(Guid id, CancellationToken cancellationToken = default);
     Task<Paged<InventorySummaryDto>> SearchAsync(PaginationQuery paginationQuery, CancellationToken cancellationToken = default);
-    Task<InventoryRequest> UpdateRequestAsync(Guid requestId, InventoryRequest updatedRequest, CancellationToken cancellationToken = default);
+    Task<InventoryRequest> UpdateRequestAsync(Guid requestId, InventoryRequest updatedRequest, string loggedUserName, CancellationToken cancellationToken = default);
 }

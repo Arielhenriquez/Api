@@ -38,7 +38,7 @@ public class InventoryRequestController : ControllerBase
         return Ok(BaseResponse.Ok(inventoryRequests));
     }
 
-    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite, Supervisor.Approval, Solicitante.ReadWrite")]
+   // [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite, Supervisor.Approval, Solicitante.ReadWrite")]
     [HttpPost]
     [SwaggerOperation(
         Summary = "Creates an Inventory Request")]
@@ -48,7 +48,7 @@ public class InventoryRequestController : ControllerBase
         return CreatedAtRoute(new { id = result.Id }, BaseResponse.Created(result));
     }
 
-    [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite, Supervisor.Approval, Admin.Approval")]
+   // [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite, Supervisor.Approval, Admin.Approval")]
     [HttpPatch("approve")]
     [SwaggerOperation(
     Summary = "Approve or reject an Inventory request",

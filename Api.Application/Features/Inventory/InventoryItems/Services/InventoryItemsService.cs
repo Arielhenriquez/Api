@@ -24,10 +24,16 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
             return allItems.Select(item => new InventoryItemResponseDto
             {
                 Id = item.Id,
+                InstitutionalCode = item.InstitutionalCode,
+                Category = item.Category,
+                WarehouseObjectAccount = item.WarehouseObjectAccount,
+                AcquisitionObjectAccount = item.AcquisitionObjectAccount,
                 Name = item.Name,
                 Quantity = item.Quantity,
+                RequestedQuantity = item.RequestedQuantity,
                 UnitOfMeasure = item.UnitOfMeasure,
-                Value = item.Value
+                Value = item.Value,
+                Section = item.Section,
             });
         }
 
@@ -60,10 +66,16 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
         return new InventoryItemResponseDto
         {
             Id = entity.Id,
+            InstitutionalCode = entity.InstitutionalCode,
+            Category = entity.Category,
+            WarehouseObjectAccount = entity.WarehouseObjectAccount,
+            AcquisitionObjectAccount = entity.AcquisitionObjectAccount,
             Name = entity.Name,
             Quantity = entity.Quantity,
+            RequestedQuantity = entity.RequestedQuantity,
             UnitOfMeasure = entity.UnitOfMeasure,
-            Value = entity.Value
+            Value = entity.Value,
+            Section = entity.Section,
         };
     }
 
@@ -72,18 +84,30 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
         return new InventoryItem
         {
             Id = dto.Id,
+            InstitutionalCode = dto.InstitutionalCode,
+            Category = dto.Category,
+            WarehouseObjectAccount = dto.WarehouseObjectAccount,
+            AcquisitionObjectAccount = dto.AcquisitionObjectAccount,
             Name = dto.Name,
             Quantity = dto.Quantity,
+            RequestedQuantity = dto.RequestedQuantity,
             UnitOfMeasure = dto.UnitOfMeasure,
-            Value = dto.Value
+            Value = dto.Value,
+            Section = dto.Section,
         };
     }
 
     protected override void UpdateEntity(InventoryItem entity, InventoryItemRequestDto dto)
     {
+        entity.InstitutionalCode = dto.InstitutionalCode;
+        entity.Category = dto.Category;
+        entity.WarehouseObjectAccount = dto.WarehouseObjectAccount;
+        entity.AcquisitionObjectAccount = dto.AcquisitionObjectAccount;
         entity.Name = dto.Name;
         entity.Quantity = dto.Quantity;
+        entity.RequestedQuantity = dto.RequestedQuantity;
         entity.UnitOfMeasure = dto.UnitOfMeasure;
         entity.Value = dto.Value;
+        entity.Section = dto.Section;
     }
 }

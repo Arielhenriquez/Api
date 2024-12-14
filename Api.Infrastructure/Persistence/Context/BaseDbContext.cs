@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Security.Claims;
+using Api.Domain.Constants;
 using Api.Domain.Entities;
 using Api.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Http;
@@ -24,8 +25,7 @@ public abstract class BaseDbContext : DbContext, IDbContext
 
     private void SetAuditEntities()
     {
-        string email = _context?.HttpContext?.User?.FindFirst(ClaimTypes.Email)?.Value ?? "System";
-
+        string email = _context?.HttpContext?.User?.Claims.FirstOrDefault(x => x.Type == TokenClaimsConstants.Email)?.Value ?? "Anonymous";
         foreach (var entry in ChangeTracker.Entries<IBase>())
         {
             switch (entry.State)

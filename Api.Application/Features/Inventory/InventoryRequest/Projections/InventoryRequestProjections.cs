@@ -13,16 +13,22 @@ public static class InventoryRequestProjections
         Collaborator = inventoryRequest.Collaborator,
         CreatedDate = inventoryRequest.CreatedDate,
         RequestStatus = inventoryRequest.RequestStatus,
-        ApprovedOrRejectedBy = inventoryRequest.ApprovedOrRejectedBy,
+        //ApprovedOrRejectedBy = inventoryRequest.ApprovedOrRejectedBy,
         StatusChangedDate = inventoryRequest.StatusChangedDate,
         PendingApproval = inventoryRequest.PendingApprovalBy,
         InventoryRequestItems = inventoryRequest.InventoryRequestItems.Select(inventoryItem => new InventoryItemResponseDto
         {
             Id = inventoryItem.InventoryItem.Id,
-            Name = inventoryItem.InventoryItem.Name,
+            InstitutionalCode = inventoryItem.InventoryItem.InstitutionalCode,
+            Category = inventoryItem.InventoryItem.Category,
+            WarehouseObjectAccount = inventoryItem.InventoryItem.Category,
+            AcquisitionObjectAccount = inventoryItem.InventoryItem.Category,
+            Name = inventoryItem.InventoryItem.Category,
             Quantity = inventoryItem.InventoryItem.Quantity,
-            UnitOfMeasure = inventoryItem.InventoryItem.UnitOfMeasure,
-            Value = inventoryItem.InventoryItem.Value
+            RequestedQuantity = inventoryItem.InventoryItem.RequestedQuantity,
+            UnitOfMeasure = inventoryItem.InventoryItem.Category,
+            Value = inventoryItem.InventoryItem.Value,
+            Section = inventoryItem.InventoryItem.Section,
         }).ToList()
     };
 

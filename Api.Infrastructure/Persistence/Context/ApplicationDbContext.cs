@@ -17,23 +17,28 @@ public class ApplicationDbContext(DbContextOptions options, IHttpContextAccessor
     public DbSet<Vehicle>? Vehicles { get; set; }
     public DbSet<TransportRequest>? TransportRequests { get; set; }
 
+    private static ValueConverter<List<T>, string> CreateJsonConverter<T>() =>
+     new ValueConverter<List<T>, string>(
+         v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
+         v => System.Text.Json.JsonSerializer.Deserialize<List<T>>(v, new System.Text.Json.JsonSerializerOptions()) ?? new List<T>()
+     );
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        var jsonConverter = new ValueConverter<List<string>, string>(
-            v => System.Text.Json.JsonSerializer.Serialize(v, new System.Text.Json.JsonSerializerOptions()),
-            v => System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, new System.Text.Json.JsonSerializerOptions()) ?? new List<string>());
-
         modelBuilder.Entity<Collaborator>()
             .Property(c => c.Roles)
-            .HasConversion(jsonConverter) 
+            .HasConversion(CreateJsonConverter<string>())
             .HasColumnType("json");
 
+        modelBuilder.Entity<Collaborator>()
+            .Property(c => c.Approvers)
+            .HasConversion(CreateJsonConverter<string>())
+            .HasColumnType("json");
 
         modelBuilder.Entity<InventoryRequest>()
-            .Property(c => c.ApprovedOrRejectedBy)
-            .HasConversion(jsonConverter)
+            .Property(c => c.ApprovalHistory)
+            .HasConversion(CreateJsonConverter<ApprovalEntry>())
             .HasColumnType("json");
     }
 }

@@ -78,8 +78,8 @@ public class TransportService : ITransportService
 
     public async Task<TransportResponseDto> AddTransportRequest(TransportRequestDto transportRequestDto, CancellationToken cancellationToken)
     {
-        await _collaboratorRepository.GetById(transportRequestDto.CollaboratorId, cancellationToken);
-        var transportRequestEntity = MapTransportEntity(transportRequestDto);
+        var collaborator = await _collaboratorRepository.GetById(transportRequestDto.CollaboratorId, cancellationToken);
+        var transportRequestEntity = MapTransportEntity(transportRequestDto, collaborator.Department);
         var createdInventoryRequest = await _transportRepository.AddAsync(transportRequestEntity, cancellationToken);
 
         var inventoryRequestWithCollaborator = await _transportRepository.Query()
@@ -91,7 +91,7 @@ public class TransportService : ITransportService
         return inventoryRequestWithCollaborator;
     }
 
-    private TransportEntity MapTransportEntity(TransportRequestDto transportRequestDto)
+    private TransportEntity MapTransportEntity(TransportRequestDto transportRequestDto, string collaboratorDepartment)
     {
         return new TransportEntity
         {
@@ -104,6 +104,7 @@ public class TransportService : ITransportService
             DepartureDateTime = transportRequestDto.DepartureDateTime,
             PhoneNumber = transportRequestDto.PhoneNumber,
             PendingApprovalBy = PendingApprovalBy.Supervisor,
+            RequestCode = RequestCodeHelper.GenerateRequestCode(collaboratorDepartment)
         };
     }
 

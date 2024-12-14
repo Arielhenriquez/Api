@@ -25,10 +25,16 @@ public class InventoryResponseDto
                 .Select(iri => new InventoryItemResponseDto
                 {
                     Id = iri.InventoryItemId,
-                    Name = iri.InventoryItem.Name,
-                    Quantity = iri.InventoryItem?.Quantity ?? 0,
-                    UnitOfMeasure = iri.InventoryItem?.UnitOfMeasure,
-                    Value = iri.InventoryItem?.Value
+                    InstitutionalCode = iri.InventoryItem.InstitutionalCode,
+                    Category = iri.InventoryItem.Category,
+                    WarehouseObjectAccount = iri.InventoryItem.Category,
+                    AcquisitionObjectAccount = iri.InventoryItem.Category,
+                    Name = iri.InventoryItem.Category,
+                    Quantity = iri.InventoryItem.Quantity,
+                    RequestedQuantity = iri.InventoryItem.RequestedQuantity,
+                    UnitOfMeasure = iri.InventoryItem.Category,
+                    Value = iri.InventoryItem.Value,
+                    Section = iri.InventoryItem.Section,
                 })
                 .ToList()
         };

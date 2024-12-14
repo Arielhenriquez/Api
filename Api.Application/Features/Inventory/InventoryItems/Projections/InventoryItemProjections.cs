@@ -1,18 +1,24 @@
-﻿using Api.Application.Features.Inventory.InventoryItems.Dtos;
+﻿using System.Linq.Expressions;
+using Api.Application.Features.Inventory.InventoryItems.Dtos;
 using Api.Domain.Entities.InventoryEntities;
-using System.Linq.Expressions;
 
 namespace Api.Application.Features.Inventory.InventoryItems.Projections;
 
 public static class InventoryItemProjections
 {
-    public static Expression<Func<InventoryItem, InventoryItemResponseDto>> Search => 
+    public static Expression<Func<InventoryItem, InventoryItemResponseDto>> Search =>
         (InventoryItem inventoryItem) => new InventoryItemResponseDto()
-    {
-        Id = inventoryItem.Id,
-        Name = inventoryItem.Name,
-        Quantity = inventoryItem.Quantity,
-        UnitOfMeasure = inventoryItem.UnitOfMeasure,
-        Value = inventoryItem.Value,
-    };
+        {
+            Id = inventoryItem.Id,
+            InstitutionalCode = inventoryItem.InstitutionalCode,
+            Category = inventoryItem.Category,
+            WarehouseObjectAccount = inventoryItem.WarehouseObjectAccount,
+            AcquisitionObjectAccount = inventoryItem.AcquisitionObjectAccount,
+            Name = inventoryItem.Name,
+            Quantity = inventoryItem.Quantity,
+            RequestedQuantity = inventoryItem.RequestedQuantity,
+            UnitOfMeasure = inventoryItem.UnitOfMeasure,
+            Value = inventoryItem.Value,
+            Section = inventoryItem.Section,
+        };
 }
