@@ -20,23 +20,27 @@ public class VehicleRepository : IVehicleRepository
         _context = context;
         _db = _context.Set<Vehicle>();
     }
-    //public Task<List<VehicleResponseDto>> GetByName(string name, CancellationToken cancellationToken = default)
-    //{
-    //    var vehicles = _db
-    //            .Where(c => EF.Functions.Like(c.Name, $"%{name}%"))
-    //            .Select(VechicleProjections.Search)
-    //            .ToListAsync(cancellationToken);
-
-    //    return vehicles;
-    //}
-
-    public Task<Paged<VehicleResponseDto>> SearchAsync(PaginationQuery query, CancellationToken cancellationToken = default)
+    public Task<Paged<VehicleResponseDto>> SearchAsync(PaginationQuery query, bool isDeleted, CancellationToken cancellationToken = default)
     {
         return _db
-                .AsNoTracking()
-                .Where(VehiclePredicates.Search(query.Search))
-                .OrderByDescending(p => p.CreatedDate)
-                .Select(VechicleProjections.Search)
-                .Paginate(query.PageSize, query.PageNumber, cancellationToken);
+        .AsNoTracking()
+        .IgnoreQueryFilters()
+        .Where(VehiclePredicates.Search(query.Search))
+        .Where(x => isDeleted == null || x.IsDeleted == isDeleted)
+        .OrderByDescending(p => p.CreatedDate)
+        .Select(VechicleProjections.Search)
+        .Paginate(query.PageSize, query.PageNumber, cancellationToken);
+    }
+    public async Task<VehicleResponseDto> DeleteWithComment(Guid id, string comment, CancellationToken cancellationToken)
+    {
+        var vehicle = await _db
+            .Where(x => x.Id == id)
+            .FirstOrDefaultAsync();
+
+        vehicle.DeleteComment = comment;
+        var result = _db.Remove(vehicle);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return result.Entity;
     }
 }

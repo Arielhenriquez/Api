@@ -8,4 +8,5 @@ public interface IInventoryItemsService : IBaseService<InventoryItemRequestDto, 
     Task<Paged<InventoryItemResponseDto>> GetPagedInventoryItems(PaginationQuery paginationQuery, CancellationToken cancellationToken);
     Task<IEnumerable<InventoryItemResponseDto>> FindInventoryItemByName(string criteria);
     Task UpdateArticleQuantity(Guid id, UpdateArticleQuantityDto updateArticle, CancellationToken cancellationToken);
+//Todo vamo pa aka jj
 }

@@ -20,6 +20,7 @@ public class VehicleService : BaseService<Vehicle, VehicleRequestDto, VehicleRes
         _emailService = emailService;
     }
 
+    //Todo pregunta si esto va
     public async override Task<VehicleResponseDto> AddAsync(VehicleRequestDto dto, CancellationToken cancellationToken = default)
     {
         var response = await base.AddAsync(dto, cancellationToken);
@@ -30,9 +31,14 @@ public class VehicleService : BaseService<Vehicle, VehicleRequestDto, VehicleRes
         return response; 
     }
 
-    public async Task<Paged<VehicleResponseDto>> GetPagedVehicles(PaginationQuery paginationQuery, CancellationToken cancellationToken)
+    public async Task<VehicleResponseDto> DeleteWithComment(Guid id, string comment, CancellationToken cancellationToken)
     {
-        var result = await _vehicleRepository.SearchAsync(paginationQuery, cancellationToken);
+        return await _vehicleRepository.DeleteWithComment(id, comment, cancellationToken);
+    }
+
+    public async Task<Paged<VehicleResponseDto>> GetPagedVehicles(PaginationQuery paginationQuery, bool isDeleted, CancellationToken cancellationToken)
+    {
+        var result = await _vehicleRepository.SearchAsync(paginationQuery, isDeleted, cancellationToken);
         foreach (var item in result.Items)
         {
             item.VehicleStatusDescription = item.Status.DisplayName();

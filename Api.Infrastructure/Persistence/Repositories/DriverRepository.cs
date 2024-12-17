@@ -49,9 +49,9 @@ public class DriverRepository : IDriverRepository
     {
         return _db
          .AsNoTracking()
-         .IgnoreQueryFilters() // Desactivamos el filtro global
+         .IgnoreQueryFilters()
          .Where(DriverPredicates.Search(query.Search))
-         .Where(x => isDeleted == null || x.IsDeleted == isDeleted) // Filtro dinámico
+         .Where(x => isDeleted == null || x.IsDeleted == isDeleted)
          .OrderByDescending(p => p.CreatedDate)
          .Select(DriverProjections.Search)
          .Paginate(query.PageSize, query.PageNumber, cancellationToken);

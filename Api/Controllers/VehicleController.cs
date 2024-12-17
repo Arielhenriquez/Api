@@ -22,9 +22,9 @@ public class VehicleController : ControllerBase
     [HttpGet("paged")]
     [SwaggerOperation(
          Summary = "Gets Paged vehicles in the database")]
-    public async Task<IActionResult> GetPagedDrivers([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPagedDrivers([FromQuery] PaginationQuery query, [FromQuery] bool isDeleted, CancellationToken cancellationToken)
     {
-        var pagedVehicles = await _vehicleService.GetPagedVehicles(query, cancellationToken);
+        var pagedVehicles = await _vehicleService.GetPagedVehicles(query, isDeleted, cancellationToken);
         return Ok(BaseResponse.Ok(pagedVehicles));
     }
     [HttpGet]
@@ -64,12 +64,16 @@ public class VehicleController : ControllerBase
         return Ok(BaseResponse.Updated(request));
     }
 
+    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpDelete("{id}")]
     [SwaggerOperation(
-        Summary = "Deletes a Vehicle")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
+        Summary = "Deletes a Vehicle and logs a comment explaining the reason for deletion",
+        Description = "Deletes a Vehicle resource identified by its ID and associates a provided comment as the reason for the deletion. The comment is logged for audit purposes."
+        )]
+
+    public async Task<IActionResult> DeleteWithComment([FromRoute] Guid id, [FromQuery] string comment, CancellationToken cancellationToken)
     {
-        await _vehicleService.DeleteAsync(id, cancellationToken);
-        return NoContent();
+        var deletedDriver = await _vehicleService.DeleteWithComment(id, comment, cancellationToken);
+        return Ok(BaseResponse.Ok(deletedDriver));
     }
 }
