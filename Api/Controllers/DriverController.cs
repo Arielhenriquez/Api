@@ -20,9 +20,9 @@ public class DriverController : ControllerBase
     [HttpGet("paged")]
     [SwaggerOperation(
          Summary = "Gets Paged Drivers in the database")]
-    public async Task<IActionResult> GetPagedDrivers([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPagedDrivers([FromQuery] PaginationQuery query, [FromQuery] bool isDeleted, CancellationToken cancellationToken)
     {
-        var drivers = await _driverService.GetPagedDrivers(query, cancellationToken);
+        var drivers = await _driverService.GetPagedDrivers(query, isDeleted, cancellationToken);
         return Ok(BaseResponse.Ok(drivers));
     }
 
@@ -86,13 +86,16 @@ public class DriverController : ControllerBase
         return Ok(BaseResponse.Updated(request));
     }
 
-    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
+   [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpDelete("{id}")]
     [SwaggerOperation(
-        Summary = "Deletes a Driver")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
+    Summary = "Deletes a driver and logs a comment explaining the reason for deletion",
+    Description = "Deletes a driver resource identified by its ID and associates a provided comment as the reason for the deletion. The comment is logged for audit purposes."
+    )]
+
+    public async Task<IActionResult> DeleteWithComment([FromRoute] Guid id, [FromQuery] string comment, CancellationToken cancellationToken)
     {
-        await _driverService.DeleteAsync(id, cancellationToken);
-        return NoContent();
+        var deletedDriver = await _driverService.DeleteWithComment(id, comment, cancellationToken);
+        return Ok(BaseResponse.Ok(deletedDriver));
     }
 }

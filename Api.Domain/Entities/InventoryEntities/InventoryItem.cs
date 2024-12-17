@@ -1,4 +1,6 @@
-﻿namespace Api.Domain.Entities.InventoryEntities;
+﻿using Api.Domain.Enums;
+
+namespace Api.Domain.Entities.InventoryEntities;
 
 public class InventoryItem : BaseEntity
 {
@@ -12,5 +14,7 @@ public class InventoryItem : BaseEntity
     public string? UnitOfMeasure { get; set; }
     public decimal? Value { get; set; }
     public required string Section { get; set; }
+    public string? DeleteComment { get; set; }
+    public InventoryItemStatus InventoryItemStatus { get; set; }
     public ICollection<InventoryRequestItem> InventoryRequestItems { get; set; } = [];
 }

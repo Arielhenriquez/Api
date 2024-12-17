@@ -20,7 +20,7 @@ public class DriverService : BaseService<Driver, DriverRequestDto, DriverRespons
         _driverRepository = driverRepository;
         _emailService = emailService;
     }
-
+    //Todo preguntar si eto va xd
     public async override Task<DriverResponseDto> AddAsync(DriverRequestDto dto, CancellationToken cancellationToken = default)
     {
         var response = await base.AddAsync(dto, cancellationToken);
@@ -29,6 +29,11 @@ public class DriverService : BaseService<Driver, DriverRequestDto, DriverRespons
       //  await _emailService.SendEmail("supervisorEmail@gmail.com", "Te habla lebron james", htmlFile);
 
         return response;
+    }
+
+    public async Task<DriverResponseDto> DeleteWithComment(Guid id, string comment, CancellationToken cancellationToken)
+    {
+      return await _driverRepository.DeleteWithComment(id, comment, cancellationToken); 
     }
 
     public async Task<List<DriverResponseDto>> FindDriversByName(string criteria)
@@ -59,16 +64,15 @@ public class DriverService : BaseService<Driver, DriverRequestDto, DriverRespons
 
     }
 
-    public async Task<Paged<DriverResponseDto>> GetPagedDrivers(PaginationQuery paginationQuery, CancellationToken cancellationToken)
+    public async Task<Paged<DriverResponseDto>> GetPagedDrivers(PaginationQuery paginationQuery, bool isDeleted, CancellationToken cancellationToken)
     {
-        var result = await _driverRepository.SearchAsync(paginationQuery, cancellationToken);
+        var result = await _driverRepository.SearchAsync(paginationQuery, isDeleted, cancellationToken);
         foreach (var item in result.Items)
         {
             item.DriveStatusDescription = item.Status.DisplayName();
         }
         return result;
     }
-
 
     protected override DriverResponseDto MapToDto(Driver entity)
     {

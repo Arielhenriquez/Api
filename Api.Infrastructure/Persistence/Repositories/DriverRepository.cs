@@ -27,6 +27,7 @@ public class DriverRepository : IDriverRepository
         var query = _db
         .AsNoTracking()
         .Include(ir => ir.TransportRequests)
+        .ThenInclude(ir => ir.Vehicle)
         .Where(x => x.Id == id)
         .OrderByDescending(x => x.CreatedDate);
 
@@ -44,13 +45,28 @@ public class DriverRepository : IDriverRepository
         return drivers;
     }
 
-    public Task<Paged<DriverResponseDto>> SearchAsync(PaginationQuery query, CancellationToken cancellationToken = default)
+    public Task<Paged<DriverResponseDto>> SearchAsync(PaginationQuery query, bool isDeleted, CancellationToken cancellationToken = default)
     {
         return _db
-        .AsNoTracking()
-                .Where(DriverPredicates.Search(query.Search))
-                .OrderByDescending(p => p.CreatedDate)
-                .Select(DriverProjections.Search)
-                .Paginate(query.PageSize, query.PageNumber, cancellationToken);
+         .AsNoTracking()
+         .IgnoreQueryFilters() // Desactivamos el filtro global
+         .Where(DriverPredicates.Search(query.Search))
+         .Where(x => isDeleted == null || x.IsDeleted == isDeleted) // Filtro dinámico
+         .OrderByDescending(p => p.CreatedDate)
+         .Select(DriverProjections.Search)
+         .Paginate(query.PageSize, query.PageNumber, cancellationToken);
+    }
+
+    public async Task<DriverResponseDto> DeleteWithComment(Guid id, string comment, CancellationToken cancellationToken)
+    {
+        var driver = await _db
+            .Where(x => x.Id == id)
+            .FirstOrDefaultAsync();
+
+        driver.DeleteComment = comment;
+        var result = _db.Remove(driver);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return result.Entity;
     }
 }

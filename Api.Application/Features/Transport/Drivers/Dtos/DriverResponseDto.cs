@@ -11,6 +11,7 @@ public class DriverResponseDto
     public string? DriveStatusDescription { get; set; }
     public required DateTime LicenseExpiration { get; set; }
     public string? PhoneNumber { get; set; }
+    public string? DeleteComment { get; set; }
 
     public static implicit operator DriverResponseDto(Driver driver)
     {
@@ -23,6 +24,7 @@ public class DriverResponseDto
             Status = driver.Status,
             LicenseExpiration = driver.LicenseExpiration,
             PhoneNumber = driver.PhoneNumber,
+            DeleteComment = driver.DeleteComment,
         };
     }
 }

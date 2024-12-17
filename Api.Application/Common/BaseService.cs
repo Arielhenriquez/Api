@@ -7,7 +7,7 @@ public class BaseService<TEntity, TRequest, TResponse> : IBaseService<TRequest, 
     where TRequest : class
     where TResponse : class
 {
-    private readonly IBaseRepository<TEntity> _repository;
+    protected readonly IBaseRepository<TEntity> _repository;
 
     public BaseService(IBaseRepository<TEntity> repository)
     {

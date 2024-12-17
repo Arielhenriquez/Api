@@ -9,5 +9,5 @@ public class Driver : BaseEntity
     public required DateTime LicenseExpiration { get; set; }
     public string? PhoneNumber { get; set; }
     public ICollection<TransportRequest> TransportRequests { get; set; } = [];
-
+    public string? DeleteComment { get; set; }
 }

@@ -15,6 +15,7 @@ public static class DriverProjections
         Status = driver.Status,
         LicenseExpiration = driver.LicenseExpiration,
         PhoneNumber = driver.PhoneNumber,
+        DeleteComment = driver.DeleteComment
     };
 
     public static Expression<Func<Driver, DriverSummaryDto>> Summary => (Driver driver) => new DriverSummaryDto()

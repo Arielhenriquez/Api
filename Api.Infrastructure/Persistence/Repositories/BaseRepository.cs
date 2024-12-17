@@ -31,6 +31,12 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>
     {
         return await Query().ToListAsync();
     }
+
+    //public async Task<IEnumerable<TEntity>> GetDeleted()
+    //{
+    //   var query = ListOrderedBy().Where(x=>x.IsDeleted == );
+    //}
+
     public virtual async Task<TEntity> GetById(Guid id, CancellationToken cancellationToken)
     {
         var entity = await Query().Where(x => x.Id.Equals(id)).FirstOrDefaultAsync(cancellationToken);
