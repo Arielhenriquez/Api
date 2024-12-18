@@ -64,7 +64,6 @@ public class VehicleController : ControllerBase
         return Ok(BaseResponse.Updated(request));
     }
 
-    [Authorize(Roles = "Sudo.All, AdminDeAreaTrans.ReadWrite")]
     [HttpDelete("{id}")]
     [SwaggerOperation(
         Summary = "Deletes a Vehicle and logs a comment explaining the reason for deletion",

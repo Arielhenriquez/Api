@@ -15,6 +15,7 @@ public class VehicleResponseDto
     public required string LicensePlate { get; set; }
     public required DateTime InsuranceValidity { get; set; }
     public required string InsuranceType { get; set; }
+    public string? DeleteComment { get; set; } 
 
      public static implicit operator VehicleResponseDto(Vehicle vehicle)
      {
@@ -31,6 +32,7 @@ public class VehicleResponseDto
                 LicensePlate = vehicle.LicensePlate,
                 InsuranceValidity = vehicle.InsuranceValidity,
                 InsuranceType = vehicle.InsuranceType,
+                DeleteComment = vehicle.DeleteComment,
             };
      }
 }
