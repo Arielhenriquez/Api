@@ -13,6 +13,11 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
 {
     private readonly IInventoryItemRepository _inventoryItemRepository = inventoryItemRepository;
 
+    public async Task<InventoryItemResponseDto> DeleteItemWithComment(Guid id, string comment, CancellationToken cancellationToken)
+    {
+      return await _inventoryItemRepository.DeleteItemWithComment(id, comment, cancellationToken);
+    }
+
     public async Task<IEnumerable<InventoryItemResponseDto>> FindInventoryItemByName(string criteria)
     {
         var inventoryItems = await _inventoryItemRepository.GetByName(criteria);
@@ -45,9 +50,9 @@ public class InventoryItemsService(IBaseRepository<InventoryItem> repository, II
         return inventoryItems;
     }
 
-    public Task<Paged<InventoryItemResponseDto>> GetPagedInventoryItems(PaginationQuery paginationQuery, CancellationToken cancellationToken)
+    public Task<Paged<InventoryItemResponseDto>> GetPagedInventoryItems(PaginationQuery paginationQuery, bool isDeleted, CancellationToken cancellationToken)
     {
-        return _inventoryItemRepository.SearchAsync(paginationQuery, cancellationToken);
+        return _inventoryItemRepository.SearchAsync(paginationQuery, isDeleted, cancellationToken);
     }
 
     public async Task UpdateArticleQuantity(Guid id, UpdateArticleQuantityDto updateArticle, CancellationToken cancellationToken)

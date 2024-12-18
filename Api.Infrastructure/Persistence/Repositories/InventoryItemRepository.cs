@@ -31,13 +31,27 @@ public class InventoryItemRepository : IInventoryItemRepository
         return inventoryItems;
     }
 
-    public Task<Paged<InventoryItemResponseDto>> SearchAsync(PaginationQuery query, CancellationToken cancellationToken = default)
+    public Task<Paged<InventoryItemResponseDto>> SearchAsync(PaginationQuery query, bool isDeleted, CancellationToken cancellationToken = default)
     {
         return _db
        .AsNoTracking()
+       .IgnoreQueryFilters()
        .Where(InventoryItemsPredicates.Search(query.Search))
+       .Where(x => isDeleted == null || x.IsDeleted == isDeleted)
        .OrderByDescending(p => p.CreatedDate)
        .Select(InventoryItemProjections.Search)
        .Paginate(query.PageSize, query.PageNumber, cancellationToken);
+    }
+    public async Task<InventoryItemResponseDto> DeleteItemWithComment(Guid id, string comment, CancellationToken cancellationToken)
+    {
+        var inventoryItem = await _db
+          .Where(x => x.Id == id)
+          .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+        inventoryItem.DeleteComment = comment;
+        var result = _db.Remove(inventoryItem);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return result.Entity;
     }
 }

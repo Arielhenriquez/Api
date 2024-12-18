@@ -22,9 +22,9 @@ public class InventoryItemController : ControllerBase
     [HttpGet("paged")]
     [SwaggerOperation(
       Summary = "Gets Paged Inventory items in the database")]
-    public async Task<IActionResult> GetInventoryItems([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetInventoryItems([FromQuery] PaginationQuery query, bool isDeleted, CancellationToken cancellationToken)
     {
-        var collaborators = await _inventoryItemsService.GetPagedInventoryItems(query, cancellationToken);
+        var collaborators = await _inventoryItemsService.GetPagedInventoryItems(query, isDeleted, cancellationToken);
         return Ok(BaseResponse.Ok(collaborators));
     }
 
@@ -91,10 +91,13 @@ public class InventoryItemController : ControllerBase
     [Authorize(Roles = "Sudo.All, AdminDeArea.ReadWrite")]
     [HttpDelete("{id}")]
     [SwaggerOperation(
-        Summary = "Deletes an inventory item")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
+         Summary = "Deletes an inventory item and logs a comment explaining the reason for deletion",
+         Description = "Deletes an inventory item resource identified by its ID and associates a provided comment as the reason for the deletion. The comment is logged for audit purposes."
+         )]
+
+    public async Task<IActionResult> DeleteWithComment([FromRoute] Guid id, [FromQuery] string comment, CancellationToken cancellationToken)
     {
-        await _inventoryItemsService.DeleteAsync(id, cancellationToken);
-        return NoContent();
+        var deletedDriver = await _inventoryItemsService.DeleteItemWithComment(id, comment, cancellationToken);
+        return Ok(BaseResponse.Ok(deletedDriver));
     }
 }

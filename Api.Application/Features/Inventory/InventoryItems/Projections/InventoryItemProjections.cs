@@ -20,5 +20,6 @@ public static class InventoryItemProjections
             UnitOfMeasure = inventoryItem.UnitOfMeasure,
             Value = inventoryItem.Value,
             Section = inventoryItem.Section,
+            DeleteComment = inventoryItem.DeleteComment
         };
 }

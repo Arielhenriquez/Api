@@ -61,7 +61,7 @@ public class DriverRepository : IDriverRepository
     {
         var driver = await _db
             .Where(x => x.Id == id)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         driver.DeleteComment = comment;
         var result = _db.Remove(driver);

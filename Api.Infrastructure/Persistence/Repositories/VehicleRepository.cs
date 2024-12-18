@@ -35,7 +35,7 @@ public class VehicleRepository : IVehicleRepository
     {
         var vehicle = await _db
             .Where(x => x.Id == id)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
         vehicle.DeleteComment = comment;
         var result = _db.Remove(vehicle);
