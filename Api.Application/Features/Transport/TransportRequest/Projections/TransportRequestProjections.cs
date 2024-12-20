@@ -19,6 +19,7 @@ public static class TransportRequestProjections
         PendingApproval = transportEntity.PendingApprovalBy,
         StatusChangedDate = transportEntity.StatusChangedDate,
         ApprovedOrRejectedBy = transportEntity.ApprovedOrRejectedBy,
+        RequestCode = transportEntity.RequestCode,
         PhoneNumber = transportEntity.PhoneNumber,
         DriverResponse = transportEntity.Driver,
         VehicleResponse = transportEntity.Vehicle
