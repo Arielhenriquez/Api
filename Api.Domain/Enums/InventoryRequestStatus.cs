@@ -2,7 +2,7 @@
 
 namespace Api.Domain.Enums;
 
-public enum RequestStatus
+public enum InventoryRequestStatus
 {
     [Description("Pendiente")]
     Pending = 0,

@@ -16,6 +16,7 @@ public static class InventoryRequestProjections
         //ApprovedOrRejectedBy = inventoryRequest.ApprovedOrRejectedBy,
         StatusChangedDate = inventoryRequest.StatusChangedDate,
         PendingApproval = inventoryRequest.PendingApprovalBy,
+        RequestCode = inventoryRequest.RequestCode,
         InventoryRequestItems = inventoryRequest.InventoryRequestItems.Select(inventoryItem => new InventoryItemResponseDto
         {
             Id = inventoryItem.InventoryItem.Id,

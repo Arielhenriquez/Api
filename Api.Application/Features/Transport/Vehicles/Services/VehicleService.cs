@@ -59,6 +59,9 @@ public class VehicleService : BaseService<Vehicle, VehicleRequestDto, VehicleRes
             LicensePlate = entity.LicensePlate,
             InsuranceType = entity.InsuranceType,
             InsuranceValidity = entity.InsuranceValidity,
+            Chassis = entity.Chassis,
+            Color = entity.Color,
+            Year = entity.Year,
         };
     }
 
@@ -75,6 +78,9 @@ public class VehicleService : BaseService<Vehicle, VehicleRequestDto, VehicleRes
             LicensePlate = dto.LicensePlate,
             InsuranceType = dto.InsuranceType,
             InsuranceValidity = dto.InsuranceValidity,
+            Chassis = dto.Chassis,
+            Color = dto.Color,
+            Year = dto.Year,
         };
     }
 

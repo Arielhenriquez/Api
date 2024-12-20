@@ -17,6 +17,9 @@ public static class VechicleProjections
         LicensePlate = vehicle.LicensePlate,
         InsuranceType = vehicle.InsuranceType,
         InsuranceValidity = vehicle.InsuranceValidity,
+        Chassis = vehicle.Chassis,
+        Color = vehicle.Color,
+        Year = vehicle.Year,
         DeleteComment = vehicle.DeleteComment,
     };
 }

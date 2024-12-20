@@ -15,7 +15,7 @@ public static class TransportRequestProjections
         NumberOfPeople = transportEntity.NumberOfPeople,
         DepartureDateTime = transportEntity.DepartureDateTime,
         CreatedDate = transportEntity.CreatedDate,
-        RequestStatus = transportEntity.RequestStatus,
+        RequestStatus = transportEntity.TransportRequestStatus,
         PendingApproval = transportEntity.PendingApprovalBy,
         StatusChangedDate = transportEntity.StatusChangedDate,
         ApprovedOrRejectedBy = transportEntity.ApprovedOrRejectedBy,

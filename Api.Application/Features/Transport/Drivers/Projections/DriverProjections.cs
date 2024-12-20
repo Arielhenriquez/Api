@@ -12,6 +12,7 @@ public static class DriverProjections
         Id = driver.Id,
         Name = driver.Name,
         Status = driver.Status,
+        LicenseNumber = driver.LicenseNumber,
         LicenseExpiration = driver.LicenseExpiration,
         PhoneNumber = driver.PhoneNumber,
         DeleteComment = driver.DeleteComment
@@ -29,7 +30,7 @@ public static class DriverProjections
             NumberOfPeople = transport.NumberOfPeople,
             DepartureDateTime = transport.DepartureDateTime,
             CreatedDate = transport.CreatedDate,
-            RequestStatus = transport.RequestStatus,
+            RequestStatus = transport.TransportRequestStatus,
             PendingApproval = transport.PendingApprovalBy,
             StatusChangedDate = transport.StatusChangedDate,
             ApprovedOrRejectedBy = transport.ApprovedOrRejectedBy,

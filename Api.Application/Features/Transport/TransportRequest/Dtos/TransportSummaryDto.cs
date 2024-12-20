@@ -13,11 +13,12 @@ public class TransportSummaryDto
     public required string DeparturePoint { get; set; }
     public int NumberOfPeople { get; set; }
     public DateTime DepartureDateTime { get; set; }
-    public RequestStatus RequestStatus { get; set; }
+    public TransportRequestStatus RequestStatus { get; set; }
+    public string? RequestStatusDescription { get; set; }
     public PendingApprovalBy? PendingApproval { get; set; }
     public DateTime? StatusChangedDate { get; set; }
     public string? ApprovedOrRejectedBy { get; set; }
-    public string? RequestStatusDescription { get; set; }
+    public string? RequestCode { get; set; }
     public string? PhoneNumber { get; set; }
     public DateTimeOffset CreatedDate { get; set; }
     public DriverResponseDto? DriverResponse { get; set; } 

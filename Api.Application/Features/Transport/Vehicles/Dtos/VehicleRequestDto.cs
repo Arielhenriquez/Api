@@ -12,7 +12,10 @@ public class VehicleRequestDto
     public VehicleStatus Status { get; set; }
     public required string Brand { get; set; }
     public required string Model { get; set; }
-    public required string LicensePlate { get; set; }
+    public required string LicensePlate { get; set; } 
     public required DateTime InsuranceValidity { get; set; }
     public required string InsuranceType { get; set; }
+    public required string Color { get; set; }
+    public required string Chassis { get; set; }
+    public int Year { get; set; }
 }

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241217163614_AddDeleteCommentField")]
-    partial class AddDeleteCommentField
+    [Migration("20241220054836_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -112,6 +112,9 @@ namespace Api.Infrastructure.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int>("InstitutionalCode")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InventoryItemStatus")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
@@ -278,6 +281,10 @@ namespace Api.Infrastructure.Migrations
                     b.Property<DateTime>("LicenseExpiration")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("LicenseNumber")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -343,6 +350,9 @@ namespace Api.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<int>("LocationType")
+                        .HasColumnType("int");
+
                     b.Property<int>("NumberOfPeople")
                         .HasColumnType("int");
 
@@ -356,11 +366,14 @@ namespace Api.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("RequestStatus")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("StatusChangedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<int>("TransportRequestStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TravelType")
+                        .HasColumnType("int");
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("longtext");
@@ -394,6 +407,14 @@ namespace Api.Infrastructure.Migrations
 
                     b.Property<int>("Capacity")
                         .HasColumnType("int");
+
+                    b.Property<string>("Chassis")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("longtext");
@@ -439,6 +460,9 @@ namespace Api.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset?>("UpdatedDate")
                         .HasColumnType("datetime");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

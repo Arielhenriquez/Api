@@ -1,4 +1,6 @@
-﻿namespace Api.Domain.Entities.TransportEntities;
+﻿using Api.Domain.Enums;
+
+namespace Api.Domain.Entities.TransportEntities;
 
 public class TransportRequest : BaseRequestEntity
 {
@@ -8,6 +10,9 @@ public class TransportRequest : BaseRequestEntity
     public required DateTime DepartureDateTime { get; set; }
     public string? ApprovedOrRejectedBy { get; set; }
     public string? PhoneNumber { get; set; }
+    public TravelType TravelType { get; set; }
+    public LocationType LocationType { get; set; }
+    public TransportRequestStatus TransportRequestStatus { get; set; }
     public Guid? VehicleId { get; set; }
     public Vehicle? Vehicle { get; set; }
     public Guid? DriverId { get; set; }

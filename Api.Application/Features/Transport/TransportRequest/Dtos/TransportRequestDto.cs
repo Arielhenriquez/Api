@@ -1,4 +1,6 @@
-﻿namespace Api.Application.Features.Transport.TransportRequest.Dtos;
+﻿using Api.Domain.Enums;
+
+namespace Api.Application.Features.Transport.TransportRequest.Dtos;
 
 public class TransportRequestDto
 {
@@ -8,4 +10,6 @@ public class TransportRequestDto
     public required int NumberOfPeople { get; set; }
     public required DateTime DepartureDateTime { get; set; }
     public string? PhoneNumber { get; set; }
+    public TravelType TravelType { get; set; }
+    public LocationType LocationType { get; set; }
 }

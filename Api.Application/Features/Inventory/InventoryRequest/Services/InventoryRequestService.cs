@@ -54,9 +54,9 @@ public class InventoryRequestService : IInventoryRequestService
         {
             CollaboratorId = collaborator.Id,
             CreatedDate = DateTime.Now,
-            RequestStatus = RequestStatus.Pending,
+            RequestStatus = InventoryRequestStatus.Pending,
             PendingApprovalBy = PendingApprovalBy.Supervisor,
-            RequestCode = RequestCodeHelper.GenerateRequestCode(collaborator.Department)
+            RequestCode = RequestCodeHelper.GenerateRequestCode("Almacen", GetLastCodeNumber)
         };
         var createdInventoryRequest = await _inventoryRequestRepository.AddAsync(inventoryRequestEntity, cancellationToken);
 
@@ -81,6 +81,15 @@ public class InventoryRequestService : IInventoryRequestService
 
         await SendInventoryRequestEmail(createdInventoryRequest);
         return inventoryRequestWithCollaborator;
+    }
+
+    private int? GetLastCodeNumber(string prefix)
+    {
+        return _inventoryRequestRepository.Query()
+            .Where(r => r.RequestCode.StartsWith(prefix))
+            .OrderByDescending(r => r.RequestCode)
+            .Select(r => int.Parse(r.RequestCode.Substring(1)))
+            .FirstOrDefault();
     }
 
     private async Task SendInventoryRequestEmail(InventoryResponseDto inventoryResponseDto)
@@ -194,7 +203,7 @@ public class InventoryRequestService : IInventoryRequestService
 
         if (!approvalDto.IsApproved)
         {
-            request.RequestStatus = RequestStatus.Rejected;
+            request.RequestStatus = InventoryRequestStatus.Rejected;
             request.PendingApprovalBy = PendingApprovalBy.None;
             request.Comment = approvalDto.Comment;
             request.StatusChangedDate = DateTime.Now;
@@ -210,17 +219,17 @@ public class InventoryRequestService : IInventoryRequestService
         if (userRoles.Contains(UserRoles.Supervisor) && request.PendingApprovalBy == PendingApprovalBy.Supervisor)
         {
             request.PendingApprovalBy = PendingApprovalBy.Administrative;
-            request.RequestStatus = RequestStatus.Approved;
+            request.RequestStatus = InventoryRequestStatus.Approved;
         }
         else if (userRoles.Contains(UserRoles.Administrative) && request.PendingApprovalBy == PendingApprovalBy.Administrative)
         {
             request.PendingApprovalBy = PendingApprovalBy.AreaAdministrator;
-            request.RequestStatus = RequestStatus.ApprovedByAdmin;
+            request.RequestStatus = InventoryRequestStatus.ApprovedByAdmin;
         }
         else if (userRoles.Contains(UserRoles.AreaAdministrator) && request.PendingApprovalBy == PendingApprovalBy.AreaAdministrator)
         {
             request.PendingApprovalBy = PendingApprovalBy.None;
-            request.RequestStatus = RequestStatus.Dispatched;
+            request.RequestStatus = InventoryRequestStatus.Dispatched;
         }
         else
         {

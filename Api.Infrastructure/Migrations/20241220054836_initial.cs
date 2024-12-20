@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Api.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,9 +21,11 @@ namespace Api.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
                     UserOid = table.Column<string>(type: "longtext", nullable: false),
                     Name = table.Column<string>(type: "longtext", nullable: false),
+                    Email = table.Column<string>(type: "longtext", nullable: false),
                     Supervisor = table.Column<string>(type: "longtext", nullable: false),
                     Department = table.Column<string>(type: "longtext", nullable: false),
-                    Roles = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    Roles = table.Column<string>(type: "json", nullable: false),
+                    Approvers = table.Column<string>(type: "json", nullable: false),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
                     UpdatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
@@ -45,8 +47,10 @@ namespace Api.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
                     Name = table.Column<string>(type: "longtext", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
+                    LicenseNumber = table.Column<string>(type: "longtext", nullable: false),
                     LicenseExpiration = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "longtext", nullable: true),
+                    DeleteComment = table.Column<string>(type: "longtext", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
                     UpdatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
@@ -66,10 +70,18 @@ namespace Api.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    InstitutionalCode = table.Column<int>(type: "int", nullable: false),
+                    Category = table.Column<string>(type: "longtext", nullable: false),
+                    WarehouseObjectAccount = table.Column<string>(type: "longtext", nullable: false),
+                    AcquisitionObjectAccount = table.Column<string>(type: "longtext", nullable: false),
                     Name = table.Column<string>(type: "longtext", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
+                    RequestedQuantity = table.Column<int>(type: "int", nullable: false),
                     UnitOfMeasure = table.Column<string>(type: "longtext", nullable: true),
                     Value = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    Section = table.Column<string>(type: "longtext", nullable: false),
+                    DeleteComment = table.Column<string>(type: "longtext", nullable: true),
+                    InventoryItemStatus = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
                     UpdatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
@@ -97,6 +109,10 @@ namespace Api.Infrastructure.Migrations
                     LicensePlate = table.Column<string>(type: "longtext", nullable: false),
                     InsuranceValidity = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     InsuranceType = table.Column<string>(type: "longtext", nullable: false),
+                    Color = table.Column<string>(type: "longtext", nullable: false),
+                    Chassis = table.Column<string>(type: "longtext", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    DeleteComment = table.Column<string>(type: "longtext", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
                     UpdatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
@@ -116,6 +132,8 @@ namespace Api.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    RequestStatus = table.Column<int>(type: "int", nullable: false),
+                    ApprovalHistory = table.Column<string>(type: "json", nullable: false),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: false),
                     UpdatedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
@@ -124,8 +142,8 @@ namespace Api.Infrastructure.Migrations
                     UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
                     DeletedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
                     CollaboratorId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    RequestStatus = table.Column<int>(type: "int", nullable: false),
-                    ApprovedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    RequestCode = table.Column<string>(type: "longtext", nullable: false),
+                    StatusChangedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     PendingApprovalBy = table.Column<int>(type: "int", nullable: true),
                     Comment = table.Column<string>(type: "longtext", nullable: true)
                 },
@@ -150,7 +168,11 @@ namespace Api.Infrastructure.Migrations
                     DeparturePoint = table.Column<string>(type: "longtext", nullable: false),
                     NumberOfPeople = table.Column<int>(type: "int", nullable: false),
                     DepartureDateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ApprovedOrRejectedBy = table.Column<string>(type: "longtext", nullable: true),
                     PhoneNumber = table.Column<string>(type: "longtext", nullable: true),
+                    TravelType = table.Column<int>(type: "int", nullable: false),
+                    LocationType = table.Column<int>(type: "int", nullable: false),
+                    TransportRequestStatus = table.Column<int>(type: "int", nullable: false),
                     VehicleId = table.Column<Guid>(type: "char(36)", nullable: true),
                     DriverId = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
@@ -161,8 +183,8 @@ namespace Api.Infrastructure.Migrations
                     UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
                     DeletedDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
                     CollaboratorId = table.Column<Guid>(type: "char(36)", nullable: false),
-                    RequestStatus = table.Column<int>(type: "int", nullable: false),
-                    ApprovedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    RequestCode = table.Column<string>(type: "longtext", nullable: false),
+                    StatusChangedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     PendingApprovalBy = table.Column<int>(type: "int", nullable: true),
                     Comment = table.Column<string>(type: "longtext", nullable: true)
                 },

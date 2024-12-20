@@ -17,6 +17,7 @@ public class CollaboratorController : ControllerBase
     public CollaboratorController(ICollaboratorService collaboratorService) =>
         _collaboratorService = collaboratorService;
 
+    //Todo hacer endpoint get solicitudes por department no importa cual sea jj
     [Authorize(Roles = "Sudo.All")]
     [HttpGet]
     [SwaggerOperation(

@@ -9,6 +9,7 @@ public class DriverResponseDto
     public required string Name { get; set; }
     public required DriverStatus Status { get; set; }
     public string? DriveStatusDescription { get; set; }
+    public required string LicenseNumber { get; set; }
     public required DateTime LicenseExpiration { get; set; }
     public string? PhoneNumber { get; set; }
     public string? DeleteComment { get; set; }
@@ -22,6 +23,7 @@ public class DriverResponseDto
             Id = driver.Id,
             Name = driver.Name,
             Status = driver.Status,
+            LicenseNumber = driver.LicenseNumber,
             LicenseExpiration = driver.LicenseExpiration,
             PhoneNumber = driver.PhoneNumber,
             DeleteComment = driver.DeleteComment,

@@ -81,6 +81,7 @@ public class DriverService : BaseService<Driver, DriverRequestDto, DriverRespons
             Id = entity.Id,
             Name = entity.Name,
             Status = entity.Status,
+            LicenseNumber = entity.LicenseNumber,
             LicenseExpiration = entity.LicenseExpiration,
             PhoneNumber = entity.PhoneNumber
         };
@@ -93,6 +94,7 @@ public class DriverService : BaseService<Driver, DriverRequestDto, DriverRespons
             Id = dto.Id,
             Name = dto.Name,
             Status = dto.Status,
+            LicenseNumber = dto.LicenseNumber,
             LicenseExpiration = dto.LicenseExpiration,
             PhoneNumber = dto.PhoneNumber
         };

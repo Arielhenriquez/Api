@@ -28,10 +28,19 @@ public static class EnumExtensions
         return displayName;
     }
 
-    public static Dictionary<string, RequestStatus> GetRequestStatusMap()
+    public static Dictionary<string, InventoryRequestStatus> GetRequestStatusMap()
     {
-        return Enum.GetValues(typeof(RequestStatus))
-            .Cast<RequestStatus>()
+        return Enum.GetValues(typeof(InventoryRequestStatus))
+            .Cast<InventoryRequestStatus>()
+            .ToDictionary(
+                status => status.DisplayName(),
+                status => status);
+    }
+
+    public static Dictionary<string, TransportRequestStatus> GetTransportRequestStatusMap()
+    {
+        return Enum.GetValues(typeof(TransportRequestStatus))
+            .Cast<TransportRequestStatus>()
             .ToDictionary(
                 status => status.DisplayName(),
                 status => status);

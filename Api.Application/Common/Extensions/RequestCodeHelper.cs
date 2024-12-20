@@ -2,16 +2,22 @@
 
 public static class RequestCodeHelper
 {
-    public static string GenerateRequestCode(string departmentName)
+    public static string GenerateRequestCode(string requestType, Func<string, int?> getLastCodeNumber)
     {
-        if (string.IsNullOrWhiteSpace(departmentName))
-            throw new ArgumentException("Department name cannot be null or empty");
+        if (string.IsNullOrWhiteSpace(requestType))
+            throw new ArgumentException("Request type cannot be null or empty");
 
-        var departmentCode = departmentName.Split(' ')[0].Substring(0, 3).ToUpper();
+        string prefix = requestType.ToUpper() switch
+        {
+            "TRANSPORTE" => "T",
+            "ALMACEN" => "A",
+            _ => throw new ArgumentException("Invalid request type. Allowed values are 'Transporte' or 'Almacen'")
+        };
 
-        var randomCode = new Random().Next(100000, 999999);
+        int lastNumber = getLastCodeNumber(prefix) ?? 0;
 
-        return $"{departmentCode}{randomCode}";
+        int nextNumber = lastNumber + 1;
+
+        return $"{prefix}{nextNumber:D6}";
     }
 }
-

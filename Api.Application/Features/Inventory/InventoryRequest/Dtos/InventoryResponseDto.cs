@@ -10,7 +10,8 @@ public class InventoryResponseDto
     public Guid Id { get; set; }
     public required CollaboratorResponseDto Collaborator { get; set; }
     public DateTimeOffset CreatedDate { get; set; }
-    public RequestStatus RequestStatus { get; set; }
+    public InventoryRequestStatus RequestStatus { get; set; }
+    public string? RequestCode { get; set; }
     public IEnumerable<InventoryItemResponseDto> InventoryRequestItems { get; set; } = [];
 
     public static implicit operator InventoryResponseDto(InventoryEntity inventory)
@@ -21,6 +22,7 @@ public class InventoryResponseDto
             Collaborator = inventory.Collaborator != null ? (CollaboratorResponseDto)inventory.Collaborator : null,
             CreatedDate = inventory.CreatedDate,
             RequestStatus = inventory.RequestStatus,
+            RequestCode = inventory.RequestCode,
             InventoryRequestItems = inventory.InventoryRequestItems
                 .Select(iri => new InventoryItemResponseDto
                 {

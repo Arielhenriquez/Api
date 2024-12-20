@@ -45,7 +45,7 @@ public class TransportService : ITransportService
 
         if (!string.IsNullOrWhiteSpace(paginationQuery.Search))
         {
-            var statusMap = EnumExtensions.GetRequestStatusMap();
+            var statusMap = EnumExtensions.GetTransportRequestStatusMap();
             result.Items = result.Items
                 .Where(item =>
                     statusMap[item.RequestStatus.DisplayName()]
@@ -97,15 +97,26 @@ public class TransportService : ITransportService
         {
             CollaboratorId = transportRequestDto.CollaboratorId,
             CreatedDate = DateTime.Now,
-            RequestStatus = RequestStatus.Pending,
+            TransportRequestStatus = TransportRequestStatus.Pending,
             DeparturePoint = transportRequestDto.DeparturePoint,
             Destination = transportRequestDto.Destination,
             NumberOfPeople = transportRequestDto.NumberOfPeople,
             DepartureDateTime = transportRequestDto.DepartureDateTime,
             PhoneNumber = transportRequestDto.PhoneNumber,
             PendingApprovalBy = PendingApprovalBy.Supervisor,
-            RequestCode = RequestCodeHelper.GenerateRequestCode(collaboratorDepartment)
+            LocationType = transportRequestDto.LocationType,
+            TravelType = transportRequestDto.TravelType,
+            RequestCode = RequestCodeHelper.GenerateRequestCode("Transporte", GetLastCodeNumber)
         };
+
+    }
+    private int? GetLastCodeNumber(string prefix)
+    {
+        return _transportRepository.Query()
+            .Where(r => r.RequestCode.StartsWith(prefix))
+            .OrderByDescending(r => r.RequestCode)
+            .Select(r => int.Parse(r.RequestCode.Substring(1)))
+            .FirstOrDefault();
     }
 
     private async Task SendTransportRequestEmail(TransportResponseDto transportResponseDto, string department)
@@ -172,7 +183,7 @@ public class TransportService : ITransportService
         var currentTime = DateTime.Now; // validar tiempo ejemplo si tiene mas de 1 dia sin asignar vehiculo ni chofer y esta pendiente.
 
         var overdueRequests = await _transportRepository.Query()
-            .Where(tr => tr.RequestStatus == RequestStatus.Pending && tr.DepartureDateTime <= currentTime)
+            .Where(tr => tr.TransportRequestStatus == TransportRequestStatus.Pending && tr.DepartureDateTime <= currentTime)
             .Include(x => x.Collaborator)
             .ToListAsync(cancellationToken);
 
@@ -182,13 +193,13 @@ public class TransportService : ITransportService
         {
             if (request.VehicleId == null || request.DriverId == null)
             {
-                request.RequestStatus = RequestStatus.Rejected;
+                request.TransportRequestStatus = TransportRequestStatus.Rejected;
                 request.Comment = "La solicitud fue rechazada porque pasó la fecha de salida sin asignar vehículo y chofer.";
                 await SendApproveOrRejectEmail(request.Collaborator.Name, request.Id, request.Comment, false);
             }
             else
             {
-                request.RequestStatus = RequestStatus.Approved;
+                request.TransportRequestStatus = TransportRequestStatus.Completed;
                 request.Comment = "La solicitud fue completada automáticamente al pasar la fecha de salida.";
             }
             request.StatusChangedDate = currentTime;
@@ -222,6 +233,7 @@ public class TransportService : ITransportService
         }
 
     }
+    //Todo probablemente arreglar logica de estados
     public async Task<string> ApproveTransportRequest(ApprovalDto approvalDto, CancellationToken cancellationToken)
     {
         var request = await _transportRepository.
@@ -230,11 +242,8 @@ public class TransportService : ITransportService
             .Include(x => x.Collaborator)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        if (request.RequestStatus != RequestStatus.Pending)
-            throw new BadRequestException($"Transport request is already {request.RequestStatus}.");
-
-        if (request.DriverId == null || request.VehicleId == null)
-            throw new BadRequestException("Transport request must have both a driver and a vehicle assigned before it can be approved or rejected.");
+        if (request.TransportRequestStatus != TransportRequestStatus.Pending)
+            throw new BadRequestException($"Transport request is already {request.TransportRequestStatus}.");
 
         var loggedUser = await _graphUserService.Current();
 
@@ -254,7 +263,7 @@ public class TransportService : ITransportService
         {
             var updates = new Dictionary<string, object>
             {
-                { nameof(request.RequestStatus), RequestStatus.Rejected },
+                { nameof(request.TransportRequestStatus), TransportRequestStatus.Rejected },
                 { nameof(request.PendingApprovalBy), PendingApprovalBy.None },
                 { nameof(request.Comment), approvalDto.Comment },
                 { nameof(request.StatusChangedDate), DateTime.Now },
@@ -266,14 +275,17 @@ public class TransportService : ITransportService
             return $"Transport request {approvalDto.RequestId} has been rejected with comments: {approvalDto.Comment}";
         }
 
+        if (request.DriverId == null || request.VehicleId == null)
+            throw new BadRequestException("Transport request must have both a driver and a vehicle assigned before it can be approved");
+
         request.StatusChangedDate = DateTime.Now;
         request.ApprovedOrRejectedBy = loggedUser.Name;
-        request.RequestStatus = RequestStatus.Approved;
+        request.TransportRequestStatus = TransportRequestStatus.Completed;
         request.PendingApprovalBy = PendingApprovalBy.None;
 
         var approvalUpdates = new Dictionary<string, object>
         {
-            { nameof(request.RequestStatus), request.RequestStatus },
+            { nameof(request.TransportRequestStatus), request.TransportRequestStatus },
             { nameof(request.PendingApprovalBy), request.PendingApprovalBy },
             { nameof(request.StatusChangedDate), request.StatusChangedDate },
             { nameof(request.ApprovedOrRejectedBy), request.ApprovedOrRejectedBy },
