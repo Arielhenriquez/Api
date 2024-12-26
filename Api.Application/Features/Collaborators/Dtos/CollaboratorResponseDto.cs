@@ -9,6 +9,7 @@ public class CollaboratorResponseDto
     public Guid Id { get; set; }
     public required string UserOid { get; set; }
     public required string Name { get; set; }
+    public string? Email { get; set; }
     public required string Supervisor { get; set; }
     public required string Department { get; set; }
 
@@ -33,6 +34,7 @@ public class CollaboratorResponseDto
             Id = collaborator.Id,
             UserOid = collaborator.UserOid,
             Name = collaborator.Name,
+            Email = collaborator.Email,
             Supervisor = collaborator.Supervisor,
             Department = collaborator.Department,
             Roles = appRoles,

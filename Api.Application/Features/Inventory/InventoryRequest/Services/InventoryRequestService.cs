@@ -24,14 +24,14 @@ public class InventoryRequestService : IInventoryRequestService
     private readonly IBaseRepository<InventoryItem> _inventoryItemRepository;
     private readonly IBaseRepository<InventoryRequestItem> _inventoryRequestItemRepository;
     private readonly IInventoryRequestRepository _requestRepository;
-    private readonly IEmailService _emailService;
+    private readonly IEmailProvider _emailService;
     private readonly IGraphUserService _graphUserService;
 
     public InventoryRequestService(ICollaboratorRepository collaboratorRepository,
         IBaseRepository<InventoryEntity> inventoryRequestRepository,
         IBaseRepository<InventoryRequestItem> inventoryRequestItemRepository,
         IBaseRepository<InventoryItem> inventoryItemRepository,
-        IEmailService emailService,
+        IEmailProvider emailService,
         IInventoryRequestRepository requestRepository,
         IBaseRepository<Collaborator> collaboratorRepository2,
         IGraphUserService graphUserService)

@@ -1,10 +1,12 @@
 ﻿using System.Reflection;
+using Api.Application.Common;
 using Api.Application.Features.Collaborators.Services;
 using Api.Application.Features.Inventory.InventoryItems.Services;
 using Api.Application.Features.Inventory.InventoryRequest.Services;
 using Api.Application.Features.Transport.Drivers.Services;
 using Api.Application.Features.Transport.TransportRequest.Services;
 using Api.Application.Features.Transport.Vehicles.Services;
+using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
 using Api.Application.Interfaces.Inventory;
 using Api.Application.Interfaces.Transport;
@@ -27,6 +29,7 @@ public static class IoC
            .AddScoped<IVehicleService, VehicleService>()
            .AddScoped<IInventoryRequestService, InventoryRequestService>()
            .AddScoped<ITransportService, TransportService>()
-           .AddTransient<IGraphUserService, GraphUserService>();
+           .AddTransient<IGraphUserService, GraphUserService>()
+           .AddScoped<IEmailService, EmailService>();
     }
 }

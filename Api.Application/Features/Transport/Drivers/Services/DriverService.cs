@@ -13,9 +13,9 @@ namespace Api.Application.Features.Transport.Drivers.Services;
 public class DriverService : BaseService<Driver, DriverRequestDto, DriverResponseDto>, IDriverService
 {
     private readonly IDriverRepository _driverRepository;
-    private readonly IEmailService _emailService;
+    private readonly IEmailProvider _emailService;
     public DriverService(IBaseRepository<Driver> repository,
-        IDriverRepository driverRepository, IEmailService emailService) : base(repository)
+        IDriverRepository driverRepository, IEmailProvider emailService) : base(repository)
     {
         _driverRepository = driverRepository;
         _emailService = emailService;

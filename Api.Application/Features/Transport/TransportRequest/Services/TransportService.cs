@@ -6,7 +6,6 @@ using Api.Application.Features.Transport.TransportRequest.Dtos;
 using Api.Application.Interfaces;
 using Api.Application.Interfaces.Collaborators;
 using Api.Application.Interfaces.Transport;
-using Api.Domain.Constants;
 using Api.Domain.Entities;
 using Api.Domain.Entities.TransportEntities;
 using Api.Domain.Enums;
@@ -20,23 +19,24 @@ public class TransportService : ITransportService
     //Todo: Unificar collaborator repository con el base.
     private readonly ICollaboratorRepository _collaboratorRepository;
     private readonly IBaseRepository<Collaborator> _collaboratorRepository2;
-    private readonly IEmailService _emailService;
     private readonly IBaseRepository<TransportEntity> _transportRepository;
     private readonly ITransportRequestRepository _transportRequestRepository;
     private readonly IBaseRepository<Driver> _driverRepository;
     private readonly IBaseRepository<Vehicle> _vehicleRepository;
     private readonly IGraphUserService _graphUserService;
+    private readonly IEmailService _emailService;
 
-    public TransportService(ICollaboratorRepository collaboratorRepository, IEmailService emailService, IBaseRepository<TransportEntity> transportRepository, ITransportRequestRepository transportRequestRepository, IBaseRepository<Driver> driverRepository, IBaseRepository<Vehicle> vehicleRepository, IBaseRepository<Collaborator> collaboratorRepository2, IGraphUserService graphUserService)
+    public TransportService(ICollaboratorRepository collaboratorRepository, IBaseRepository<TransportEntity> transportRepository, ITransportRequestRepository transportRequestRepository,
+        IBaseRepository<Driver> driverRepository, IBaseRepository<Vehicle> vehicleRepository, IBaseRepository<Collaborator> collaboratorRepository2, IGraphUserService graphUserService, IEmailService emailService)
     {
         _collaboratorRepository = collaboratorRepository;
-        _emailService = emailService;
         _transportRepository = transportRepository;
         _transportRequestRepository = transportRequestRepository;
         _driverRepository = driverRepository;
         _vehicleRepository = vehicleRepository;
         _collaboratorRepository2 = collaboratorRepository2;
         _graphUserService = graphUserService;
+        _emailService = emailService;
     }
 
     public async Task<Paged<TransportSummaryDto>> GetPagedTransportRequests(PaginationQuery paginationQuery, CancellationToken cancellationToken)
@@ -86,7 +86,14 @@ public class TransportService : ITransportService
         .Include(ir => ir.Collaborator)
         .FirstOrDefaultAsync(ir => ir.Id == createdInventoryRequest.Id, cancellationToken);
 
-        // await SendTransportRequestEmail(createdInventoryRequest);
+        //Todo: poner los correos que van aqui jjj
+        var destinataries = new List<string>()
+        {
+            "waldis.henriquez@cultura.gob.do",
+            "manuel.medina@cultura.gob.do",
+            collaborator.Email,
+        };
+        await _emailService.SendCreatedTransportRequestEmail(createdInventoryRequest, destinataries);
 
         return inventoryRequestWithCollaborator;
     }
@@ -119,36 +126,6 @@ public class TransportService : ITransportService
             .FirstOrDefault();
     }
 
-    private async Task SendTransportRequestEmail(TransportResponseDto transportResponseDto, string department)
-    {
-        string htmlTemplate = FileExtensions.ReadEmailTemplate(EmailConstants.TransportRequestTemplate, EmailConstants.TemplateEmailRoute);
-
-        htmlTemplate = htmlTemplate.Replace("{{Name}}", transportResponseDto.Collaborator.Name)
-                                   .Replace("{{DeparturePoint}}", transportResponseDto.DeparturePoint)
-                                   .Replace("{{Destination}}", transportResponseDto.Destination)
-                                   .Replace("{{DepartureDateTime}}", transportResponseDto.DepartureDateTime.ToString("dd/MM/yyyy HH:mm"))
-                                   .Replace("{{NumberOfPeople}}", transportResponseDto.NumberOfPeople.ToString())
-                                   .Replace("{{PhoneNumber}}", transportResponseDto.PhoneNumber ?? "N/A");
-        //Todo: poner correo department
-        await _emailService.SendEmail(department, "Nueva Solicitud de Transporte", htmlTemplate);
-    }
-
-
-    private async Task SendAssignedTransportRequestEmail(TransportEntity transportRequest, Driver driver, Vehicle vehicle)
-    {
-        string htmlTemplate = FileExtensions.ReadEmailTemplate(EmailConstants.AssignedTransportRequestTemplate, EmailConstants.TemplateEmailRoute);
-
-        htmlTemplate = htmlTemplate.Replace("{{Name}}", transportRequest.Collaborator.Name)
-                                   .Replace("{{DeparturePoint}}", transportRequest.DeparturePoint)
-                                   .Replace("{{Destination}}", transportRequest.Destination)
-                                   .Replace("{{DepartureDateTime}}", transportRequest.DepartureDateTime.ToString("dd/MM/yyyy HH:mm"))
-                                   .Replace("{{DriverName}}", driver.Name)
-                                   .Replace("{{VehicleModel}}", vehicle.Model)
-                                   .Replace("{{VehicleLicensePlate}}", vehicle.LicensePlate);
-
-        await _emailService.SendEmail(transportRequest.Collaborator.Email, "Asignación de Conductor y Vehículo a Solicitud de Transporte", htmlTemplate);
-    }
-
     public async Task AssignDriverAndVehicle(Guid transportRequestId, AssignDriverVehicleDto driverVehicleDto, CancellationToken cancellationToken)
     {
         var transportRequest = await _transportRepository.Query()
@@ -172,10 +149,11 @@ public class TransportService : ITransportService
 
         transportRequest.VehicleId = driverVehicleDto.VehicleId;
         transportRequest.DriverId = driverVehicleDto.DriverId;
+        transportRequest.TransportRequestStatus = TransportRequestStatus.InProcess;
 
         var updatedTransportRequest = await _transportRepository.UpdateAsync(transportRequest, cancellationToken);
 
-        await SendAssignedTransportRequestEmail(updatedTransportRequest, driver, vehicle);
+        await _emailService.SendAssignedTransportRequestEmail(updatedTransportRequest, driver, vehicle);
     }
 
     public async Task<string> UpdateExpiredTransportRequestsStatus(CancellationToken cancellationToken = default)
@@ -195,7 +173,7 @@ public class TransportService : ITransportService
             {
                 request.TransportRequestStatus = TransportRequestStatus.Rejected;
                 request.Comment = "La solicitud fue rechazada porque pasó la fecha de salida sin asignar vehículo y chofer.";
-                await SendApproveOrRejectEmail(request.Collaborator.Name, request.Id, request.Comment, false);
+                await _emailService.SendCompletedOrRejectedEmail(request.Collaborator.Name, request.Id, request.Comment, false);
             }
             else
             {
@@ -208,32 +186,6 @@ public class TransportService : ITransportService
         await _transportRepository.UpdateRange(overdueRequests, cancellationToken);
         return "Los estados de las solicitudes han sido actualizados correctamente.";
     }
-
-    private async Task SendApproveOrRejectEmail(string collaboratorEmail, Guid requestId, string comment, bool isApprove)
-    {
-        if (!isApprove)
-        {
-            string htmlTemplate = FileExtensions.ReadEmailTemplate(EmailConstants.RejectedRequestTemplate, EmailConstants.TemplateEmailRoute);
-
-            htmlTemplate = htmlTemplate.Replace("{{Email}}", collaboratorEmail)
-                                       .Replace("{{RequestId}}", requestId.ToString())
-                                       .Replace("{{Comment}}", comment);
-
-            await _emailService.SendEmail(collaboratorEmail, "Notificación de Solicitud Rechazada", htmlTemplate);
-        }
-        else
-        {
-            string htmlTemplate = FileExtensions.ReadEmailTemplate(EmailConstants.ApprovedRequestTemplate, EmailConstants.TemplateEmailRoute);
-
-            htmlTemplate = htmlTemplate.Replace("{{Email}}", collaboratorEmail)
-                                       .Replace("{{RequestId}}", requestId.ToString())
-                                       .Replace("{{Comment}}", comment);
-
-            await _emailService.SendEmail(collaboratorEmail, "Notificación de Solicitud Aprobada", htmlTemplate);
-        }
-
-    }
-    //Todo probablemente arreglar logica de estados
     public async Task<string> ApproveTransportRequest(ApprovalDto approvalDto, CancellationToken cancellationToken)
     {
         var request = await _transportRepository.
@@ -242,7 +194,7 @@ public class TransportService : ITransportService
             .Include(x => x.Collaborator)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-        if (request.TransportRequestStatus != TransportRequestStatus.Pending)
+        if (request.TransportRequestStatus != TransportRequestStatus.InProcess)
             throw new BadRequestException($"Transport request is already {request.TransportRequestStatus}.");
 
         var loggedUser = await _graphUserService.Current();
@@ -271,7 +223,7 @@ public class TransportService : ITransportService
             };
 
             await _transportRepository.PatchAsync(request.Id, updates, cancellationToken);
-            await SendApproveOrRejectEmail(request.Collaborator.Email, request.Id, approvalDto.Comment, false);
+            await _emailService.SendCompletedOrRejectedEmail(request.Collaborator.Email, request.Id, approvalDto.Comment, false);
             return $"Transport request {approvalDto.RequestId} has been rejected with comments: {approvalDto.Comment}";
         }
 
@@ -293,7 +245,7 @@ public class TransportService : ITransportService
         };
 
         await _transportRepository.PatchAsync(request.Id, approvalUpdates, cancellationToken);
-        await SendApproveOrRejectEmail(request.Collaborator.Email, request.Id, approvalDto.Comment, true);
+        await _emailService.SendCompletedOrRejectedEmail(request.Collaborator.Email, request.Id, approvalDto.Comment, true);
 
         return $"Transport request {approvalDto.RequestId} has been approved with comments: {approvalDto.Comment}";
     }

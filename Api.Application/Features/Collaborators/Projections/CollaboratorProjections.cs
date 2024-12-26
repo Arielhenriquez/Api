@@ -13,9 +13,9 @@ public static class CollaboratorProjections
         Id = collaborator.Id,
         UserOid = collaborator.UserOid,
         Name = collaborator.Name,
+        Email = collaborator.Email,
         Supervisor = collaborator.Supervisor,
         Department = collaborator.Department,
-
         Roles = new List<UserRoles>(),
         RolesDescriptions = collaborator.Roles
     };
@@ -33,6 +33,7 @@ public static class CollaboratorProjections
             Id = collaborator.Id,
             UserOid = collaborator.UserOid,
             Name = collaborator.Name,
+            Email = collaborator.Email,
             Supervisor = collaborator.Supervisor,
             Department = collaborator.Department,
             Roles = azureRoles,

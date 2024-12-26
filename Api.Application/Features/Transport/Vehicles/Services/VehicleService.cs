@@ -12,9 +12,9 @@ namespace Api.Application.Features.Transport.Vehicles.Services;
 public class VehicleService : BaseService<Vehicle, VehicleRequestDto, VehicleResponseDto>, IVehicleService
 {
     private readonly IVehicleRepository _vehicleRepository;
-    private readonly IEmailService _emailService;
+    private readonly IEmailProvider _emailService;
     public VehicleService(IBaseRepository<Vehicle> repository,
-        IVehicleRepository vehicleRepository, IEmailService emailService) : base(repository)
+        IVehicleRepository vehicleRepository, IEmailProvider emailService) : base(repository)
     {
         _vehicleRepository = vehicleRepository;
         _emailService = emailService;
